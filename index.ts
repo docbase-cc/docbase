@@ -18,7 +18,9 @@ await docBase.start({
 
 await docBase.addDir("C:\\Users\\SOVLOOKUP\\Desktop\\111111");
 
-console.log(await docBase.search("docbase"));
+console.log(docBase.dirs);
+await docBase.delDir("C:\\Users\\SOVLOOKUP\\Desktop\\111111");
+console.log(docBase.dirs);
 
 setInterval(function () {
   console.log("定时器保持NodeJS进程运行");

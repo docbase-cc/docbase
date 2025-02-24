@@ -116,8 +116,35 @@ export class DocManager {
     }
   }
 
+  // 确保 ContainsFilter Feature 开启
+  // v1.13.0
+  #ensureContainsFilterFeatureOn = async () => {
+    const host = this.#client.config.host;
+    const key = this.#client.config.apiKey;
+    const res = await fetch(`${host}/experimental-features`, {
+      headers: {
+        Authorization: `Bearer ${key}`,
+      },
+    });
+
+    const { containsFilter } = await res.json();
+
+    if (!containsFilter) {
+      await fetch(`${host}/experimental-features`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ containsFilter: true }),
+      });
+    }
+  };
+
   // 初始化
   init = async () => {
+    await this.#ensureContainsFilterFeatureOn();
+
     this.#docIndex = await this.#getIndexOrCreate("docs");
 
     // 获取已有的可筛选属性
