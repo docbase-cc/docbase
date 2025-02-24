@@ -1,26 +1,13 @@
-import {
-  defaultDocLoaderPlugin,
-  type DocLoader,
-  type DocLoaderPlugin,
-} from "./DocLoader";
+import { defaultDocLoaderPlugin, type DocLoader } from "./DocLoader";
 import { DocManager } from "./DocManager";
-import {
-  defaultDocScannerPlugin,
-  type DocScanner,
-  type DocScannerPlugin,
-} from "./DocScanner";
-import {
-  defaultDocSplitterPlugin,
-  type DocSplitter,
-  type DocSplitterPlugin,
-} from "./DocSplitter";
+import { defaultDocScannerPlugin, type DocScanner } from "./DocScanner";
+import { defaultDocSplitterPlugin, type DocSplitter } from "./DocSplitter";
 import {
   defaultDocWatcherPlugin,
   type DocWatcher,
-  type DocWatcherPlugin,
   type UnWatch,
 } from "./DocWatcher";
-import type { BasePlugin } from "./Plugin";
+import type { DocBasePlugin } from "./Plugin";
 import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig } from "meilisearch";
 
@@ -128,7 +115,7 @@ export class DocBase {
     // 初始化知识库目录
     initPaths?: string[];
     // 初始化插件
-    initPlugins?: { plugin: BasePlugin; params: object }[];
+    initPlugins?: { plugin: DocBasePlugin<any>; params: object }[];
     // 是否在初始化时扫描初始化知识库目录
     initscan?: boolean;
     indexPrefix?: string;
@@ -140,25 +127,21 @@ export class DocBase {
 
       switch (plugin.type) {
         case "DocScanner":
-          const docScannerPlugin = plugin as unknown as DocScannerPlugin;
-          this.#docScanner = await docScannerPlugin.init(params);
+          this.#docScanner = await plugin.init(params);
           break;
 
         case "DocSplitter":
-          const docSplitterPlugin = plugin as unknown as DocSplitterPlugin;
-          this.#docSplitter = await docSplitterPlugin.init(params);
+          this.#docSplitter = await plugin.init(params);
           break;
 
         case "DocWatcher":
-          const docWatcherPlugin = plugin as unknown as DocWatcherPlugin;
-          this.#docWatcher = await docWatcherPlugin.init(params);
+          this.#docWatcher = await plugin.init(params);
           break;
 
         case "DocLoader":
-          const docLoaderPlugin = plugin as unknown as DocLoaderPlugin;
-          const docLoader = await docLoaderPlugin.init(params);
+          const docLoader = await plugin.init(params);
           // 将文档加载器注册到文档加载指向器
-          for (const ext of docLoaderPlugin.exts) {
+          for (const ext of plugin.exts) {
             this.#docLoaders.set(ext, docLoader);
           }
           break;

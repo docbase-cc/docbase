@@ -1,10 +1,15 @@
+import type { DocLoaderPlugin } from "./DocLoader";
+import type { DocScannerPlugin } from "./DocScanner";
+import type { DocSplitterPlugin } from "./DocSplitter";
+import type { DocWatcherPlugin } from "./DocWatcher";
+
 // 基础插件接口
 export interface BasePlugin<
   PluginFunc extends Function = Function,
   PluginParams extends object = object
 > {
   name: string;
-  type: "DocWatcher" | "DocLoader" | "DocScanner" | "DocSplitter";
+  type: string;
   showName?: string;
   version?: string;
   description?: string;
@@ -12,3 +17,9 @@ export interface BasePlugin<
   icon?: string;
   init: (params: PluginParams) => Promise<PluginFunc> | PluginFunc;
 }
+
+export type DocBasePlugin<T extends object> =
+  | DocLoaderPlugin<T>
+  | DocWatcherPlugin<T>
+  | DocScannerPlugin<T>
+  | DocSplitterPlugin<T>;
