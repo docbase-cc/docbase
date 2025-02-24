@@ -213,10 +213,16 @@ export class DocBase {
 
   // 动态删除知识库路径
   delDir = async (dir: string) => {
-    // 取消监视
-    await this.#baseDirs.get(dir)?.unwatch();
-    // 删除知识库中目录下所有文档
-    await this.#docManager.deleteDocByPathPrefix(dir);
+    const baseDir = this.#baseDirs.get(dir);
+
+    if (baseDir) {
+      // 取消监视
+      await baseDir.unwatch();
+      // 删除知识库中目录下所有文档
+      await this.#docManager.deleteDocByPathPrefix(dir);
+      // 删除知识库
+      this.#baseDirs.delete(dir);
+    }
   };
 
   // TODO 动态管理插件
