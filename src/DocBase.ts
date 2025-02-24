@@ -87,7 +87,7 @@ export class DocBase {
         return this.#docLoaders.has(ext);
       },
       upsert: async (path: string) => await this.#docManager.upsertDoc(path),
-      remove: async (path: string) => await this.#docManager.deleteDoc(path),
+      remove: async (path: string) => await this.#docManager.deleteDocByPath(path),
     });
 
     this.#baseDirs.set(dir, {

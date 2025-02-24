@@ -14,8 +14,6 @@ export interface DocChunkDocument {
   hash: string;
   // 内容
   content: string;
-  // 文档路径
-  docPath: string;
 }
 
 import { Index, MeiliSearch } from "meilisearch";
@@ -93,6 +91,37 @@ export class DocManager {
     return index;
   };
 
+  // 获取 chunk 关联的文档数量
+  #getChunkRelatedDocsCount = async (chunkHash: string) => {
+    const docs = await this.#docIndex.getDocuments({
+      filter: `chunkHashs IN ["${chunkHash}"]`,
+      limit: 0,
+    });
+
+    return docs.total;
+  };
+
+  // 获取 chunk 关联的文档
+  async *#getChunkRelatedDocs(chunkHash: string) {
+    const batchSize = 100; // 每次获取的文档数量
+    let offset = 0;
+
+    while (true) {
+      const docs = await this.#docIndex.getDocuments({
+        filter: `chunkHashs IN ["${chunkHash}"]`,
+        limit: batchSize,
+        offset,
+      });
+
+      if (docs.results.length === 0) {
+        break;
+      }
+
+      yield* docs.results;
+      offset += batchSize;
+    }
+  }
+
   // 初始化
   init = async () => {
     this.#docIndex = await this.#getIndexOrCreate("docs");
@@ -100,9 +129,18 @@ export class DocManager {
     const docIndexFilterableAttributes =
       await this.#docIndex.getFilterableAttributes();
 
-    if (!docIndexFilterableAttributes.includes("path")) {
+    // 需要可筛选的属性
+    const docIndexFilterableAttributesNeedCreate = difference(
+      ["path", "chunkHashs"],
+      docIndexFilterableAttributes
+    );
+
+    if (docIndexFilterableAttributesNeedCreate.length > 0) {
       await this.#docIndex.updateSettings({
-        filterableAttributes: [...docIndexFilterableAttributes, "path"],
+        filterableAttributes: [
+          ...docIndexFilterableAttributes,
+          ...docIndexFilterableAttributesNeedCreate,
+        ],
       });
     }
 
@@ -180,7 +218,7 @@ export class DocManager {
         } = chunkDiff(remoteChunkHashs, incomingChunkHashs);
 
         // 删除旧 chunk
-        await this.#deleteChunks(remoteDocByPath.hash, needDeleteChunkHashs);
+        await this.#deleteChunks(needDeleteChunkHashs);
 
         // 删除旧 doc
         await this.#docIndex.deleteDocument(remoteDocByPath.hash);
@@ -226,7 +264,6 @@ export class DocManager {
       docChunks.push({
         hash: chunkHash,
         content: chunk,
-        docPath: path,
       });
     }
 
@@ -245,10 +282,7 @@ export class DocManager {
 
       for (const docChunk of docChunks) {
         if (needAddChunkHashs.includes(docChunk.hash)) {
-          chunksNeedAdd.push({
-            ...docChunk,
-            docPath: path,
-          });
+          chunksNeedAdd.push(docChunk);
         }
       }
 
@@ -259,26 +293,48 @@ export class DocManager {
     await this.#upload(docDiffReq, getDocSyncContent);
   };
 
-  #deleteChunks = async (docHash: string, chunkHashs: string[]) => {
-    // TODO 只删除引用, 没有 doc 引用再删除 chunk (避免多个 doc 引用 1 个 chunk 的情况)
-    // TODO 处理多个 doc 引用 1 个 chunk 增加时 路径 覆盖问题
-    await this.#docChunkIndex.deleteDocuments(chunkHashs);
-  };
+  #deleteChunks = async (chunkHashs: string[]) => {
+    const needDeleteChunkHashs: string[] = [];
 
-  // 删除文档
-  deleteDoc = async (path: string) => {
-    path = slash(path);
-    const doc = await this.#getDocByPathIfExist(path);
+    for (const chunkHash of chunkHashs) {
+      // 获取 chunk 关联的文档数量
+      const relatedDocsCount = await this.#getChunkRelatedDocsCount(chunkHash);
 
-    if (!doc) {
-      return;
+      // 如果关联到 2 个以上文档, 则不删除
+      if (relatedDocsCount <= 1) {
+        needDeleteChunkHashs.push(chunkHash);
+      }
     }
 
+    // 删除 chunk
+    await this.#docChunkIndex.deleteDocuments(needDeleteChunkHashs);
+  };
+
+  #deleteDoc = async (doc: DocDocument) => {
     // 删除内容
-    await this.#deleteChunks(doc.hash, doc.chunkHashs);
+    await this.#deleteChunks(doc.chunkHashs);
 
     // 删除文档
     await this.#docIndex.deleteDocument(doc.hash);
+  };
+
+  // 按路径删除文档
+  deleteDocByPath = async (path: string) => {
+    path = slash(path);
+    const doc = await this.#getDocByPathIfExist(path);
+
+    if (doc) {
+      await this.#deleteDoc(doc);
+    }
+  };
+
+  // 按 hash 删除文档
+  deleteDocByHash = async (hash: string) => {
+    const doc = await this.#getDocIfExist(hash);
+
+    if (doc) {
+      await this.#deleteDoc(doc);
+    }
   };
 
   // 搜索文档
@@ -290,13 +346,17 @@ export class DocManager {
     // 查询后校验结果中引用到的本地文档是否存在，不存在则删除知识库内文档
     // 自动删除文档, 防止停止运行时用户偷偷删除文档
     for (const hit of hits) {
-      const docExists = await exists(hit.docPath);
-
-      if (!docExists) {
-        await this.deleteDoc(hit.docPath);
-      } else {
-        outs.push(hit);
+      const docs = this.#getChunkRelatedDocs(hit.hash);
+      let validDoc = false;
+      for await (const doc of docs) {
+        const docExists = await exists(doc.path);
+        if (!docExists) {
+          await this.deleteDocByHash(doc.hash);
+        } else {
+          validDoc = true;
+        }
       }
+      if (validDoc) outs.push(hit);
     }
 
     return outs;
