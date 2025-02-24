@@ -45,6 +45,8 @@ export const chunkDiff = (
 export class DocManager {
   #client: MeiliSearch;
 
+  // 索引前缀
+  #indexPrefix: string;
   // 文档 Chunk 索引
   #docChunkIndex!: Index<DocChunkDocument>;
   // 文档索引
@@ -54,19 +56,22 @@ export class DocManager {
   #docLoader: DocLoader;
   // 文档分割器
   #docSplitter: DocSplitter;
-
+  
   constructor({
     meiliSearchConfig,
     docLoader,
     docSplitter,
+    indexPrefix = ""
   }: {
     meiliSearchConfig: MeiliSearchConfig;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
+    indexPrefix?: string,
   }) {
     this.#client = new MeiliSearch(meiliSearchConfig);
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
+    this.#indexPrefix = indexPrefix;
   }
 
   // 安全获取索引
@@ -145,7 +150,7 @@ export class DocManager {
   init = async () => {
     await this.#ensureContainsFilterFeatureOn();
 
-    this.#docIndex = await this.#getIndexOrCreate("docs");
+    this.#docIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}docs`);
 
     // 获取已有的可筛选属性
     const docIndexFilterableAttributes =
@@ -167,7 +172,7 @@ export class DocManager {
       });
     }
 
-    this.#docChunkIndex = await this.#getIndexOrCreate("chunks");
+    this.#docChunkIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}chunks`);
   };
 
   // 安全获取文档

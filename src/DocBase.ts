@@ -99,20 +99,9 @@ export class DocBase {
 
   start = async ({
     meiliSearchConfig,
-    initPaths,
-    initPlugins,
-    initscan,
-  }: {
-    // MeiliSearch 配置
-    meiliSearchConfig: MeiliSearchConfig;
-    // 初始化知识库目录
-    initPaths?: string[];
-    // 初始化插件
-    initPlugins?: { plugin: BasePlugin; params: object }[];
-    // 是否在初始化时扫描初始化知识库目录
-    initscan?: boolean;
-  }) => {
-    const defaultPlugins = [
+    indexPrefix,
+    initPaths = [],
+    initPlugins = [
       {
         plugin: defaultDocLoaderPlugin,
         params: {},
@@ -131,11 +120,21 @@ export class DocBase {
         plugin: defaultDocWatcherPlugin,
         params: {},
       },
-    ];
-    const initPluginsWithDefault = initPlugins ?? defaultPlugins;
-    initPaths = initPaths ?? [];
+    ],
+    initscan = true,
+  }: {
+    // MeiliSearch 配置
+    meiliSearchConfig: MeiliSearchConfig;
+    // 初始化知识库目录
+    initPaths?: string[];
+    // 初始化插件
+    initPlugins?: { plugin: BasePlugin; params: object }[];
+    // 是否在初始化时扫描初始化知识库目录
+    initscan?: boolean;
+    indexPrefix?: string;
+  }) => {
     // 加载所有插件
-    for (const initPlugin of initPluginsWithDefault) {
+    for (const initPlugin of initPlugins) {
       // 插件构造体和插件初始化参数
       const { plugin, params } = initPlugin;
 
@@ -187,6 +186,7 @@ export class DocBase {
 
     // 初始化文档管理器
     this.#docManager = new DocManager({
+      indexPrefix,
       meiliSearchConfig,
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter(text),
@@ -194,7 +194,7 @@ export class DocBase {
     await this.#docManager.init();
 
     // 扫描加载默认目录下文档
-    if (initscan === undefined ? true : initscan) {
+    if (initscan) {
       await this.#scan(initPaths);
     }
 
