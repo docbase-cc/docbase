@@ -107,12 +107,12 @@ export class DocManager {
         offset,
       });
 
-      if (docs.results.length === 0) {
-        break;
-      }
-
       yield* docs.results;
       offset += batchSize;
+
+      if (offset >= docs.total) {
+        break;
+      }
     }
   }
 
@@ -120,15 +120,17 @@ export class DocManager {
   init = async () => {
     this.#docIndex = await this.#getIndexOrCreate("docs");
 
+    // 获取已有的可筛选属性
     const docIndexFilterableAttributes =
       await this.#docIndex.getFilterableAttributes();
 
-    // 需要可筛选的属性
+    // 需要设置的可筛选的属性
     const docIndexFilterableAttributesNeedCreate = difference(
       ["path", "chunkHashs"],
       docIndexFilterableAttributes
     );
 
+    // 设置可筛选属性
     if (docIndexFilterableAttributesNeedCreate.length > 0) {
       await this.#docIndex.updateSettings({
         filterableAttributes: [
@@ -319,6 +321,31 @@ export class DocManager {
 
     if (doc) {
       await this.#deleteDoc(doc);
+    }
+  };
+
+  // 删除目录下所有文档
+  deleteDocByPathPrefix = async (path: string) => {
+    path = slash(path);
+
+    const getDocs = async () =>
+      await this.#docIndex.getDocuments({
+        filter: `path STARTS WITH "${path}"`,
+      });
+
+    while (true) {
+      // 获取文档
+      const docs = await getDocs();
+
+      // 没有文档则结束
+      if (docs.total === 0) {
+        break;
+      }
+
+      // 删除文档
+      for (const doc of docs.results) {
+        await this.#deleteDoc(doc);
+      }
     }
   };
 

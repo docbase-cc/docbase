@@ -204,17 +204,20 @@ export class DocBase {
     }
   };
 
-  // 动态添加知识库
+  // 动态添加知识库路径
   addDir = async (dir: string) => {
+    // 扫描并监视
     await this.#scan([dir]);
     await this.#watch(dir);
   };
 
-  // TODO 动态删除知识库
-  // delDir = async (dir: string) => {
-  //   await this.#baseDirs.get(dir)?.unwatch();
-  //   // TODO 删除知识库中目录下所有文档
-  // };
+  // 动态删除知识库路径
+  delDir = async (dir: string) => {
+    // 取消监视
+    await this.#baseDirs.get(dir)?.unwatch();
+    // 删除知识库中目录下所有文档
+    await this.#docManager.deleteDocByPathPrefix(dir);
+  };
 
   // TODO 动态管理插件
 
