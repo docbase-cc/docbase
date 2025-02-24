@@ -23,6 +23,7 @@ import { xxhash64 } from "hash-wasm";
 import { exists } from "fs-extra";
 import { difference } from "es-toolkit";
 import slash from "slash";
+import type { Config as MeiliSearchConfig } from "meilisearch";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
@@ -55,22 +56,15 @@ export class DocManager {
   #docSplitter: DocSplitter;
 
   constructor({
-    host,
-    apiKey,
+    meiliSearchConfig,
     docLoader,
     docSplitter,
   }: {
-    // meilisearch host
-    host: string;
-    // meilisearch apiKey
-    apiKey: string;
+    meiliSearchConfig: MeiliSearchConfig;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
   }) {
-    this.#client = new MeiliSearch({
-      host,
-      apiKey,
-    });
+    this.#client = new MeiliSearch(meiliSearchConfig);
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
   }

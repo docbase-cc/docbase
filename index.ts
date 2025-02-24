@@ -8,16 +8,18 @@
 // await c.deleteIndexIfExists("chunks")
 
 import { DocBase } from "./src/DocBase";
-import meili from "./.meili.json"
+import meili from "./.meili.json";
 
 const docBase = new DocBase();
 
 await docBase.start({
-  host: meili.host,
-  apiKey: meili.apiKey,
-  initPaths: ["C:\\Users\\SOVLOOKUP\\Desktop\\111111"],
+  meiliSearchConfig: { host: meili.host, apiKey: meili.apiKey },
 });
 
-setInterval(function() {
+await docBase.addDir("C:\\Users\\SOVLOOKUP\\Desktop\\111111");
+
+console.log(await docBase.search("docbase"));
+
+setInterval(function () {
   console.log("定时器保持NodeJS进程运行");
 }, 1000 * 60 * 60);

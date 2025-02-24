@@ -22,6 +22,7 @@ import {
 } from "./DocWatcher";
 import type { BasePlugin } from "./Plugin";
 import { getExtFromPath } from "./Utils";
+import type { Config as MeiliSearchConfig } from "meilisearch";
 
 export class DocBase {
   // 文档管理器
@@ -87,7 +88,8 @@ export class DocBase {
         return this.#docLoaders.has(ext);
       },
       upsert: async (path: string) => await this.#docManager.upsertDoc(path),
-      remove: async (path: string) => await this.#docManager.deleteDocByPath(path),
+      remove: async (path: string) =>
+        await this.#docManager.deleteDocByPath(path),
     });
 
     this.#baseDirs.set(dir, {
@@ -96,18 +98,15 @@ export class DocBase {
   };
 
   start = async ({
-    host,
-    apiKey,
+    meiliSearchConfig,
     initPaths,
     initPlugins,
     initscan,
   }: {
-    // meilisearch host
-    host: string;
-    // meilisearch apiKey
-    apiKey: string;
+    // MeiliSearch 配置
+    meiliSearchConfig: MeiliSearchConfig;
     // 初始化知识库目录
-    initPaths: string[];
+    initPaths?: string[];
     // 初始化插件
     initPlugins?: { plugin: BasePlugin; params: object }[];
     // 是否在初始化时扫描初始化知识库目录
@@ -134,6 +133,7 @@ export class DocBase {
       },
     ];
     const initPluginsWithDefault = initPlugins ?? defaultPlugins;
+    initPaths = initPaths ?? [];
     // 加载所有插件
     for (const initPlugin of initPluginsWithDefault) {
       // 插件构造体和插件初始化参数
@@ -187,8 +187,7 @@ export class DocBase {
 
     // 初始化文档管理器
     this.#docManager = new DocManager({
-      host,
-      apiKey,
+      meiliSearchConfig,
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter(text),
     });
