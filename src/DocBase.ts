@@ -168,7 +168,7 @@ export class DocBase {
     initPaths?: string[];
     /**
      * 初始化插件列表
-     * @default 
+     * @default
      * [
      *   { plugin: defaultDocLoaderPlugin, params: {} },
      *   { plugin: defaultDocScannerPlugin, params: {} },
@@ -193,10 +193,10 @@ export class DocBase {
       await this.loadPlugin(initPlugin);
     }
 
-    const docWatcherExist = typeof this.#docWatcher === "function";
-    const docScannerExist = typeof this.#docScanner === "function";
-    const docSplitterExist = typeof this.#docSplitter === "function";
-    const docLoadersExist = this.#docExtToLoaderName.size > 0;
+    const docWatcherExist = typeof this.#docWatcher.func === "function";
+    const docScannerExist = typeof this.#docScanner.func === "function";
+    const docSplitterExist = typeof this.#docSplitter.func === "function";
+    const docLoadersExist = this.#docLoaders.size > 0;
 
     // 校验文档监视器、文档扫描器、文档分割器是否存在
     if (
