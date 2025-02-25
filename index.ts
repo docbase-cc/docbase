@@ -14,12 +14,9 @@ const docBase = new DocBase();
 
 await docBase.start({
   meiliSearchConfig: { host: meili.host, apiKey: meili.apiKey },
+  initPaths: ["C:\\Users\\SOVLOOKUP\\Desktop\\"],
 });
 
-await docBase.addDir("C:\\Users\\SOVLOOKUP\\Desktop\\111111");
-
-console.log(docBase.dirs);
-await docBase.delDir("C:\\Users\\SOVLOOKUP\\Desktop\\111111");
 console.log(docBase.dirs);
 
 setInterval(function () {
