@@ -26,27 +26,25 @@ import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig } from "meilisearch";
 
 export class DocBase {
-  // 文档管理器
+  /** 文档管理器 */
   #docManager!: DocManager;
 
-  // 文档加载指向器
-  // ext => DocLoaderName
+  /** 文档加载指向器，映射文件扩展名到文档加载器名称 */
   #docExtToLoaderName: Map<string, string> = new Map();
 
-  // 文档加载器
-  // DocLoaderName => DocLoader
+  /** 文档加载器，映射文档加载器名称到加载器实例 */
   #docLoaders: Map<string, DocLoaderPlugin & { func: DocLoader }> = new Map();
 
-  // 文档分割器
+  /** 文档分割器 */
   #docSplitter!: DocSplitterPlugin & { func: DocSplitter };
 
-  // 文档监视器
+  /** 文档监视器 */
   #docWatcher!: DocWatcherPlugin & { func: DocWatcher };
 
-  // 文档扫描器
+  /** 文档扫描器 */
   #docScanner!: DocScannerPlugin & { func: DocScanner };
 
-  // 挂载的知识识库目录
+  /** 挂载的知识库目录，存储目录路径和对应的取消监视函数 */
   #baseDirs = new Map<
     string,
     {
@@ -54,17 +52,17 @@ export class DocBase {
     }
   >();
 
-  // 获取挂载的知识库目录
+  /**  获取挂载的知识库目录 */
   get dirs() {
     return Array.from(this.#baseDirs.keys());
   }
 
-  // 获取支持的文档类型
+  /** 获取支持的文档类型 */
   get exts() {
     return Array.from(this.#docExtToLoaderName.keys());
   }
 
-  // 获取所有可用文档加载器
+  /** 获取所有可用文档加载器 */
   get docLoaders() {
     // 去掉 func init
     return Array.from(
@@ -72,7 +70,11 @@ export class DocBase {
     );
   }
 
-  // 根据 ext 分流的 docLoader
+  /**
+   * 根据文件扩展名分流的文档加载器
+   * @param path - 文件路径
+   * @throws 如果没有找到对应的文档加载器会抛出错误
+   */
   #hyperDocLoader: DocLoader = async (path) => {
     const ext = getExtFromPath(path);
 
@@ -91,7 +93,10 @@ export class DocBase {
     return await dockLoader.func(path);
   };
 
-  // 扫描指定目录文档
+  /**
+   * 扫描指定目录中的文档
+   * @param dirs - 要扫描的目录数组
+   */
   #scan = async (dirs: string[]) => {
     await this.#docScanner.func({
       dirs,
@@ -104,6 +109,10 @@ export class DocBase {
     });
   };
 
+  /**
+   * 监视指定目录的文档变化
+   * @param dir - 要监视的目录路径
+   */
   #watch = async (dir: string) => {
     const unwatch = await this.#docWatcher.func({
       path: dir,
@@ -121,6 +130,7 @@ export class DocBase {
     });
   };
 
+  /** 启动 docbase */
   start = async ({
     meiliSearchConfig,
     indexPrefix,
@@ -147,14 +157,34 @@ export class DocBase {
     ],
     initscan = true,
   }: {
-    // MeiliSearch 配置
+    /**
+     * MeiliSearch 配置
+     */
     meiliSearchConfig: MeiliSearchConfig;
-    // 初始化知识库目录
+    /**
+     * 初始化知识库目录
+     * @default []
+     */
     initPaths?: string[];
-    // 初始化插件
+    /**
+     * 初始化插件列表
+     * @default 
+     * [
+     *   { plugin: defaultDocLoaderPlugin, params: {} },
+     *   { plugin: defaultDocScannerPlugin, params: {} },
+     *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } },
+     *   { plugin: defaultDocWatcherPlugin, params: {} }
+     * ]
+     */
     initPlugins?: PluginWithParams<any>[];
-    // 是否在初始化时扫描初始化知识库目录
+    /**
+     * 是否在初始化时扫描初始化知识库目录
+     * @default true
+     */
     initscan?: boolean;
+    /**
+     * 索引前缀
+     */
     indexPrefix?: string;
   }) => {
     // 加载所有插件
@@ -199,8 +229,11 @@ export class DocBase {
     }
   };
 
-  // 卸载加载器插件
-  // 若文档加载器正在使用，不允许卸载
+  /**
+   * 卸载文档加载器插件
+   * @param docLoaderName - 要卸载的文档加载器名称
+   * @throws 如果文档加载器正在使用中会抛出错误
+   */
   delDocLoader = async (docLoaderName: string) => {
     const using = this.#docExtToLoaderName
       .values()
@@ -213,7 +246,12 @@ export class DocBase {
     return this.#docLoaders.delete(docLoaderName);
   };
 
-  // 从拓展名粒度指定文档加载器
+  /**
+   * 为指定扩展名设置文档加载器
+   * @param ext - 文档扩展名
+   * @param docLoaderName - 文档加载器名称
+   * @throws 如果文档加载器不存在或不支持该扩展名会抛出错误
+   */
   setDocLoader = async (ext: string, docLoaderName: string) => {
     const docLoader = this.#docLoaders.get(docLoaderName);
 
@@ -228,9 +266,12 @@ export class DocBase {
     this.#docExtToLoaderName.set(ext, docLoaderName);
   };
 
-  // 加载或更新正在运行的插件
-  // DocLoader 插件支持多个（只有同一名称会更新, 插件加载指向器位置先到先得）
-  // 其他插件只允许一个（新的会把旧的替换）
+  /**
+   * 加载或更新插件
+   * @template T - 插件参数类型
+   * @param pluginWithParams - 包含插件和参数的配置对象
+   * @throws 如果插件类型错误会抛出错误
+   */
   loadPlugin = async <T extends object>(
     pluginWithParams: PluginWithParams<T>
   ) => {
@@ -278,14 +319,20 @@ export class DocBase {
     }
   };
 
-  // 动态添加知识库路径
+  /**
+   * 动态添加知识库目录
+   * @param dir - 要添加的目录路径
+   */
   addDir = async (dir: string) => {
     // 扫描并监视
     await this.#scan([dir]);
     await this.#watch(dir);
   };
 
-  // 动态删除知识库路径
+  /**
+   * 动态删除知识库目录
+   * @param dir - 要删除的目录路径
+   */
   delDir = async (dir: string) => {
     const baseDir = this.#baseDirs.get(dir);
 
@@ -299,7 +346,11 @@ export class DocBase {
     }
   };
 
-  // 搜索文档
+  /**
+   * 搜索文档
+   * @param query - 搜索查询字符串
+   * @returns 返回搜索结果
+   */
   search = async (query: string) => {
     return await this.#docManager.search(query);
   };

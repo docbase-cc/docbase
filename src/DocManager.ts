@@ -1,18 +1,22 @@
-// 文档索引类型
+/**
+ * 文档索引类型
+ */
 export interface DocDocument {
-  // 文档 hash
+  /** 文档 hash */
   hash: string;
-  // 文档路径
+  /** 文档路径 */
   path: string;
-  // 文档 chunkHash
+  /** 文档 chunkHash 数组 */
   chunkHashs: string[];
 }
 
-// 文档 chunk 索引类型
+/**
+ * 文档 chunk 索引类型
+ */
 export interface DocChunkDocument {
-  // 内容 hash
+  /** 内容 hash */
   hash: string;
-  // 内容
+  /** 内容 */
   content: string;
 }
 
@@ -41,22 +45,33 @@ export const chunkDiff = (
   };
 };
 
-// 基于 meilisearch 实现文档管理器
+/**
+ * 基于 MeiliSearch 实现的文档管理器
+ */
 export class DocManager {
+  /** MeiliSearch 客户端实例 */
   #client: MeiliSearch;
 
-  // 索引前缀
+  /** 索引前缀 */
   #indexPrefix: string;
-  // 文档 Chunk 索引
+  /** 文档 Chunk 索引 */
   #docChunkIndex!: Index<DocChunkDocument>;
-  // 文档索引
+  /** 文档索引 */
   #docIndex!: Index<DocDocument>;
 
-  // 文档加载器（已根据 path 拓展名分流过的）
+  /** 文档加载器 */
   #docLoader: DocLoader;
-  // 文档分割器
+  /** 文档分割器 */
   #docSplitter: DocSplitter;
-  
+
+  /**
+   * 构造函数
+   * @param options - 配置选项
+   * @param options.meiliSearchConfig - MeiliSearch 配置
+   * @param options.docLoader - 文档加载器
+   * @param options.docSplitter - 文档分割器
+   * @param options.indexPrefix - 索引前缀，默认为空字符串
+   */
   constructor({
     meiliSearchConfig,
     docLoader,
@@ -74,7 +89,12 @@ export class DocManager {
     this.#indexPrefix = indexPrefix;
   }
 
-  // 安全获取索引
+  /**
+   * 安全获取索引，如果不存在则创建
+   * @param uid - 索引唯一标识
+   * @param primaryKey - 主键，默认为"hash"
+   * @returns 返回索引实例
+   */
   #getIndexOrCreate = async (uid: string, primaryKey: string = "hash") => {
     const index = this.#client.index(uid);
     try {
@@ -90,7 +110,11 @@ export class DocManager {
     return index;
   };
 
-  // 获取 chunk 关联的文档数量
+  /**
+   * 获取 chunk 关联的文档数量
+   * @param chunkHash - chunk hash
+   * @returns 返回关联的文档数量
+   */
   #getChunkRelatedDocsCount = async (chunkHash: string) => {
     const docs = await this.#docIndex.getDocuments({
       filter: `chunkHashs IN ["${chunkHash}"]`,
@@ -100,7 +124,11 @@ export class DocManager {
     return docs.total;
   };
 
-  // 获取 chunk 关联的文档
+  /**
+   * 获取 chunk 关联的文档
+   * @param chunkHash - chunk hash
+   * @yields 返回关联的文档
+   */
   async *#getChunkRelatedDocs(chunkHash: string) {
     const batchSize = 100; // 每次获取的文档数量
     let offset = 0;
@@ -121,7 +149,9 @@ export class DocManager {
     }
   }
 
-  // 确保 ContainsFilter Feature 开启
+  /**
+   * 确保 ContainsFilter 功能开启
+   */
   // v1.13.0
   #ensureContainsFilterFeatureOn = async () => {
     const host = this.#client.config.host;
@@ -146,7 +176,9 @@ export class DocManager {
     }
   };
 
-  // 初始化
+  /**
+   * 初始化文档管理器
+   */
   init = async () => {
     await this.#ensureContainsFilterFeatureOn();
 
@@ -175,7 +207,11 @@ export class DocManager {
     this.#docChunkIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}chunks`);
   };
 
-  // 安全获取文档
+  /**
+   * 安全获取文档，如果不存在返回 false
+   * @param hash - 文档 hash
+   * @returns 返回文档实例或 false
+   */
   #getDocIfExist = async (hash: string): Promise<DocDocument | false> => {
     try {
       return (await this.#docIndex.getDocument(hash)) as DocDocument;
@@ -189,7 +225,11 @@ export class DocManager {
     }
   };
 
-  // 通过 path 获取文档
+  /**
+   * 通过路径获取文档，如果不存在返回 false
+   * @param path - 文档路径
+   * @returns 返回文档实例或 false
+   */
   #getDocByPathIfExist = async (path: string): Promise<DocDocument | false> => {
     const docs = await this.#docIndex.getDocuments({
       filter: `path = "${path}"`,
@@ -202,8 +242,11 @@ export class DocManager {
     }
   };
 
-  // 文档上传器
-  // 用于自动增删文档
+  /**
+   * 文档上传器，用于自动增删文档
+   * @param docDiffReq - 文档差异请求
+   * @function getDocSyncContent - 获取需要同步的文档内容
+   */
   // 根据文档路径、hash 查找文档是否存在、是否修改过
   // hash 存在 -> 文档存在
   //     path 正确 -> 什么都不做
@@ -346,7 +389,10 @@ export class DocManager {
     await this.#docIndex.deleteDocument(doc.hash);
   };
 
-  // 按路径删除文档
+  /**
+   * 按路径删除文档
+   * @param path - 文档路径
+   */
   deleteDocByPath = async (path: string) => {
     path = slash(path);
     const doc = await this.#getDocByPathIfExist(path);
@@ -356,7 +402,10 @@ export class DocManager {
     }
   };
 
-  // 删除目录下所有文档
+  /**
+   * 删除目录下所有文档
+   * @param path - 目录路径
+   */
   deleteDocByPathPrefix = async (path: string) => {
     path = slash(path);
 
@@ -381,7 +430,10 @@ export class DocManager {
     }
   };
 
-  // 按 hash 删除文档
+  /**
+   * 按 hash 删除文档
+   * @param hash - 文档 hash
+   */
   deleteDocByHash = async (hash: string) => {
     const doc = await this.#getDocIfExist(hash);
 
@@ -390,7 +442,11 @@ export class DocManager {
     }
   };
 
-  // 搜索文档
+  /**
+   * 搜索文档
+   * @param query - 搜索查询
+   * @returns 返回搜索结果
+   */
   search = async (query: string) => {
     const result = await this.#docChunkIndex.search(query);
     const hits = result.hits;

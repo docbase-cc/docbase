@@ -4,29 +4,44 @@ import { version } from "../package.json";
 
 // 文档监视器
 // 监视目录下的文档变化
+/**
+ * 文档监视器类型定义
+ * @param params - 监视器参数
+ * @param params.path - 要监视的目录路径
+ * @param params.filter - 文件路径过滤函数
+ * @param params.upsert - 文件添加或更新时的处理函数
+ * @param params.remove - 文件删除时的处理函数
+ * @returns 返回取消监视的函数或Promise
+ */
 export type DocWatcher = (params: {
-  // 目录路径
   path: string;
-  // 过滤函数
   filter: (path: string) => boolean;
-  // 增加或更新文档函数
   upsert: (paths: string) => Promise<void>;
-  // 删除文档函数
   remove: (path: string) => Promise<void>;
 }) => UnWatch | Promise<UnWatch>;
 
-// 取消监视
+/**
+ * 取消监视函数类型定义
+ */
 export type UnWatch = () => void | Promise<void>;
 
-// 文档监视器插件
+/**
+ * 文档监视器插件接口
+ * @template T - 插件参数类型，默认为空对象
+ */
 export interface DocWatcherPlugin<T extends object = {}>
   extends BasePlugin<DocWatcher, T> {
+  /** 插件类型，固定为"DocWatcher" */
   type: "DocWatcher";
 }
 
 // 默认实现 ============
 
 // 默认文档监视器插件
+/**
+ * 默认文档监视器插件实现
+ * 使用 chokidar 库实现文件系统监视功能
+ */
 export const defaultDocWatcherPlugin: DocWatcherPlugin = {
   name: "default",
   version,
