@@ -11,6 +11,11 @@ import type { DocBasePlugin } from "./Plugin";
 import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig } from "meilisearch";
 
+export interface PluginWithParams<T extends object> {
+  plugin: DocBasePlugin<T>;
+  params: T;
+}
+
 export class DocBase {
   // 文档管理器
   #docManager!: DocManager;
@@ -115,7 +120,7 @@ export class DocBase {
     // 初始化知识库目录
     initPaths?: string[];
     // 初始化插件
-    initPlugins?: { plugin: DocBasePlugin<any>; params: object }[];
+    initPlugins?: PluginWithParams<any>[];
     // 是否在初始化时扫描初始化知识库目录
     initscan?: boolean;
     indexPrefix?: string;
@@ -123,32 +128,7 @@ export class DocBase {
     // 加载所有插件
     for (const initPlugin of initPlugins) {
       // 插件构造体和插件初始化参数
-      const { plugin, params } = initPlugin;
-
-      switch (plugin.type) {
-        case "DocScanner":
-          this.#docScanner = await plugin.init(params);
-          break;
-
-        case "DocSplitter":
-          this.#docSplitter = await plugin.init(params);
-          break;
-
-        case "DocWatcher":
-          this.#docWatcher = await plugin.init(params);
-          break;
-
-        case "DocLoader":
-          const docLoader = await plugin.init(params);
-          // 将文档加载器注册到文档加载指向器
-          for (const ext of plugin.exts) {
-            this.#docLoaders.set(ext, docLoader);
-          }
-          break;
-
-        default:
-          throw new Error("Plugin type not implemented.");
-      }
+      await this.#loadPlugin(initPlugin);
     }
 
     const docWatcherExist = typeof this.#docWatcher === "function";
@@ -184,6 +164,37 @@ export class DocBase {
     // 开启监视，同步变动文档
     for (const initPath of initPaths) {
       await this.#watch(initPath);
+    }
+  };
+
+  #loadPlugin = async <T extends object>(
+    pluginWithParams: PluginWithParams<T>
+  ) => {
+    const { plugin, params } = pluginWithParams;
+
+    switch (plugin.type) {
+      case "DocScanner":
+        this.#docScanner = await plugin.init(params);
+        break;
+
+      case "DocSplitter":
+        this.#docSplitter = await plugin.init(params);
+        break;
+
+      case "DocWatcher":
+        this.#docWatcher = await plugin.init(params);
+        break;
+
+      case "DocLoader":
+        const docLoader = await plugin.init(params);
+        // 将文档加载器注册到文档加载指向器
+        for (const ext of plugin.exts) {
+          this.#docLoaders.set(ext, docLoader);
+        }
+        break;
+
+      default:
+        throw new Error("Plugin type not implemented.");
     }
   };
 

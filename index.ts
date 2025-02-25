@@ -14,7 +14,7 @@ const docBase = new DocBase();
 
 await docBase.start({
   meiliSearchConfig: { host: meili.host, apiKey: meili.apiKey },
-  initPaths: ["C:\\Users\\SOVLOOKUP\\Desktop\\"],
+  initPaths: ["C:\\Users\\SOVLOOKUP\\Desktop\\批示督办库"],
 });
 
 console.log(docBase.dirs);
