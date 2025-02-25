@@ -1,4 +1,5 @@
 import type { BasePlugin } from "./Plugin";
+import { version } from "../package.json";
 
 // 文档分割器
 // 将输入的文本分割成多个文本块
@@ -18,6 +19,7 @@ export const defaultDocSplitterPlugin: DocSplitterPlugin<{
   len: number;
 }> = {
   name: "default",
+  version,
   type: "DocSplitter",
   init:
     ({ len }) =>

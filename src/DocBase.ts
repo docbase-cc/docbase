@@ -1,35 +1,50 @@
-import { defaultDocLoaderPlugin, type DocLoader } from "./DocLoader";
+import { omit } from "es-toolkit";
+import {
+  defaultDocLoaderPlugin,
+  type DocLoader,
+  type DocLoaderPlugin,
+} from "./DocLoader";
 import { DocManager } from "./DocManager";
-import { defaultDocScannerPlugin, type DocScanner } from "./DocScanner";
-import { defaultDocSplitterPlugin, type DocSplitter } from "./DocSplitter";
+import {
+  defaultDocScannerPlugin,
+  type DocScanner,
+  type DocScannerPlugin,
+} from "./DocScanner";
+import {
+  defaultDocSplitterPlugin,
+  type DocSplitter,
+  type DocSplitterPlugin,
+} from "./DocSplitter";
 import {
   defaultDocWatcherPlugin,
   type DocWatcher,
+  type DocWatcherPlugin,
   type UnWatch,
 } from "./DocWatcher";
-import type { DocBasePlugin } from "./Plugin";
+import type { PluginWithParams } from "./Plugin";
 import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig } from "meilisearch";
-
-export interface PluginWithParams<T extends object> {
-  plugin: DocBasePlugin<T>;
-  params: T;
-}
 
 export class DocBase {
   // 文档管理器
   #docManager!: DocManager;
 
-  // 插件
   // 文档加载指向器
-  // ext => DocLoader
-  #docLoaders: Map<string, DocLoader> = new Map();
-  
+  // ext => DocLoaderName
+  #docExtToLoaderName: Map<string, string> = new Map();
+
+  // 文档加载器
+  // DocLoaderName => DocLoader
+  #docLoaders: Map<string, DocLoaderPlugin & { func: DocLoader }> = new Map();
+
   // 文档分割器
-  #docSplitter!: DocSplitter;
+  #docSplitter!: DocSplitterPlugin & { func: DocSplitter };
 
   // 文档监视器
-  #docWatcher!: DocWatcher;
+  #docWatcher!: DocWatcherPlugin & { func: DocWatcher };
+
+  // 文档扫描器
+  #docScanner!: DocScannerPlugin & { func: DocScanner };
 
   // 挂载的知识识库目录
   #baseDirs = new Map<
@@ -44,27 +59,43 @@ export class DocBase {
     return Array.from(this.#baseDirs.keys());
   }
 
-  // 文档扫描器
-  #docScanner!: DocScanner;
+  // 获取支持的文档类型
+  get exts() {
+    return Array.from(this.#docExtToLoaderName.keys());
+  }
+
+  // 获取所有可用文档加载器
+  get docLoaders() {
+    // 去掉 func init
+    return Array.from(
+      this.#docLoaders.values().map((v) => omit(v, ["func", "init"]))
+    );
+  }
 
   // 根据 ext 分流的 docLoader
   #hyperDocLoader: DocLoader = async (path) => {
     const ext = getExtFromPath(path);
 
-    const docLoader = this.#docLoaders.get(ext);
+    const docLoaderName = this.#docExtToLoaderName.get(ext);
 
-    if (!docLoader) {
-      throw new Error(`No such docLoader can solve ext ${ext}`);
+    if (!docLoaderName) {
+      throw new Error(`No such docLoaderName can solve ext ${ext}`);
     }
 
-    return await docLoader(path);
+    const dockLoader = this.#docLoaders.get(docLoaderName);
+
+    if (!dockLoader) {
+      throw new Error(`No such docLoaderName ${docLoaderName}`);
+    }
+
+    return await dockLoader.func(path);
   };
 
   // 扫描指定目录文档
   #scan = async (dirs: string[]) => {
-    await this.#docScanner({
+    await this.#docScanner.func({
       dirs,
-      exts: Array.from(this.#docLoaders.keys()),
+      exts: Array.from(this.#docExtToLoaderName.keys()),
       load: async (paths) => {
         for (const path of paths) {
           await this.#docManager.upsertDoc(path);
@@ -74,11 +105,11 @@ export class DocBase {
   };
 
   #watch = async (dir: string) => {
-    const unwatch = await this.#docWatcher({
+    const unwatch = await this.#docWatcher.func({
       path: dir,
       filter: (path: string) => {
         const ext = getExtFromPath(path);
-        return this.#docLoaders.has(ext);
+        return this.#docExtToLoaderName.has(ext);
       },
       upsert: async (path: string) => await this.#docManager.upsertDoc(path),
       remove: async (path: string) =>
@@ -135,7 +166,7 @@ export class DocBase {
     const docWatcherExist = typeof this.#docWatcher === "function";
     const docScannerExist = typeof this.#docScanner === "function";
     const docSplitterExist = typeof this.#docSplitter === "function";
-    const docLoadersExist = this.#docLoaders.size > 0;
+    const docLoadersExist = this.#docExtToLoaderName.size > 0;
 
     // 校验文档监视器、文档扫描器、文档分割器是否存在
     if (
@@ -153,7 +184,7 @@ export class DocBase {
       indexPrefix,
       meiliSearchConfig,
       docLoader: (path) => this.#hyperDocLoader(path),
-      docSplitter: (text) => this.#docSplitter(text),
+      docSplitter: (text) => this.#docSplitter.func(text),
     });
     await this.#docManager.init();
 
@@ -168,40 +199,78 @@ export class DocBase {
     }
   };
 
-  // 加载或替换正在运行的插件
+  // 卸载加载器插件
+  // 若文档加载器正在使用，不允许卸载
+  delDocLoader = async (docLoaderName: string) => {
+    const using = this.#docExtToLoaderName
+      .values()
+      .some((v) => v === docLoaderName);
+
+    if (using) {
+      throw new Error(`DocLoader ${docLoaderName} is using.`);
+    }
+
+    return this.#docLoaders.delete(docLoaderName);
+  };
+
+  // 从拓展名粒度指定文档加载器
+  setDocLoader = async (ext: string, docLoaderName: string) => {
+    const docLoader = this.#docLoaders.get(docLoaderName);
+
+    if (!docLoader) {
+      throw new Error(`No such docLoaderName ${docLoaderName}`);
+    }
+
+    if (!docLoader.exts.includes(ext)) {
+      throw new Error(`${docLoaderName} not support ${ext}`);
+    }
+
+    this.#docExtToLoaderName.set(ext, docLoaderName);
+  };
+
+  // 加载或更新正在运行的插件
+  // DocLoader 插件支持多个（只有同一名称会更新, 插件加载指向器位置先到先得）
+  // 其他插件只允许一个（新的会把旧的替换）
   loadPlugin = async <T extends object>(
     pluginWithParams: PluginWithParams<T>
   ) => {
     const { plugin, params } = pluginWithParams;
 
-    switch (plugin.type) {
+    const pluginToLoad = {
+      ...plugin,
+      func: await plugin.init(params),
+    };
+
+    switch (pluginToLoad.type) {
+      case "DocLoader":
+        this.#docLoaders.set(pluginToLoad.name, pluginToLoad as any);
+
+        // 将文档加载器注册到文档加载指向器
+        for (const ext of pluginToLoad.exts) {
+          // 该拓展已经存在文档加载器，不覆盖
+          if (!this.#docExtToLoaderName.has(ext)) {
+            this.#docExtToLoaderName.set(ext, pluginToLoad.name);
+          }
+        }
+
+        break;
+
       case "DocScanner":
-        this.#docScanner = await plugin.init(params);
+        this.#docScanner = pluginToLoad as any;
         break;
 
       case "DocSplitter":
-        this.#docSplitter = await plugin.init(params);
+        this.#docSplitter = pluginToLoad as any;
         break;
 
       case "DocWatcher":
-        this.#docWatcher = await plugin.init(params);
+        this.#docWatcher = pluginToLoad as any;
 
         // 需要重新监视所有目录
         this.#baseDirs.entries().forEach(async ([dir, { unwatch }]) => {
           await unwatch();
           await this.#watch(dir);
         });
-        break;
-
-      case "DocLoader":
-        // TODO 从拓展名粒度指定文档加载器
-        const docLoader = await plugin.init(params);
-        
-        // 将文档加载器注册到文档加载指向器
-        for (const ext of plugin.exts) {
-          this.#docLoaders.set(ext, docLoader);
-        }
-
         break;
 
       default:

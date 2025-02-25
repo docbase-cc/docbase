@@ -1,8 +1,7 @@
-import { resolve } from "path";
 import type { BasePlugin } from "./Plugin";
-import { flatten } from "es-toolkit";
 import { fdir } from "fdir";
 import { getExtFromPath } from "./Utils";
+import { version } from "../package.json";
 
 // 文档扫描器
 // 扫描指定路径下的文档, 并将路径传递给 load 函数
@@ -26,6 +25,7 @@ export interface DocScannerPlugin<T extends object = {}>
 // 默认文档扫描器插件
 export const defaultDocScannerPlugin: DocScannerPlugin = {
   name: "default",
+  version,
   type: "DocScanner",
   init: async () => {
     const fd = new fdir().withBasePath();

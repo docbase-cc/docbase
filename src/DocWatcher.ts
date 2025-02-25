@@ -1,5 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import chokidar, { FSWatcher } from "chokidar";
+import { version } from "../package.json";
 
 // 文档监视器
 // 监视目录下的文档变化
@@ -28,6 +29,7 @@ export interface DocWatcherPlugin<T extends object = {}>
 // 默认文档监视器插件
 export const defaultDocWatcherPlugin: DocWatcherPlugin = {
   name: "default",
+  version,
   type: "DocWatcher",
   init: () => {
     let watcher: FSWatcher | undefined;

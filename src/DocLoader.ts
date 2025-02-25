@@ -1,5 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import { MarkItDown } from "markitdown-ts";
+import { version } from "../package.json";
 
 const markitdown = new MarkItDown();
 
@@ -19,6 +20,7 @@ export interface DocLoaderPlugin<T extends object = {}>
 // 默认文档加载器插件
 export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   name: "default",
+  version,
   type: "DocLoader",
   exts: [
     "md",
