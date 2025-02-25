@@ -24,6 +24,7 @@ export class DocBase {
   // 文档加载指向器
   // ext => DocLoader
   #docLoaders: Map<string, DocLoader> = new Map();
+  
   // 文档分割器
   #docSplitter!: DocSplitter;
 
@@ -128,7 +129,7 @@ export class DocBase {
     // 加载所有插件
     for (const initPlugin of initPlugins) {
       // 插件构造体和插件初始化参数
-      await this.#loadPlugin(initPlugin);
+      await this.loadPlugin(initPlugin);
     }
 
     const docWatcherExist = typeof this.#docWatcher === "function";
@@ -167,7 +168,8 @@ export class DocBase {
     }
   };
 
-  #loadPlugin = async <T extends object>(
+  // 加载或替换正在运行的插件
+  loadPlugin = async <T extends object>(
     pluginWithParams: PluginWithParams<T>
   ) => {
     const { plugin, params } = pluginWithParams;
@@ -183,14 +185,23 @@ export class DocBase {
 
       case "DocWatcher":
         this.#docWatcher = await plugin.init(params);
+
+        // 需要重新监视所有目录
+        this.#baseDirs.entries().forEach(async ([dir, { unwatch }]) => {
+          await unwatch();
+          await this.#watch(dir);
+        });
         break;
 
       case "DocLoader":
+        // TODO 从拓展名粒度指定文档加载器
         const docLoader = await plugin.init(params);
+        
         // 将文档加载器注册到文档加载指向器
         for (const ext of plugin.exts) {
           this.#docLoaders.set(ext, docLoader);
         }
+
         break;
 
       default:
@@ -218,8 +229,6 @@ export class DocBase {
       this.#baseDirs.delete(dir);
     }
   };
-
-  // TODO 动态管理插件
 
   // 搜索文档
   search = async (query: string) => {
