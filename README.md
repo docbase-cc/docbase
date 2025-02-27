@@ -2,6 +2,8 @@
 
 基于文件系统的知识库
 
+轻松构建，自动管理，极速搜索
+
 ## 特性
 
 - 📂 支持多种文档格式：Markdown、TXT、PDF、Word、Excel、CSV、ZIP 等
