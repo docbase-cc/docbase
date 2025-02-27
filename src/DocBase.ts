@@ -4,7 +4,7 @@ import {
   type DocLoader,
   type DocLoaderPlugin,
 } from "./DocLoader";
-import { DocManager } from "./DocManager";
+import { DocManager, type EmbeddingConfig } from "./DocManager";
 import {
   defaultDocScannerPlugin,
   type DocScanner,
@@ -134,6 +134,7 @@ export class DocBase {
   start = async ({
     meiliSearchConfig,
     indexPrefix,
+    embeddingConfig,
     initPaths = [],
     initPlugins = [
       {
@@ -161,6 +162,10 @@ export class DocBase {
      * MeiliSearch 配置
      */
     meiliSearchConfig: MeiliSearchConfig;
+    /**
+     * 嵌入模型配置, OPENAI 兼容的配置
+     */
+    embeddingConfig: EmbeddingConfig;
     /**
      * 初始化知识库目录
      * @default []
@@ -213,6 +218,7 @@ export class DocBase {
     this.#docManager = new DocManager({
       indexPrefix,
       meiliSearchConfig,
+      embeddingConfig,
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter.func(text),
     });

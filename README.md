@@ -10,11 +10,11 @@
 - 🔍 强大的混合搜索（全文检索 + 模糊搜索 + 向量搜索）功能
 - 🐳 支持 Docker 部署（plan）
 
-<!-- RAG -->
 <!-- TODO 基于 Hono 构建服务端
 就一个搜索接口（docBase.search）
 
-再加一个简单搜索界面即可
+一个简单搜索界面
+一个插件管理界面
 -->
 
 <!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->

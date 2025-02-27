@@ -25,7 +25,7 @@ import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists } from "fs-extra";
-import { difference } from "es-toolkit";
+import { difference, merge } from "es-toolkit";
 import slash from "slash";
 import type { Config as MeiliSearchConfig } from "meilisearch";
 
@@ -45,6 +45,14 @@ export const chunkDiff = (
   };
 };
 
+// openai 嵌入标准
+export interface EmbeddingConfig {
+  model: string;
+  url: string;
+  apiKey: string;
+  dimensions: number;
+}
+
 /**
  * 基于 MeiliSearch 实现的文档管理器
  */
@@ -63,6 +71,7 @@ export class DocManager {
   #docLoader: DocLoader;
   /** 文档分割器 */
   #docSplitter: DocSplitter;
+  #embeddingConfig: EmbeddingConfig;
 
   /**
    * 构造函数
@@ -74,19 +83,22 @@ export class DocManager {
    */
   constructor({
     meiliSearchConfig,
+    embeddingConfig,
     docLoader,
     docSplitter,
-    indexPrefix = ""
+    indexPrefix = "",
   }: {
     meiliSearchConfig: MeiliSearchConfig;
+    embeddingConfig: EmbeddingConfig;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
-    indexPrefix?: string,
+    indexPrefix?: string;
   }) {
     this.#client = new MeiliSearch(meiliSearchConfig);
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
     this.#indexPrefix = indexPrefix;
+    this.#embeddingConfig = embeddingConfig;
   }
 
   /**
@@ -204,7 +216,39 @@ export class DocManager {
       });
     }
 
-    this.#docChunkIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}chunks`);
+    this.#docChunkIndex = await this.#getIndexOrCreate(
+      `${this.#indexPrefix}chunks`
+    );
+
+    const embedders = await this.#docChunkIndex.getEmbedders();
+
+    // 无该 embedders 新增
+    if (
+      !(
+        embedders &&
+        Object.keys(embedders).includes(this.#embeddingConfig.model)
+      )
+    ) {
+      await this.#docChunkIndex.updateEmbedders({
+        [this.#embeddingConfig.model]: {
+          source: "rest",
+          url: this.#embeddingConfig.url,
+          apiKey: this.#embeddingConfig.apiKey,
+          dimensions: this.#embeddingConfig.dimensions,
+          request: {
+            input: "{{text}}",
+            model: this.#embeddingConfig.model,
+          },
+          response: {
+            data: [
+              {
+                embedding: "{{embedding}}",
+              },
+            ],
+          },
+        },
+      });
+    }
   };
 
   /**
@@ -445,10 +489,18 @@ export class DocManager {
   /**
    * 搜索文档
    * @param query - 搜索查询
+   * @param hybrid - 启用向量搜索
    * @returns 返回搜索结果
    */
-  search = async (query: string) => {
-    const result = await this.#docChunkIndex.search(query);
+  search = async (query: string, hybrid = true) => {
+    const result = await this.#docChunkIndex.search(query, {
+      hybrid: hybrid
+        ? {
+            // 使用指定嵌入模型
+            embedder: this.#embeddingConfig.model,
+          }
+        : undefined,
+    });
     const hits = result.hits;
     const outs = [];
 
@@ -457,15 +509,17 @@ export class DocManager {
     for (const hit of hits) {
       const docs = this.#getChunkRelatedDocs(hit.hash);
       let validDoc = false;
+      let paths = [];
       for await (const doc of docs) {
         const docExists = await exists(doc.path);
         if (!docExists) {
           await this.deleteDocByHash(doc.hash);
         } else {
           validDoc = true;
+          paths.push(doc.path);
         }
       }
-      if (validDoc) outs.push(hit);
+      if (validDoc) outs.push(merge(hit, { paths }));
     }
 
     return outs;
