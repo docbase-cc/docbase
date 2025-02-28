@@ -502,14 +502,14 @@ export class DocManager {
         : undefined,
     });
     const hits = result.hits;
-    const outs = [];
+    const outs: ((typeof hits)[0] & { paths: string[] })[] = [];
 
     // 查询后校验结果中引用到的本地文档是否存在，不存在则删除知识库内文档
     // 自动删除文档, 防止停止运行时用户偷偷删除文档
     for (const hit of hits) {
       const docs = this.#getChunkRelatedDocs(hit.hash);
       let validDoc = false;
-      let paths = [];
+      let paths: string[] = [];
       for await (const doc of docs) {
         const docExists = await exists(doc.path);
         if (!docExists) {
