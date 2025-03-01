@@ -1,6 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import chokidar, { FSWatcher } from "chokidar";
-import { version } from "../package.json";
+import { version } from "~/package.json";
 
 // 文档监视器
 // 监视目录下的文档变化

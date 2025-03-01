@@ -1,6 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import { MarkItDown } from "markitdown-ts";
-import { version } from "../package.json";
+import { version } from "~/package.json";
 
 const markitdown = new MarkItDown();
 

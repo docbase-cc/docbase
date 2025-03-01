@@ -1,7 +1,7 @@
 import type { BasePlugin } from "./Plugin";
 import { fdir } from "fdir";
 import { getExtFromPath } from "./Utils";
-import { version } from "../package.json";
+import { version } from "~/package.json";
 
 // 文档扫描器
 // 扫描指定路径下的文档, 并将路径传递给 load 函数

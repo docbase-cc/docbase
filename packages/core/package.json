@@ -1,0 +1,17 @@
+{
+  "name": "core",
+  "type": "module",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "es-toolkit": "^1.32.0",
+    "fdir": "^6.4.3",
+    "fs-extra": "^11.3.0",
+    "hash-wasm": "^4.12.0",
+    "markitdown-ts": "^0.0.4",
+    "meilisearch": "^0.49.0",
+    "slash": "^5.1.0"
+  }
+}
