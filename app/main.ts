@@ -9,10 +9,10 @@ const app = new OpenAPIHono();
 app.route("/v0/", apis);
 
 // Use the middleware to serve Swagger UI at /ui
-app.get("/", swaggerUI({ url: "/doc" }));
+app.get("/doc", swaggerUI({ url: "/openapi.json" }));
 
 // The OpenAPI documentation will be available at /doc
-app.doc("/doc", {
+app.doc("/openapi.json", {
   openapi: "3.1.0",
   info: {
     version: version,

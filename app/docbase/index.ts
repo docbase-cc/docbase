@@ -42,6 +42,8 @@ if (
   throw new Error("参数缺失");
 }
 
+// 启动 docBase
+console.log("Starting DocBase...");
 await docBase.start({
   meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_API_KEY },
   embeddingConfig: {

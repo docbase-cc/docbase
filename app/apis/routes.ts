@@ -5,6 +5,7 @@ import { SearchParamSchema, SearchResultsSchema } from "./schemas";
 export const route = createRoute({
   method: "post",
   path: "/search",
+  summary: "知识库搜索",
   request: {
     body: {
       content: {
