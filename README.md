@@ -12,15 +12,27 @@
 - 🔍 强大的混合搜索（全文检索 + 模糊搜索 + 向量搜索）功能
 - 🐳 支持 Docker 部署（plan）
 
-<!-- TODO 去除 markitdown 依赖 -->
-<!-- TODO (直接使用 meilisearch 搜索，使用 hook 处理文件校验) -->
-<!-- TODO 前端界面 -->
+<!-- 基本 -->
+<!-- TODO 简单的前端搜索界面 -->
+<!-- TODO 支持作为 dify 的外部库使用 -->
+<!-- TODO 打包 docker 镜像 -->
 <!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->
+<!-- TODO 文档和网站 -->
+<!-- TODO 上架 1panel -->
 
-<!-- TODO 
-插件管理 API
--->
+<!-- 下一步区域 -->
 
-<!-- 上架 1panel -->
+<!-- 工程化 -->
 <!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
+
+<!-- 功能 -->
+<!-- TODO 插件管理 API -->
+<!-- TODO 多知识库功能 -->
+<!-- TODO 多模态文档加载器（DocLoader 返回更多元信息） -->
+
+<!-- 性能优化 -->
+<!-- TODO 去除 markitdown 依赖 -->
+<!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
+<!-- TODO 搜索后文件校验异步化 -->
+<!-- TODO 流式加载文档 -->

@@ -1,26 +1,56 @@
 import { DocBase } from "../../src/DocBase";
-import meili from "../../.meili.json";
+import { env } from "process";
 
 const docBase = new DocBase();
 
-// TODO 改为 .env 尝试使用环境变量初始化
-console.log(process.env.EMBEDDING_MODEL);
-console.log(process.env.EMBEDDING_URL);
-console.log(process.env.EMBEDDING_APIKEY);
-console.log(process.env.EMBEDDING_DIMENSIONS);
-console.log(process.env.INIT_PATH);
-console.log(process.env.MEILI_URL);
-console.log(process.env.MEILI_API_KEY);
+const {
+  // 嵌入模型名称
+  EMBEDDING_MODEL,
+  // 嵌入模型地址
+  EMBEDDING_URL,
+  // 嵌入模型API密钥
+  EMBEDDING_APIKEY,
+  // 嵌入模型维度
+  EMBEDDING_DIMENSIONS,
+  // 知识库路径
+  INIT_PATH,
+  // MeiliSearch地址
+  MEILI_URL,
+  // MeiliSearchAPI密钥
+  MEILI_API_KEY,
+} = env;
+
+// 校验参数是否存在
+if (
+  !EMBEDDING_MODEL ||
+  !EMBEDDING_URL ||
+  !EMBEDDING_APIKEY ||
+  !EMBEDDING_DIMENSIONS ||
+  !INIT_PATH ||
+  !MEILI_URL ||
+  !MEILI_API_KEY
+) {
+  // 打印缺失的参数
+  console.log("以下参数缺失：");
+  if (!EMBEDDING_MODEL) console.log("EMBEDDING_MODEL");
+  if (!EMBEDDING_URL) console.log("EMBEDDING_URL");
+  if (!EMBEDDING_APIKEY) console.log("EMBEDDING_APIKEY");
+  if (!EMBEDDING_DIMENSIONS) console.log("EMBEDDING_DIMENSIONS");
+  if (!INIT_PATH) console.log("INIT_PATH");
+  if (!MEILI_URL) console.log("MEILI_URL");
+  if (!MEILI_API_KEY) console.log("MEILI_API_KEY");
+  throw new Error("参数缺失");
+}
 
 await docBase.start({
-  meiliSearchConfig: { host: meili.host, apiKey: meili.apiKey },
+  meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_API_KEY },
   embeddingConfig: {
-    model: "Pro/BAAI/bge-m3",
-    url: "https://api.siliconflow.cn/v1/embeddings",
-    apiKey: meili.skkey,
-    dimensions: 1024,
+    model: EMBEDDING_MODEL,
+    url: EMBEDDING_URL,
+    apiKey: EMBEDDING_APIKEY,
+    dimensions: Number(EMBEDDING_DIMENSIONS),
   },
-  initPaths: ["C:\\Users\\SOVLOOKUP\\Desktop\\111111"],
+  initPaths: [INIT_PATH],
 });
 
 export default docBase;
