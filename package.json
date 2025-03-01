@@ -14,7 +14,7 @@
   "homepage": "https://docbase.cc",
   "scripts": {
     "build": "tsup",
-    "dev": ""
+    "dev": "bun run --filter '*' dev"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -24,7 +24,7 @@
   },
   "tsup": {
     "entry": [
-      "src/index.ts"
+      "packages/core/src/index.ts"
     ],
     "format": [
       "esm",

@@ -2,7 +2,7 @@
   "name": "app",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot app/main.ts"
+    "dev": "bun run --hot src/main.ts"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.5.0",
