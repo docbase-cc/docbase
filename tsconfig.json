@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
     "paths": {
       "~/*": ["./*"]
     }

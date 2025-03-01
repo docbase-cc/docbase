@@ -1,43 +1,12 @@
 {
   "name": "docbase",
   "version": "0.0.2",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "module": "./dist/index.js",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
-  "repository": {
-    "url": "https://github.com/SOVLOOKUP/docbase"
-  },
-  "homepage": "https://docbase.cc",
   "scripts": {
-    "build": "tsup",
+    "build": "bun run --filter '*' build",
     "dev": "bun run --filter '*' dev"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.7.3"
-  },
-  "tsup": {
-    "entry": [
-      "packages/core/src/index.ts"
-    ],
-    "format": [
-      "esm",
-      "cjs"
-    ],
-    "sourcemap": true,
-    "clean": true,
-    "dts": true,
-    "treeshake": true,
-    "shims": true,
-    "minify": true
-  },
-  "files": [
-    "./dist/**"
-  ]
+  }
 }

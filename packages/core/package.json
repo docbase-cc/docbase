@@ -1,10 +1,20 @@
 {
   "name": "core",
   "type": "module",
-  "main": "src/index.ts",
-  "module": "src/index.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "repository": {
+    "url": "https://github.com/SOVLOOKUP/docbase"
+  },
+  "homepage": "https://docbase.cc",
+  "scripts": {
+    "build": "tsup",
+    "postbuild": "bun ./postbuild.ts"
+  },
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4"
+    "@types/fs-extra": "^11.0.4",
+    "tsup": "^8.4.0"
   },
   "dependencies": {
     "chokidar": "^4.0.3",
@@ -15,5 +25,23 @@
     "markitdown-ts": "^0.0.4",
     "meilisearch": "^0.49.0",
     "slash": "^5.1.0"
-  }
+  },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "sourcemap": true,
+    "clean": true,
+    "dts": true,
+    "treeshake": true,
+    "shims": true,
+    "minify": true
+  },
+  "files": [
+    "./dist/**"
+  ]
 }
