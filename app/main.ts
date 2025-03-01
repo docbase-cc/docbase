@@ -2,8 +2,12 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import apis from "./apis";
 import { version, name } from "../package.json";
+import { serveStatic } from "hono/bun";
 
 const app = new OpenAPIHono();
+
+// 前端
+app.use("/*", serveStatic({ root: "app/public" }));
 
 // 注册所有的路由
 app.route("/v0/", apis);

@@ -1,0 +1,32 @@
+{
+  "type": "page",
+  "body": {
+    "type": "flex",
+    "items": [
+      {
+        "type": "service",
+        "api": {
+          "method": "post",
+          "url": "/v0/search",
+          "sendOn": "this.q !== undefined && this.q.length > 0"
+        },
+        "body": {
+          "type": "flex",
+          "alignItems": "center",
+          "direction": "column",
+          "items": [
+            {
+              "type": "search-box",
+              "name": "q",
+              "searchImediately": true
+            },
+            {
+              "type": "tpl",
+              "tpl": "${&|json}"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
