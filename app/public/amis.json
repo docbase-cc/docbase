@@ -5,6 +5,7 @@
     "items": [
       {
         "type": "service",
+        "width": "100%",
         "api": {
           "method": "post",
           "url": "/v0/search",
@@ -12,7 +13,6 @@
         },
         "body": {
           "type": "flex",
-          "alignItems": "center",
           "direction": "column",
           "items": [
             {
@@ -21,8 +21,11 @@
               "searchImediately": true
             },
             {
-              "type": "tpl",
-              "tpl": "${&|json}"
+              "type": "list",
+              "source": "$items",
+              "listItem": {
+                "body": { "type": "markdown", "value": "${content}" }
+              }
             }
           ]
         }
