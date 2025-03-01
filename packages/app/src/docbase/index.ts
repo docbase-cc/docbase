@@ -1,4 +1,4 @@
-import { DocBase } from "../../../core/src/DocBase";
+import { DocBase } from "core";
 import { env } from "process";
 
 const docBase = new DocBase();

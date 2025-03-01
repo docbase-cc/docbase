@@ -1,6 +1,8 @@
 {
   "name": "core",
   "type": "module",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
   "devDependencies": {
     "@types/fs-extra": "^11.0.4"
   },
