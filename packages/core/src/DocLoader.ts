@@ -1,8 +1,6 @@
 import type { BasePlugin } from "./Plugin";
-import { MarkItDown } from "markitdown-ts";
+import { readFile } from "fs-extra";
 import { version } from "~/package.json";
-
-const markitdown = new MarkItDown();
 
 /**
  * 文档加载器类型定义
@@ -27,31 +25,15 @@ export interface DocLoaderPlugin<T extends object = {}>
 
 /**
  * 默认文档加载器插件实现
- * 支持的文件类型包括：md, txt, docx, pdf, xlsx, csv, html, xml, rss, atom, ipynb, zip
+ * 支持的文件类型包括：md, txt
  */
 export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   name: "default",
   version,
   type: "DocLoader",
-  exts: [
-    "md",
-    "txt",
-    "docx",
-    "pdf",
-    "xlsx",
-    "csv",
-    "html",
-    "xml",
-    "rss",
-    "atom",
-    "ipynb",
-    "zip",
-  ],
+  exts: ["md", "txt"],
   init: async () => {
     // 读取文件内容
-    return async (path: string) => {
-      const result = await markitdown.convert(path);
-      return result?.text_content || "";
-    };
+    return async (path: string) => await readFile(path, "utf-8");
   },
 };

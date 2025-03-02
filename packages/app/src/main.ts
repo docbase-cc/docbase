@@ -3,10 +3,10 @@ import { swaggerUI } from "@hono/swagger-ui";
 import apis from "./apis";
 import { version, name } from "~/package.json";
 import { cors } from "hono/cors";
-import { compress } from 'hono/compress'
 import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
+import { env } from "process";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -18,7 +18,6 @@ declare module "hono" {
 }
 
 const app = new OpenAPIHono();
-app.use(compress())
 
 // 挂在 docbase
 app.use(async (c, next) => {
@@ -27,7 +26,7 @@ app.use(async (c, next) => {
 });
 
 // 非开发环境起前端
-if (!(import.meta.env.npm_lifecycle_event === "dev"))
+if (!(env.npm_lifecycle_event === "dev"))
   app.use("/*", serveStatic({ root: "public" }));
 
 // 注册所有的路由

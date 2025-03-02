@@ -14,6 +14,7 @@
 
 <!-- 基本 -->
 <!-- TODO 打包 docker 镜像 -->
+<!-- TODO slim https://github.com/marketplace/actions/docker-slim-github-action -->
 
 <!-- TODO 支持作为 dify 的外部库使用 -->
 <!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->
@@ -32,7 +33,6 @@
 <!-- TODO 多模态文档加载器（DocLoader 返回更多元信息） -->
 
 <!-- 性能优化 -->
-<!-- TODO 去除 markitdown 依赖 -->
 <!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
 <!-- TODO 搜索后文件校验异步化 -->
 <!-- TODO 流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
