@@ -2,9 +2,17 @@
     <!-- 搜索结果展示区 -->
     <div v-if="searchResults.length > 0" class="mt-6 space-y-6">
         <div v-for="({ content, paths }, index) of searchResults" :key="index"
-            class="bg-white/90 rounded-lg shadow-lg p-6 backdrop-blur-sm">
+            class="relative bg-white/90 rounded-lg shadow-lg p-6 backdrop-blur-sm">
+            <!-- 序号展示 -->
+            <div class="absolute -left-4 -top-4 w-8 h-8 flex items-center justify-center 
+                       bg-white/60 backdrop-blur-sm border border-white/50
+                       rounded-full shadow-lg">
+                <span class="bg-gradient-to-br from-blue-500 to-indigo-600 bg-clip-text text-transparent 
+                           font-semibold text-sm">{{ index + 1 }}</span>
+            </div>
+
             <!-- 文件路径展示 -->
-            <div class="mb-4">
+            <div class="mb-6">
                 <div class="text-gray-600">
                     <div class="flex items-center gap-2 mb-2">
                         <i class="i-carbon-folder text-lg"></i>
@@ -23,6 +31,9 @@
                 </div>
             </div>
 
+            <!-- 分割线 -->
+            <div class="h-px bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"></div>
+            
             <!-- Markdown内容渲染 -->
             <div class="prose prose-sm max-w-none break-words overflow-hidden max-w-full h-auto">
                 <div v-html="micromark(content)" />

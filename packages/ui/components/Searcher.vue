@@ -32,6 +32,8 @@ watch(() => fields.value.q, debounce(async (newVal) => {
         fields.value.searchResults = res.data!
 
         isLoading.value = false
+    } else {
+        fields.value.searchResults = []
     }
 }, 400))
 </script>
