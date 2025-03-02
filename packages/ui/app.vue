@@ -3,7 +3,7 @@
     <div class="w-full max-w-3xl px-4">
       <!-- 搜索框容器 -->
       <div class="relative group w-full">
-        <input type="text" placeholder="开始搜索..." :class="[
+        <input type="text" placeholder="开始搜索 DocBase..." :class="[
           'w-full px-6 py-4 text-lg rounded-full bg-white/10 backdrop-blur-md border text-white placeholder-white/70 outline-none transition-all duration-300 shadow-lg text-center',
           isLoading ? 'animate-scanning-border' : 'border-white/20 focus:ring-2 focus:ring-white/30'
         ]" @focus="isSearchFocused = true" @blur="isSearchFocused = false" v-model="searchQuery" />

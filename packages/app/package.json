@@ -2,12 +2,17 @@
   "name": "app",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot src/main.ts"
+    "dev": "bun run --hot src/main.ts",
+    "gen": "bun ./build.ts"
   },
-  "dependencies": {
+  "devDependencies": {
     "@hono/swagger-ui": "^0.5.0",
     "@hono/zod-openapi": "^0.19.0",
     "hono": "^4.7.2",
-    "core": "workspace:*"
+    "core": "workspace:*",
+    "@hey-api/openapi-ts": "^0.64.8"
+  },
+  "dependencies": {
+    "@hey-api/client-fetch": "^0.8.2"
   }
 }
