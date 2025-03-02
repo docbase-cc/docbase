@@ -14,28 +14,50 @@
           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
         </div>
         <div v-else class="space-y-4">
-          <div v-for="i in 3" :key="i"
+          <!-- <div v-for="i in 3" :key="i"
             class="p-4 hover:bg-white/10 rounded-lg transition-colors duration-200 cursor-pointer">
             <h3 class="text-white text-lg font-semibold">搜索结果 {{ i }}</h3>
             <p class="text-white/70 mt-1">这是一个示例搜索结果描述，展示了搜索功能的界面效果。</p>
-          </div>
+          </div> -->
+
+          <!-- TODO 展示页面 -->
+          {{ contents }}
         </div>
       </div>
     </div>
   </div>
 </template>
-<script setup>
+<script setup lang="ts">
+// TODO 封装为组件
+import { postSearch, type SearchResult } from "app/client"
+
 const searchQuery = ref('')
 const isSearchFocused = ref(false)
 const isLoading = ref(false)
+const contents = ref<SearchResult[]>([])
+
+import { client } from "app/client/client.gen"
+// TODO 区分开发和生产环境
+// TODO 一键启动开发环境
+client.setConfig({
+  baseUrl: "http://localhost:3000/v0"
+})
 
 // 监听搜索输入，模拟加载状态
-watch(searchQuery, (newVal) => {
+// TODO 防抖
+watch(searchQuery, async (newVal) => {
   if (newVal) {
     isLoading.value = true
-    setTimeout(() => {
-      isLoading.value = false
-    }, 1500)
+
+    const res = await postSearch({
+      client,
+      body: {
+        q: "hello"
+      }
+    })
+
+    contents.value = res.data!
+    isLoading.value = false
   }
 })
 </script>
