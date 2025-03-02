@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --hot src/main.ts",
-    "gen": "bun ./build.ts"
+    "gen": "bun ./gen.ts"
   },
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.0",
