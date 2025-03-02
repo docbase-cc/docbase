@@ -5,7 +5,7 @@ import { version, name } from "~/package.json";
 import { cors } from "hono/cors";
 import docBase from "./docbase";
 import { type DocBase } from "core/src";
-// import { serveStatic } from "hono/bun";
+import { serveStatic } from "hono/bun";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -24,8 +24,13 @@ app.use(async (c, next) => {
   await next();
 });
 
-// 前端
-// app.use("/*", serveStatic({ root: "app/public" }));
+console.log(
+  import.meta.env.npm_lifecycle_event === "dev" ? "开发环境" : "生产环境"
+);
+
+// 非开发环境起前端
+if (!(import.meta.env.npm_lifecycle_event === "dev"))
+  app.use("/*", serveStatic({ root: "public" }));
 
 // 注册所有的路由
 app.use(`/${routeVersion}/*`, cors());

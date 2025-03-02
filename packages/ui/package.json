@@ -10,7 +10,6 @@
   },
   "devDependencies": {
     "app": "workspace:*",
-    "core": "workspace:*",
     "es-toolkit": "^1.32.0",
     "micromark": "^4.0.2",
     "nuxt": "^3.15.4",
