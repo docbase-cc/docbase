@@ -10,10 +10,10 @@ const openapi = apis.getOpenAPI31Document({
     title: name,
   },
 });
-const openapiPath = "dist/openapi.json";
+const openapiPath = "client/openapi.json";
 
 // 确保目录存在
-const dir = openapiPath.split('/').slice(0, -1).join('/');
+const dir = openapiPath.split("/").slice(0, -1).join("/");
 
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });

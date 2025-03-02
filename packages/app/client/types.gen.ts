@@ -29,5 +29,5 @@ export type PostSearchResponses = {
 export type PostSearchResponse = PostSearchResponses[keyof PostSearchResponses];
 
 export type ClientOptions = {
-    baseUrl: `${string}://dist` | (string & {});
+    baseUrl: `${string}://client` | (string & {});
 };
