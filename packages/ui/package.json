@@ -9,10 +9,12 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "app": "workspace:*",
+    "es-toolkit": "^1.32.0",
+    "micromark": "^4.0.2",
     "nuxt": "^3.15.4",
     "vue": "latest",
-    "vue-router": "latest",
-    "app": "workspace:*"
+    "vue-router": "latest"
   },
   "devDependencies": {
     "@unocss/nuxt": "^66.1.0-beta.3",

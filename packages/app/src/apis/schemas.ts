@@ -6,7 +6,7 @@ import { z } from "@hono/zod-openapi";
 export const SearchResultSchema = z
   .object({
     hash: z.string().length(16),
-    path: z.array(z.string()),
+    paths: z.array(z.string()),
     content: z.string(),
   })
   .openapi("SearchResult");

@@ -2,7 +2,7 @@
 
 export type SearchResult = {
     hash: string;
-    path: Array<string>;
+    paths: Array<string>;
     content: string;
 };
 
