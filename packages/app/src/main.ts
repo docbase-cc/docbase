@@ -4,11 +4,8 @@ import apis from "./apis";
 import { version, name } from "~/package.json";
 import { cors } from "hono/cors";
 import docBase from "./docbase";
-import type { DocBase } from "core/src";
+import { routeVersion, type DocBase } from "core/src";
 // import { serveStatic } from "hono/bun";
-
-// 路由版本
-const routeVersion = `v${version.split(".")[0]}`;
 
 declare module "hono" {
   interface ContextVariableMap {

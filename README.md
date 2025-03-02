@@ -13,7 +13,6 @@
 - 🐳 支持 Docker 部署（plan）
 
 <!-- 基本 -->
-<!-- TODO 简单的前端搜索界面 -->
 <!-- TODO 支持作为 dify 的外部库使用 -->
 <!-- TODO 打包 docker 镜像 -->
 <!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->
