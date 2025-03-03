@@ -31,8 +31,23 @@ jobs:
 
       - run: bun run build
 
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Get latest version of docbase
+        run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
+
+      - run: echo ${{ steps.package-version.outputs.current-version}}
+
+      - name: Need Update
+        id: nu
+        run: echo ${{ steps.package-version.outputs.current-version != env.LATEST_VERSION }}
+
       # 将构建产物上传为 artifacts
       - name: Upload build artifacts
+        # 需要更新版本
+        if: ${{ steps.package-version.outputs.current-version != env.LATEST_VERSION }}
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -58,25 +73,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
-        with:
-          path: dist
-
-      - name: Get latest version of docbase
-        run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
-
-      - run: echo ${{ steps.package-version.outputs.current-version}}
-
-      - name: Need Update
-        id: nu
-        run: echo ${{ steps.package-version.outputs.current-version != env.LATEST_VERSION }}
-
-      - run: echo ${{ steps.nu.outputs }}
-
       - name: Publish
-        if: ${{ steps.nu.outputs }}
         run: |
           cd dist
           npm publish --access public --no-git-checks
