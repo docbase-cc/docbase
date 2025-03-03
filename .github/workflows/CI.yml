@@ -43,6 +43,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # 下载构建产物
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
       - name: Install Node.js
         uses: actions/setup-node@v4
 
@@ -54,24 +61,19 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
+        with:
+          path: dist
 
       - name: Get latest version of docbase
         run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
 
       - run: echo ${{ steps.package-version.outputs.current-version}}
-      
+
       - name: Need Update
         id: nu
         run: echo ${{ steps.package-version.outputs.current-version == env.LATEST_VERSION }}
 
       - run: ${{ steps.nu.outputs }}
-
-      # 下载构建产物
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
 
       - name: Publish
         run: |
