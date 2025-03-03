@@ -50,13 +50,6 @@ jobs:
             echo "has_update=false" >> $GITHUB_OUTPUT
           fi
 
-      # 将构建产物上传为 artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
-
       # 如果有更新则创建发行版本
       - name: Create Release
         if: steps.check_version.outputs.has_update == 'true'
@@ -64,8 +57,13 @@ jobs:
         with:
           tag_name: v${{ steps.package-version.outputs.current-version }}
           name: Release v${{ steps.package-version.outputs.current-version }}
-          files: |
-            dist/*
+
+      # 将构建产物上传为 artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
 
   publish:
     name: Publish
