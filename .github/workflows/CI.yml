@@ -13,10 +13,10 @@ name: CI
       - docs/**
       - test.ts
   pull_request: null
-
+  
 jobs:
-  publish:
-    name: Publish
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,6 +30,25 @@ jobs:
       - run: bun install
 
       - run: bun run build
+
+      # 将构建产物上传为 artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # 下载构建产物
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist
 
       - name: Install Node.js
         uses: actions/setup-node@v4

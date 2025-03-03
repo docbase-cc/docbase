@@ -1,12 +1,9 @@
-FROM oven/bun:alpine
+FROM oven/bun
 
 WORKDIR /app
 
-# 复制前端构建产物
-COPY packages/ui/.output/public ./public
-
-# 复制后端构建产物
-COPY packages/app/dist/* ./
+# 复制构建产物
+COPY dist/main /app
 
 EXPOSE 3000
 

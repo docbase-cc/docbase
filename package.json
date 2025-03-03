@@ -6,7 +6,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "bun run --filter '*' build",
+    "build": "bun run --filter '*' build && bun ./postbuild.ts",
     "dev": "bun ./dev.ts"
   },
   "devDependencies": {

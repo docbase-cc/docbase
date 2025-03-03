@@ -39,5 +39,8 @@
     "treeshake": true,
     "shims": true,
     "minify": true
-  }
+  },
+  "files": [
+    "./dist/**/*"
+  ]
 }
