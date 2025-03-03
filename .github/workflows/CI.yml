@@ -18,6 +18,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    outputs:
+      has_artifact: ${{ steps.check_version.outputs.has_artifact }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,16 +40,19 @@ jobs:
       - name: Get latest version of docbase
         run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
 
-      - run: echo ${{ steps.package-version.outputs.current-version}}
-
-      - name: Need Update
-        id: nu
-        run: echo ${{ steps.package-version.outputs.current-version != env.LATEST_VERSION }}
+      - name: Check version and set output
+        id: check_version
+        run: |
+          if [ "${{ steps.package-version.outputs.current-version }}" != "${{ env.LATEST_VERSION }}" ]; then
+            echo "has_artifact=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_artifact=false" >> $GITHUB_OUTPUT
+          fi
 
       # 将构建产物上传为 artifacts
       - name: Upload build artifacts
         # 需要更新版本
-        if: ${{ steps.package-version.outputs.current-version != env.LATEST_VERSION }}
+        if: steps.check_version.outputs.has_artifact == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -55,8 +60,8 @@ jobs:
 
   publish:
     name: Publish
-    if: false
     needs: build
+    if: needs.build.outputs.has_artifact == 'true'
     runs-on: ubuntu-latest
     steps:
       # 下载构建产物
@@ -81,8 +86,8 @@ jobs:
 
   docker:
     name: Build and Push Docker Image
-    if: false
     needs: build
+    if: needs.build.outputs.has_artifact == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
