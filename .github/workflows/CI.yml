@@ -55,6 +55,7 @@ jobs:
 
   publish:
     name: Publish
+    if: false
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -80,6 +81,7 @@ jobs:
 
   docker:
     name: Build and Push Docker Image
+    if: false
     needs: build
     runs-on: ubuntu-latest
     steps:
