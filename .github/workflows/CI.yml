@@ -19,7 +19,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     outputs:
-      has_artifact: ${{ steps.check_version.outputs.has_artifact }}
+      has_update: ${{ steps.check_version.outputs.has_update }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,24 +44,34 @@ jobs:
         id: check_version
         run: |
           if [ "${{ steps.package-version.outputs.current-version }}" != "${{ env.LATEST_VERSION }}" ]; then
-            echo "has_artifact=true" >> $GITHUB_OUTPUT
+            echo "has_update=true" >> $GITHUB_OUTPUT
           else
-            echo "has_artifact=false" >> $GITHUB_OUTPUT
+            echo "has_update=false" >> $GITHUB_OUTPUT
           fi
 
       # 将构建产物上传为 artifacts
       - name: Upload build artifacts
-        # 需要更新版本
-        if: steps.check_version.outputs.has_artifact == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
 
+      # 如果有更新则创建发行版本
+      - name: Create Release
+        if: steps.check_version.outputs.has_update == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version }}
+          name: Release v${{ steps.package-version.outputs.current-version }}
+          files: |
+            dist/*
+          draft: false
+          prerelease: false
+
   publish:
     name: Publish
     needs: build
-    if: needs.build.outputs.has_artifact == 'true'
+    if: needs.build.outputs.has_update == 'true'
     runs-on: ubuntu-latest
     steps:
       # 下载构建产物
@@ -87,7 +97,7 @@ jobs:
   docker:
     name: Build and Push Docker Image
     needs: build
-    if: needs.build.outputs.has_artifact == 'true'
+    if: needs.build.outputs.has_update == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -107,6 +117,12 @@ jobs:
           username: gonorth
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+        with:
+          path: dist
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -117,7 +133,7 @@ jobs:
           context: .
           load: true
           push: false
-          tags: gonorth/docbase:latest
+          tags: gonorth/docbase:latest,gonorth/docbase:${{ steps.package-version.outputs.current-version }}
 
       # Slim it!
       # - uses: kitabisa/docker-slim-action@v1
