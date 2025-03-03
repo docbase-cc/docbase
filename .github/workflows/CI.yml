@@ -65,8 +65,6 @@ jobs:
           name: Release v${{ steps.package-version.outputs.current-version }}
           files: |
             dist/*
-          draft: false
-          prerelease: false
 
   publish:
     name: Publish
