@@ -2,7 +2,7 @@ FROM oven/bun:alpine
 
 WORKDIR /app
 
-COPY ./dist/main /app
+COPY dist/main /app
 
 EXPOSE 3000
 
