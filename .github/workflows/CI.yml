@@ -54,12 +54,12 @@ jobs:
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
-        with:
-          path: ./
 
       - name: Get latest version of docbase
         run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
 
+      - run: echo ${{ steps.package-version.outputs.current-version}}
+      
       - name: Need Update
         id: nu
         run: echo ${{ steps.package-version.outputs.current-version == env.LATEST_VERSION }}

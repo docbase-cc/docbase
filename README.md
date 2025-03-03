@@ -13,9 +13,7 @@
 - 🐳 支持 Docker 部署（plan）
 
 <!-- 基本 -->
-<!-- TODO 打包 docker 镜像 -->
-<!-- TODO slim https://github.com/marketplace/actions/docker-slim-github-action -->
-
+<!-- TODO docker 文件监视正常运行 -->
 <!-- TODO 支持作为 dify 的外部库使用 -->
 <!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->
 <!-- TODO 文档和网站 -->
