@@ -71,11 +71,12 @@ jobs:
 
       - name: Need Update
         id: nu
-        run: echo ${{ steps.package-version.outputs.current-version == env.LATEST_VERSION }}
+        run: echo ${{ steps.package-version.outputs.current-version !== env.LATEST_VERSION }}
 
-      - run: ${{ steps.nu.outputs }}
+      - run: echo ${{ steps.nu.outputs }}
 
       - name: Publish
+        if: ${{ steps.nu.outputs }}
         run: |
           cd dist
           npm publish --access public --no-git-checks
