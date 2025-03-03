@@ -58,9 +58,13 @@ jobs:
       - name: Get latest version of docbase
         run: echo "LATEST_VERSION=$(npm view docbase version)" >> $GITHUB_ENV
 
-      - run: echo ${{ steps.package-version.outputs.current-version}}
-      - run: echo $LATEST_VERSION
-      - run: echo "${{ steps.package-version.outputs.current-version}}" != "$LATEST_VERSION"
+      # 判断当前版本和最新版本是否相等
+      - run: |
+          if [ "${{ steps.package-version.outputs.current-version}}" != "$LATEST_VERSION" ]; then
+            echo "true"
+          else
+            echo "false"
+          fi
 
       # 下载构建产物
       - name: Download build artifacts
