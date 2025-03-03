@@ -13,7 +13,8 @@ name: CI
       - docs/**
       - test.ts
   pull_request: null
-
+permissions:
+  contents: write
 jobs:
   build:
     name: Build
