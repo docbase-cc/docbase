@@ -13,7 +13,7 @@ name: CI
       - docs/**
       - test.ts
   pull_request: null
-  
+
 jobs:
   build:
     name: Build
@@ -77,6 +77,8 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - run: ls -R
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
