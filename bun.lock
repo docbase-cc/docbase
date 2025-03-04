@@ -4,6 +4,7 @@
     "": {
       "name": "docbase",
       "devDependencies": {
+        "@types/bun": "^1.2.4",
         "chalk": "^5.4.1",
       },
     },
@@ -518,6 +519,8 @@
 
     "@trysound/sax": ["@trysound/sax@0.2.0", "https://registry.npmmirror.com/@trysound/sax/-/sax-0.2.0.tgz", {}, "sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA=="],
 
+    "@types/bun": ["@types/bun@1.2.4", "https://registry.npmmirror.com/@types/bun/-/bun-1.2.4.tgz", { "dependencies": { "bun-types": "1.2.4" } }, "sha512-QtuV5OMR8/rdKJs213iwXDpfVvnskPXY/S0ZiFbsTjQZycuqPbMW8Gf/XhLfwE5njW8sxI2WjISURXPlHypMFA=="],
+
     "@types/debug": ["@types/debug@4.1.12", "https://registry.npmmirror.com/@types/debug/-/debug-4.1.12.tgz", { "dependencies": { "@types/ms": "*" } }, "sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ=="],
 
     "@types/estree": ["@types/estree@1.0.6", "https://registry.npmmirror.com/@types/estree/-/estree-1.0.6.tgz", {}, "sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw=="],
@@ -537,6 +540,8 @@
     "@types/parse-path": ["@types/parse-path@7.0.3", "https://registry.npmmirror.com/@types/parse-path/-/parse-path-7.0.3.tgz", {}, "sha512-LriObC2+KYZD3FzCrgWGv/qufdUy4eXrxcLgQMfYXgPbLIecKIsVBaQgUPmxSSLcjmYbDTQbMgr6qr6l/eb7Bg=="],
 
     "@types/resolve": ["@types/resolve@1.20.2", "https://registry.npmmirror.com/@types/resolve/-/resolve-1.20.2.tgz", {}, "sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q=="],
+
+    "@types/ws": ["@types/ws@8.5.14", "https://registry.npmmirror.com/@types/ws/-/ws-8.5.14.tgz", { "dependencies": { "@types/node": "*" } }, "sha512-bd/YFLW+URhBzMXurx7lWByOu+xzU9+kb3RboOteXYDfW+tr+JZa99OyNmPINEGB/ahzKrEuc8rcv4gnpJmxTw=="],
 
     "@unhead/dom": ["@unhead/dom@1.11.20", "https://registry.npmmirror.com/@unhead/dom/-/dom-1.11.20.tgz", { "dependencies": { "@unhead/schema": "1.11.20", "@unhead/shared": "1.11.20" } }, "sha512-jgfGYdOH+xHJF/j8gudjsYu3oIjFyXhCWcgKaw3vQnT616gSqyqnGQGOItL+BQtQZACKNISwIfx5PuOtztMKLA=="],
 
@@ -801,6 +806,8 @@
     "buffer-xor": ["buffer-xor@1.0.3", "https://registry.npmmirror.com/buffer-xor/-/buffer-xor-1.0.3.tgz", {}, "sha512-571s0T7nZWK6vB67HI5dyUF7wXiNcfaPPPTl6zYCNApANjIvYJTg7hlud/+cJpdAhS7dVzqMLmfhfHR3rAcOjQ=="],
 
     "builtin-status-codes": ["builtin-status-codes@3.0.0", "https://registry.npmmirror.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz", {}, "sha512-HpGFw18DgFWlncDfjTa2rcQ4W88O1mC8e8yZ2AvQY5KDaktSTwo+KRf6nHK6FRI5FyRyb/5T6+TSxfP7QyGsmQ=="],
+
+    "bun-types": ["bun-types@1.2.4", "https://registry.npmmirror.com/bun-types/-/bun-types-1.2.4.tgz", { "dependencies": { "@types/node": "*", "@types/ws": "~8.5.10" } }, "sha512-nDPymR207ZZEoWD4AavvEaa/KZe/qlrbMSchqpQwovPZCKc7pwMoENjEtHgMKaAjJhy+x6vfqSBA1QU3bJgs0Q=="],
 
     "bundle-name": ["bundle-name@4.1.0", "https://registry.npmmirror.com/bundle-name/-/bundle-name-4.1.0.tgz", { "dependencies": { "run-applescript": "^7.0.0" } }, "sha512-tjwM5exMg6BGRI+kNmTntNsvdZS1X8BFYS6tnJ2hdH0kVxM6/eVZ2xy+FqStSWvYmtfFMDLIxurorHwDKfDz5Q=="],
 
