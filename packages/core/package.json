@@ -19,7 +19,7 @@
   "dependencies": {
     "es-toolkit": "^1.32.0",
     "fdir": "^6.4.3",
-    "filesystem-notify": "^0.0.2",
+    "filesystem-notify": "latest",
     "fs-extra": "^11.3.0",
     "hash-wasm": "^4.12.0",
     "meilisearch": "^0.49.0",
@@ -42,5 +42,22 @@
   },
   "files": [
     "./dist/**/*"
-  ]
+  ],
+  "optionalDependencies": {
+    "filesystem-notify-win32-x64-msvc": "latest",
+    "filesystem-notify-darwin-x64": "latest",
+    "filesystem-notify-linux-x64-gnu": "latest",
+    "filesystem-notify-darwin-arm64": "latest",
+    "filesystem-notify-android-arm64": "latest",
+    "filesystem-notify-linux-arm64-gnu": "latest",
+    "filesystem-notify-linux-arm64-musl": "latest",
+    "filesystem-notify-win32-arm64-msvc": "latest",
+    "filesystem-notify-linux-arm-gnueabihf": "latest",
+    "filesystem-notify-linux-arm-musleabihf": "latest",
+    "filesystem-notify-linux-x64-musl": "latest",
+    "filesystem-notify-win32-ia32-msvc": "latest",
+    "filesystem-notify-android-arm-eabi": "latest",
+    "filesystem-notify-darwin-universal": "latest",
+    "filesystem-notify-linux-riscv64-gnu": "latest"
+  }
 }
