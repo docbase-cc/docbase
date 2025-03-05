@@ -114,7 +114,16 @@ export class DocBase {
    * @param dir - 要监视的目录路径
    */
   #watch = async (dir: string) => {
-    const unwatch = await this.#docWatcher.func(dir);
+    const unwatch = await this.#docWatcher.func({
+      path: dir,
+      filter: (path: string) => {
+        const ext = getExtFromPath(path);
+        return this.#docExtToLoaderName.has(ext);
+      },
+      upsert: async (path: string) => await this.#docManager.upsertDoc(path),
+      remove: async (path: string) =>
+        await this.#docManager.deleteDocByPath(path),
+    });
 
     this.#baseDirs.set(dir, {
       unwatch,
@@ -144,16 +153,7 @@ export class DocBase {
       },
       {
         plugin: defaultDocWatcherPlugin,
-        params: {
-          filter: (path: string) => {
-            const ext = getExtFromPath(path);
-            return this.#docExtToLoaderName.has(ext);
-          },
-          upsert: async (path: string) =>
-            await this.#docManager.upsertDoc(path),
-          remove: async (path: string) =>
-            await this.#docManager.deleteDocByPath(path),
-        },
+        params: {},
       },
     ],
     initscan = true,

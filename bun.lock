@@ -26,7 +26,7 @@
       "dependencies": {
         "es-toolkit": "^1.32.0",
         "fdir": "^6.4.3",
-        "filesystem-notify": "^0.0.1",
+        "filesystem-notify": "^0.0.2",
         "fs-extra": "^11.3.0",
         "hash-wasm": "^4.12.0",
         "meilisearch": "^0.49.0",
@@ -985,37 +985,29 @@
 
     "file-uri-to-path": ["file-uri-to-path@1.0.0", "https://registry.npmmirror.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz", {}, "sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw=="],
 
-    "filesystem-notify": ["filesystem-notify@0.0.1", "https://registry.npmmirror.com/filesystem-notify/-/filesystem-notify-0.0.1.tgz", { "optionalDependencies": { "filesystem-notify-android-arm-eabi": "0.0.1", "filesystem-notify-android-arm64": "0.0.1", "filesystem-notify-darwin-arm64": "0.0.1", "filesystem-notify-darwin-universal": "0.0.1", "filesystem-notify-darwin-x64": "0.0.1", "filesystem-notify-linux-arm-gnueabihf": "0.0.1", "filesystem-notify-linux-arm-musleabihf": "0.0.1", "filesystem-notify-linux-arm64-gnu": "0.0.1", "filesystem-notify-linux-arm64-musl": "0.0.1", "filesystem-notify-linux-riscv64-gnu": "0.0.1", "filesystem-notify-linux-x64-gnu": "0.0.1", "filesystem-notify-linux-x64-musl": "0.0.1", "filesystem-notify-win32-arm64-msvc": "0.0.1", "filesystem-notify-win32-ia32-msvc": "0.0.1", "filesystem-notify-win32-x64-msvc": "0.0.1" } }, "sha512-7fD0IiZZJaY/f8oA6DOO6OAJNIZNJQfsUvqC2q+0UnwtsOblnW/wUCgYkW778ikZ7D2n+QovRDXGxjj5FJst4Q=="],
+    "filesystem-notify": ["filesystem-notify@0.0.2", "https://registry.npmmirror.com/filesystem-notify/-/filesystem-notify-0.0.2.tgz", { "optionalDependencies": { "filesystem-notify-android-arm-eabi": "0.0.2", "filesystem-notify-android-arm64": "0.0.2", "filesystem-notify-darwin-arm64": "0.0.2", "filesystem-notify-darwin-universal": "0.0.2", "filesystem-notify-darwin-x64": "0.0.2", "filesystem-notify-linux-arm-gnueabihf": "0.0.2", "filesystem-notify-linux-arm-musleabihf": "0.0.2", "filesystem-notify-linux-arm64-gnu": "0.0.2", "filesystem-notify-linux-arm64-musl": "0.0.2", "filesystem-notify-linux-riscv64-gnu": "0.0.2", "filesystem-notify-linux-x64-gnu": "0.0.2", "filesystem-notify-linux-x64-musl": "0.0.2", "filesystem-notify-win32-arm64-msvc": "0.0.2", "filesystem-notify-win32-ia32-msvc": "0.0.2", "filesystem-notify-win32-x64-msvc": "0.0.2" } }, "sha512-1qbRU+vBP3ZXihQWJZla3xm7u1eeXzg8qay9y3smhEdJsZ0fi6v/CW/MsQ3mp5fb9N5sXoA7bl83k58oaermbw=="],
 
-    "filesystem-notify-android-arm-eabi": ["filesystem-notify-android-arm-eabi@0.0.1", "https://registry.npmmirror.com/filesystem-notify-android-arm-eabi/-/filesystem-notify-android-arm-eabi-0.0.1.tgz", { "os": "android", "cpu": "arm" }, "sha512-WVBK5DQD9EyIOY/qiWuxalcYwfRsN1r6z1Sp88P5k2kXWsJdxcAq2LuZjcv97cLzsXWxLn2Oukr3ugddOM+jsA=="],
+    "filesystem-notify-android-arm-eabi": ["filesystem-notify-android-arm-eabi@0.0.2", "https://registry.npmmirror.com/filesystem-notify-android-arm-eabi/-/filesystem-notify-android-arm-eabi-0.0.2.tgz", { "os": "android", "cpu": "arm" }, "sha512-5R24vaCBzObdYLo7QQrfoXp78lP3w4ACrr4Rp1B48lG1JxdlMWTxhEb1NolHkJ99w3g8ZvX7T/gOc1c2k4JjPQ=="],
 
-    "filesystem-notify-android-arm64": ["filesystem-notify-android-arm64@0.0.1", "https://registry.npmmirror.com/filesystem-notify-android-arm64/-/filesystem-notify-android-arm64-0.0.1.tgz", { "os": "android", "cpu": "arm64" }, "sha512-qpCMptdiNS3LhcY/hKISS/ovkXSYi3nDAc/CaNS854INoZ+/FxcORvHhizv7/DaPULHjcWwWgCoh37B88AUo6A=="],
+    "filesystem-notify-android-arm64": ["filesystem-notify-android-arm64@0.0.2", "https://registry.npmmirror.com/filesystem-notify-android-arm64/-/filesystem-notify-android-arm64-0.0.2.tgz", { "os": "android", "cpu": "arm64" }, "sha512-blA3U+xfMboOjzgDFbguko2/UG/FT0XYEp8XfUzEhCuYmw62aJ5DnVff16GxGFYAyutoyRp9KzFnzAStlb3dxA=="],
 
-    "filesystem-notify-darwin-arm64": ["filesystem-notify-darwin-arm64@0.0.1", "https://registry.npmmirror.com/filesystem-notify-darwin-arm64/-/filesystem-notify-darwin-arm64-0.0.1.tgz", { "os": "darwin", "cpu": "arm64" }, "sha512-hCkX94LyKvOPiU5j9luYcybr9+GU+ZHpVsv1IV+GMEONlJ8SMDV70BEyecCG/b6mNEWv9WV+JYuRFKVLlYy/Jg=="],
+    "filesystem-notify-darwin-universal": ["filesystem-notify-darwin-universal@0.0.2", "https://registry.npmmirror.com/filesystem-notify-darwin-universal/-/filesystem-notify-darwin-universal-0.0.2.tgz", { "os": "darwin" }, "sha512-rOi5cMfXsEt/gsMAnxI3G3uQnUCepcHPQtB1IfyOblvwTF1xsAv+xb0rzbtQB+GDE8zHx/Nou+8BWbpaifRUhg=="],
 
-    "filesystem-notify-darwin-universal": ["filesystem-notify-darwin-universal@0.0.1", "https://registry.npmmirror.com/filesystem-notify-darwin-universal/-/filesystem-notify-darwin-universal-0.0.1.tgz", { "os": "darwin" }, "sha512-GEspBrbW9ItqIxOnV/l7w8y90Ie6x3tNATOtzr+aIXsQvh7gMUc1WG3WJ9L/57AOyB7tHXQTVG6KroQVy/fKAQ=="],
+    "filesystem-notify-linux-arm-gnueabihf": ["filesystem-notify-linux-arm-gnueabihf@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-arm-gnueabihf/-/filesystem-notify-linux-arm-gnueabihf-0.0.2.tgz", { "os": "linux", "cpu": "arm" }, "sha512-mRvcAjHWEs/WZiOJUdAUIVbtQRNuaM/SMnLTd1LWeFat1M7De539BcQBi5fH96qFOy5SrL5UXvUsfkhl1Dwftw=="],
 
-    "filesystem-notify-darwin-x64": ["filesystem-notify-darwin-x64@0.0.1", "https://registry.npmmirror.com/filesystem-notify-darwin-x64/-/filesystem-notify-darwin-x64-0.0.1.tgz", { "os": "darwin", "cpu": "x64" }, "sha512-pqzNYD4VLXWedt7WsUozCTsTECElWiV8P3bteD9foJtd8GR9IsaRVzgFgpfrGtvXsIvYrJ9YX9nIFoQppHMtSg=="],
+    "filesystem-notify-linux-arm-musleabihf": ["filesystem-notify-linux-arm-musleabihf@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-arm-musleabihf/-/filesystem-notify-linux-arm-musleabihf-0.0.2.tgz", { "os": "linux", "cpu": "arm" }, "sha512-6M9R4QsWvu4H9ttX3nusfTPZVdP27o+vuVlKgJ7aKycauidX1PwEY5JOHdHOWGRzu0WuzMuaXnx6qPNAAALQcQ=="],
 
-    "filesystem-notify-linux-arm-gnueabihf": ["filesystem-notify-linux-arm-gnueabihf@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-arm-gnueabihf/-/filesystem-notify-linux-arm-gnueabihf-0.0.1.tgz", { "os": "linux", "cpu": "arm" }, "sha512-wPzqy/68Y/43iIXnmP/74YwMLME8hbhML2tDNMsPMjlAfn/9SWYwjR1ams8FcOZ4VuNj2IsLBSM22U7oLQTYbw=="],
+    "filesystem-notify-linux-arm64-gnu": ["filesystem-notify-linux-arm64-gnu@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-arm64-gnu/-/filesystem-notify-linux-arm64-gnu-0.0.2.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-ddVA3BX+yzAlx+xMAEBe+6Q2Cm9arB3WVeUuwTx9np2kQjtvQuGdxdtu+T1MbAnaCEtgQsOXOWNjS4xGgrm0XQ=="],
 
-    "filesystem-notify-linux-arm-musleabihf": ["filesystem-notify-linux-arm-musleabihf@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-arm-musleabihf/-/filesystem-notify-linux-arm-musleabihf-0.0.1.tgz", { "os": "linux", "cpu": "arm" }, "sha512-xwUP8Q13WvhvABnj4AGHSKUJTI0HYkZwZk963A2xZ1HMAiB+xWx12JTGczPubgsMoe7+Vh7G0UQDHXQAlqzbCA=="],
+    "filesystem-notify-linux-arm64-musl": ["filesystem-notify-linux-arm64-musl@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-arm64-musl/-/filesystem-notify-linux-arm64-musl-0.0.2.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-L8vVSzbi7edkC+VHlKw/bzhy7/l91xFiW1BqfFTUdgDhQoUnYAF4w1a77B/+aIPWIrtRZIgr3+ZlYdGOkbqZ3g=="],
 
-    "filesystem-notify-linux-arm64-gnu": ["filesystem-notify-linux-arm64-gnu@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-arm64-gnu/-/filesystem-notify-linux-arm64-gnu-0.0.1.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-gA1Ba39HzTrT+WMZlRi+HM0E6ihUy+0GqeMvccToubv3UzYYnczZJ/LckZT3qRmY9mxD+dP6iej8xFw9O5LiYg=="],
+    "filesystem-notify-linux-riscv64-gnu": ["filesystem-notify-linux-riscv64-gnu@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-riscv64-gnu/-/filesystem-notify-linux-riscv64-gnu-0.0.2.tgz", { "os": "linux", "cpu": "none" }, "sha512-U0r25ILnrhhJQtojKMOqBYwJubhF8OfYAF2fs2aXbn2oBip4+p55yEBkv1WdXUwkTJulTWJVpOLirbySLAohYw=="],
 
-    "filesystem-notify-linux-arm64-musl": ["filesystem-notify-linux-arm64-musl@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-arm64-musl/-/filesystem-notify-linux-arm64-musl-0.0.1.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-08drNb64e5UCxkUOFxcm1RcvSniL6REGMFc9cRwMgjtKkoS2sqrOihlLEwNfbCbcbqXa1z53nPBb1pMXuaZGjQ=="],
+    "filesystem-notify-linux-x64-musl": ["filesystem-notify-linux-x64-musl@0.0.2", "https://registry.npmmirror.com/filesystem-notify-linux-x64-musl/-/filesystem-notify-linux-x64-musl-0.0.2.tgz", { "os": "linux", "cpu": "x64" }, "sha512-ZhFrrbouFwS/YW5JbIcUkubAd44DwGRUsL8eeBPBOZxbr+Ha9CakfV8AGy7GHy6YbAs2BP7WwYDa1w+e9pZTrQ=="],
 
-    "filesystem-notify-linux-riscv64-gnu": ["filesystem-notify-linux-riscv64-gnu@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-riscv64-gnu/-/filesystem-notify-linux-riscv64-gnu-0.0.1.tgz", { "os": "linux", "cpu": "none" }, "sha512-kO2MTFWuW95yjAuQSJrxKeSHtOSx7rSV1NthNqGutQPzBP2I6ENvEAei6gBkSv95kwt17P5R5HlcEkTeGJcGDg=="],
+    "filesystem-notify-win32-arm64-msvc": ["filesystem-notify-win32-arm64-msvc@0.0.2", "https://registry.npmmirror.com/filesystem-notify-win32-arm64-msvc/-/filesystem-notify-win32-arm64-msvc-0.0.2.tgz", { "os": "win32", "cpu": "arm64" }, "sha512-vB0xNjg96g93UMxiemho+ogsJtnACw2NBjDjKVT56SnedpCdbF5t3S+G399rQPrMklrU+6YgnVJibZ/0uiaG0Q=="],
 
-    "filesystem-notify-linux-x64-gnu": ["filesystem-notify-linux-x64-gnu@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-x64-gnu/-/filesystem-notify-linux-x64-gnu-0.0.1.tgz", { "os": "linux", "cpu": "x64" }, "sha512-eLOzsPi5lidBY4DC0DrN6zKeSNsPsXqiGEqd3FTEleWqq476b+SoGks/kw2yHZijnCS86Z3IVfCUOhJWCnY7xw=="],
-
-    "filesystem-notify-linux-x64-musl": ["filesystem-notify-linux-x64-musl@0.0.1", "https://registry.npmmirror.com/filesystem-notify-linux-x64-musl/-/filesystem-notify-linux-x64-musl-0.0.1.tgz", { "os": "linux", "cpu": "x64" }, "sha512-KMjCtUXmxnPs/BY1kNHAPS9ejG3L//BMdynKbERrf7unX2M5OiHzWVYbuS6EC6ffyO/mbvARzYskoNKJ9F00RQ=="],
-
-    "filesystem-notify-win32-arm64-msvc": ["filesystem-notify-win32-arm64-msvc@0.0.1", "https://registry.npmmirror.com/filesystem-notify-win32-arm64-msvc/-/filesystem-notify-win32-arm64-msvc-0.0.1.tgz", { "os": "win32", "cpu": "arm64" }, "sha512-6QKknpa19cAafyLLaX5Xu1M3mQRB2SEwLj3P7WOx9/DqJxX8hr3Jf4DoMnMGE8DLJJP84VDFf/aYO3NI3IDt+A=="],
-
-    "filesystem-notify-win32-ia32-msvc": ["filesystem-notify-win32-ia32-msvc@0.0.1", "https://registry.npmmirror.com/filesystem-notify-win32-ia32-msvc/-/filesystem-notify-win32-ia32-msvc-0.0.1.tgz", { "os": "win32", "cpu": "ia32" }, "sha512-JOY+f7SJAqt3yHrzpvesrZiunvJbfSGw5e1t2aDG7bS8IVuYvDCwQyE9jVrvQ1/DiVuweMjr4VyrrTrx4e+GHA=="],
-
-    "filesystem-notify-win32-x64-msvc": ["filesystem-notify-win32-x64-msvc@0.0.1", "https://registry.npmmirror.com/filesystem-notify-win32-x64-msvc/-/filesystem-notify-win32-x64-msvc-0.0.1.tgz", { "os": "win32", "cpu": "x64" }, "sha512-FjmAi9CIUJ1/VGj/JbjdioM8vyHh/zgUMKZIQvRBuN8qVZLdepCuYBnrPqpj/B9QkGaMpq71GOBYvDhLH7+1jQ=="],
+    "filesystem-notify-win32-ia32-msvc": ["filesystem-notify-win32-ia32-msvc@0.0.2", "https://registry.npmmirror.com/filesystem-notify-win32-ia32-msvc/-/filesystem-notify-win32-ia32-msvc-0.0.2.tgz", { "os": "win32", "cpu": "ia32" }, "sha512-K+RzFwKxVEk3u9HrKcTj9/n9ElvZZzSx+30TMcxSGAkRzC03/gvnksQP1zBqB3O5B/Urq8WmNHLA3KLHvS59cA=="],
 
     "fill-range": ["fill-range@7.1.1", "https://registry.npmmirror.com/fill-range/-/fill-range-7.1.1.tgz", { "dependencies": { "to-regex-range": "^5.0.1" } }, "sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg=="],
 
