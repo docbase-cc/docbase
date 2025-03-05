@@ -24,7 +24,7 @@ app.use(async (c, next) => {
   await next();
 });
 
-// 非开发环境起前端
+// 前端
 app.use("/*", serveStatic({ root: "public" }));
 
 // 注册所有的路由
