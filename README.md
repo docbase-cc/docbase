@@ -10,15 +10,14 @@
 - 🧩 插件化架构，易于扩展
 - 🚀 实时文件监控与自动更新
 - 🔍 强大的混合搜索（全文检索 + 模糊搜索 + 向量搜索）功能
-- 🐳 支持 Docker 部署
-- ☁️ 支持 WebDAV 文件管理（Plan）
+- 🐳 支持 Docker Compose 部署
+- ☁️ 支持 WebDAV 管理知识库
 - 🔌 支持作为 Dify 外部知识库（Plan）
 - 💻 支持本地安装部署（Plan）
 
 <!-- 基本 -->
 <!-- TODO 支持作为 dify 的外部库使用 -->
-<!-- TODO 集成 WebDAV -->
-<!-- TODO 打包 docker-compose 镜像 (docbase + meilisearch) -->
+<!-- TODO 嵌入模型作为知识库设置 去掉docker繁琐参数 -->
 <!-- TODO 文档和网站 -->
 <!-- TODO 上架 1panel -->
 

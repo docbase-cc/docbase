@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+  # meilisearch 搜索引擎服务
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_API_KEY}
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+
+  # DocBase 知识同步系统
+  docbase:
+    depends_on:
+      - meilisearch
+    image: gonorth/docbase:latest
+    env_file:
+      - .env
+    environment:
+      - INIT_PATH=/data
+      - MEILI_URL=http://meilisearch:7700
+    volumes:
+      - data:/data
+    ports:
+      - "3000:3000"
+
+  # WebDAV 文件服务器
+  dufs:
+    image: sigoden/dufs:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - data:/data
+    command:
+      - /data
+      - -A
+
+volumes:
+  data:
+  meili_data:
