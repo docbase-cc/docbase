@@ -6,7 +6,6 @@ import { cors } from "hono/cors";
 import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
-import { env } from "process";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -25,9 +24,8 @@ app.use(async (c, next) => {
   await next();
 });
 
-// 非开发环境起前端
-if (!(env.npm_lifecycle_event === "dev"))
-  app.use("/*", serveStatic({ root: "public" }));
+// 前端
+app.use("/*", serveStatic({ root: "public" }));
 
 // 注册所有的路由
 app.use(`/${routeVersion}/*`, cors());

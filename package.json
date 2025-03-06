@@ -1,16 +1,17 @@
 {
   "name": "docbase",
-  "version": "0.0.7",
+  "version": "0.0.10",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "build": "bun run --filter '*' build && bun ./postbuild.ts",
-    "dev": "bun ./dev.ts"
+    "dev": "bun run ./dev.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.2.4",
-    "chalk": "^5.4.1"
+    "chalk": "^5.4.1",
+    "concurrently": "^9.1.2"
   }
 }
