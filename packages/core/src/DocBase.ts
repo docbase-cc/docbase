@@ -391,6 +391,8 @@ export class DocBase {
   difySearch = async (
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
+    // TODO 多知识库
+    params.knowledge_id
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
 
