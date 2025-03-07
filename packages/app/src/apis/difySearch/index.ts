@@ -10,9 +10,6 @@ export default createRoute({
   path: "/difySearch",
   summary: "作为 dify 外部知识库搜索",
   request: {
-    headers: z.object({
-      Authorization: z.string().startsWith("Bearer "),
-    }),
     body: {
       content: {
         "application/json": {

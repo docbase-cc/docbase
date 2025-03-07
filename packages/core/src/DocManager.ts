@@ -168,6 +168,7 @@ export class DocManager {
   #ensureContainsFilterFeatureOn = async () => {
     const host = this.#client.config.host;
     const key = this.#client.config.apiKey;
+    // TODO 等待、重试，等待 meilisearch 启动
     const res = await fetch(`${host}/experimental-features`, {
       headers: {
         Authorization: `Bearer ${key}`,
