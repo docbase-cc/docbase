@@ -2,10 +2,10 @@ import { createRoute } from "@hono/zod-openapi";
 import { SearchParamSchema, SearchResultsSchema } from "./schemas";
 
 // 搜索
-export const route = createRoute({
+export default createRoute({
   method: "post",
-  path: "/difySearch",
-  summary: "作为 dify 外部知识库搜索",
+  path: "/search",
+  summary: "知识库搜索",
   request: {
     body: {
       content: {

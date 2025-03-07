@@ -1,28 +1,26 @@
 import { z } from "@hono/zod-openapi";
 
-/**
- * 搜索结果
- */
-export const SearchResultSchema = z
+export const DifyKnowledgeRequestSchema = z
   .object({
-    hash: z.string().length(16),
-    paths: z.array(z.string()),
+    knowledge_id: z.string(),
+    query: z.string(),
+    retrieval_setting: z.object({
+      top_k: z.number().int(),
+      score_threshold: z.number().min(0).max(1),
+    }),
+  })
+  .openapi("DifyKnowledgeRequestSchema");
+
+export const DifyKnowledgeResponseRecordSchema = z
+  .object({
     content: z.string(),
+    score: z.number().min(0).max(1),
+    title: z.string(),
+    metadata: z.object({ paths: z.array(z.string()) }).optional(),
   })
-  .openapi("SearchResult");
+  .openapi("DifyKnowledgeResponseRecordSchema");
 
-/**
- * 搜索结果列表
- */
-export const SearchResultsSchema = z
-  .array(SearchResultSchema)
-  .openapi("SearchResults");
-
-/**
- * 搜索参数
- */
-export const SearchParamSchema = z
-  .object({
-    q: z.string(),
-  })
-  .openapi("SearchParam");
+export type DifyKnowledgeRequest = z.infer<typeof DifyKnowledgeRequestSchema>;
+export type DifyKnowledgeResponseRecord = z.infer<
+  typeof DifyKnowledgeResponseRecordSchema
+>;
