@@ -1,5 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { route } from "./routes";
+import { route } from "./search/routes";
 
 const app = new OpenAPIHono();
 

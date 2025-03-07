@@ -23,7 +23,24 @@ import {
 } from "./DocWatcher";
 import type { PluginWithParams } from "./Plugin";
 import { getExtFromPath } from "./Utils";
-import type { Config as MeiliSearchConfig } from "meilisearch";
+import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
+import { basename } from "path";
+
+export interface DifyKnowledgeRequest {
+  knowledge_id: string;
+  query: string;
+  retrieval_setting: {
+    top_k: number;
+    score_threshold: number;
+  };
+}
+
+export interface DifyKnowledgeResponseRecord {
+  content: string;
+  score: number;
+  title: string;
+  metadata?: object;
+}
 
 export class DocBase {
   /** 文档管理器 */
@@ -355,9 +372,41 @@ export class DocBase {
   /**
    * 搜索文档
    * @param query - 搜索查询字符串
+   * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (query: string) => {
-    return await this.#docManager.search(query);
+  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) => {
+    return await this.#docManager.search(query, opt);
+  };
+
+  /**
+   * 作为 Dify 外部知识库搜索
+   * @param params - Dify 知识库搜索请求参数
+   * @param params.query - 搜索查询字符串
+   * @param params.retrieval_setting - 检索设置
+   * @param params.retrieval_setting.top_k - 返回结果的最大数量
+   * @param params.retrieval_setting.score_threshold - 相关性得分阈值
+   * @returns 返回符合 Dify 格式的搜索结果数组
+   */
+  difySearch = async (
+    params: DifyKnowledgeRequest
+  ): Promise<DifyKnowledgeResponseRecord[]> => {
+    const q = params.query;
+    const { top_k, score_threshold } = params.retrieval_setting;
+
+    const results = await this.search(q, {
+      limit: top_k,
+      rankingScoreThreshold: score_threshold,
+      showRankingScore: true,
+    });
+
+    return results.map((i) => ({
+      content: i.content,
+      score: i._rankingScore,
+      title: basename(i.paths.at(0)),
+      metadata: {
+        paths: i.paths,
+      },
+    }));
   };
 }

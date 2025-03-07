@@ -27,7 +27,7 @@ import { xxhash64 } from "hash-wasm";
 import { exists } from "fs-extra";
 import { difference, merge } from "es-toolkit";
 import slash from "slash";
-import type { Config as MeiliSearchConfig } from "meilisearch";
+import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
@@ -492,14 +492,13 @@ export class DocManager {
    * @param hybrid - 启用向量搜索
    * @returns 返回搜索结果
    */
-  search = async (query: string, hybrid = true) => {
+  search = async (query: string, opts?: Omit<SearchParams, "hybrid">) => {
     const result = await this.#docChunkIndex.search(query, {
-      hybrid: hybrid
-        ? {
-            // 使用指定嵌入模型
-            embedder: this.#embeddingConfig.model,
-          }
-        : undefined,
+      ...opts,
+      hybrid: {
+        // 使用指定嵌入模型
+        embedder: this.#embeddingConfig.model,
+      },
     });
     const hits = result.hits;
     const outs: ((typeof hits)[0] & { paths: string[] })[] = [];
