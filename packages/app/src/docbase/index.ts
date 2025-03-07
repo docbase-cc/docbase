@@ -27,8 +27,7 @@ if (
   !EMBEDDING_APIKEY ||
   !EMBEDDING_DIMENSIONS ||
   !INIT_PATH ||
-  !MEILI_URL ||
-  !MEILI_API_KEY
+  !MEILI_URL
 ) {
   // 打印缺失的参数
   console.log("以下参数缺失：");
@@ -38,14 +37,13 @@ if (
   if (!EMBEDDING_DIMENSIONS) console.log("EMBEDDING_DIMENSIONS");
   if (!INIT_PATH) console.log("INIT_PATH");
   if (!MEILI_URL) console.log("MEILI_URL");
-  if (!MEILI_API_KEY) console.log("MEILI_API_KEY");
   throw new Error("参数缺失");
 }
 
 // 启动 docBase
 console.log("Starting DocBase...");
 await docBase.start({
-  meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_API_KEY },
+  meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_API_KEY ?? "" },
   embeddingConfig: {
     model: EMBEDDING_MODEL,
     url: EMBEDDING_URL,
