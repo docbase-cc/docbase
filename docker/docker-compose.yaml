@@ -3,10 +3,10 @@ services:
   meilisearch:
     image: getmeili/meilisearch:latest
     restart: always
-    # env_file:
-    #   - .env
-    # environment:
-    #   - MEILI_MASTER_KEY=${MEILI_API_KEY}
+    env_file:
+      - .env
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_API_KEY}
     # ports:
     #   - "7700:7700"
     volumes:
