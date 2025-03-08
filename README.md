@@ -5,11 +5,7 @@
 </div>
 
 <p align="center">
-  <a href="#特性">特性</a> •
-  <a href="#快速开始">快速开始</a> •
-  <a href="https://docbase.cc">文档</a> •
-  <a href="#贡献">贡献</a> •
-  <a href="#许可证">许可证</a> •
+  <a href="https://docbase.cc">Website</a> •
   <a href="./README.en.md">English</a>
 </p>
 
