@@ -6,6 +6,7 @@ const urlBase = import.meta.env.DEV ? "http://localhost:3000" : "";
 
 client.setConfig({
   baseUrl: `${urlBase}/v0`,
+  auth: "",
 });
 
 export const search = (body: SearchParam) => postSearch({ body });

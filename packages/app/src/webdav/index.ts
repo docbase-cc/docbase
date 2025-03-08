@@ -66,23 +66,29 @@ const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
 
 // docker-compose 环境下代理 webdav
 if (env.WEBDAV_URL) {
-  console.log("Proxied webdav server: http://localhost:3000/dav");
-  // 验证 webdav
-  app.use(
-    "*",
-    basicAuth({
-      username: "docbase",
-      password: env.MEILI_MASTER_KEY,
-    })
-  );
-  // 代理 webdav
-  app.use(
-    "*",
-    proxy({
-      proxy_url: env.WEBDAV_URL,
-      authorization: () => null,
-    })
-  );
+  try {
+    // 校验 env.WEBDAV_URL 可否联通
+    await fetch(env.WEBDAV_URL);
+    // 验证 webdav
+    app.use(
+      "*",
+      basicAuth({
+        username: "docbase",
+        password: env.MEILI_MASTER_KEY,
+      })
+    );
+    // 代理 webdav
+    app.use(
+      "*",
+      proxy({
+        proxy_url: env.WEBDAV_URL,
+        authorization: () => null,
+      })
+    );
+    console.log("Proxied webdav server: http://localhost:3000/dav");
+  } catch (error) {
+    console.error("WebDAV is not reachable.");
+  }
 }
 
 export default app;
