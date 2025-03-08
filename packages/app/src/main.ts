@@ -26,8 +26,8 @@ app.use(async (c, next) => {
   await next();
 });
 
-// 前端
-app.use("/*", serveStatic({ root: "public" }));
+// 注册 docbase API
+app.route(`/${routeVersion}/`, apis);
 
 // docker-compose 环境下代理 webdav
 if (env.WEBDAV_URL) {
@@ -44,9 +44,6 @@ if (env.WEBDAV_URL) {
   );
 }
 
-// 注册 API
-app.route(`/${routeVersion}/`, apis);
-
 // API 文档
 app.get("/doc", swaggerUI({ url: "/openapi.json" }));
 app.doc("/openapi.json", {
@@ -56,6 +53,9 @@ app.doc("/openapi.json", {
     title: name,
   },
 });
+
+// 前端
+app.use("/*", serveStatic({ root: "public" }));
 
 export default {
   port: 3000,
