@@ -164,28 +164,40 @@ export class DocManager {
   /**
    * 确保 ContainsFilter 功能开启
    */
-  // v1.13.0
+  // https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
   #ensureContainsFilterFeatureOn = async () => {
     const host = this.#client.config.host;
     const key = this.#client.config.apiKey;
-    // TODO 等待、重试，等待 meilisearch 启动
-    const res = await fetch(`${host}/experimental-features`, {
-      headers: {
-        Authorization: `Bearer ${key}`,
-      },
-    });
+    while (true) {
+      try {
+        const res = await fetch(`${host}/experimental-features`, {
+          headers: {
+            Authorization: `Bearer ${key}`,
+          },
+        });
 
-    const { containsFilter } = await res.json();
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
 
-    if (!containsFilter) {
-      await fetch(`${host}/experimental-features`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${key}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ containsFilter: true }),
-      });
+        const { containsFilter } = await res.json();
+
+        if (!containsFilter) {
+          await fetch(`${host}/experimental-features`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${key}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ containsFilter: true }),
+          });
+        }
+
+        break; // 成功后跳出循环
+      } catch (error) {
+        console.log("等待 meilisearch 启动...");
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // 等待3秒后重试
+      }
     }
   };
 
