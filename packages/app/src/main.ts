@@ -6,8 +6,6 @@ import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
-import { env } from "process";
-import { basicAuth } from "hono/basic-auth";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -27,22 +25,10 @@ app.use(async (c, next) => {
 });
 
 // 注册 docbase API
-app.route(`/${routeVersion}/`, apis);
+app.route(`/${routeVersion}`, apis);
 
-// docker-compose 环境下代理 webdav
-if (env.WEBDAV_URL) {
-  console.log("Proxied webdav server: http://localhost:3000/dav");
-  // 代理 webdav
-  app.use("/dav/*", webdav(env.WEBDAV_URL));
-  // 验证 webdav
-  app.use(
-    "/dav/*",
-    basicAuth({
-      username: "docbase",
-      password: env.MEILI_MASTER_KEY,
-    })
-  );
-}
+// 注册 webdav 服务
+app.route("/dav", webdav);
 
 // API 文档
 app.get("/doc", swaggerUI({ url: "/openapi.json" }));

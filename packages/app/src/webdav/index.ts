@@ -1,4 +1,9 @@
 import { Handler } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { env } from "process";
+import { basicAuth } from "hono/basic-auth";
+
+const app = new OpenAPIHono();
 
 /**
  * Proxy the request to a specific URL.
@@ -6,7 +11,7 @@ import { Handler } from "hono";
  * @param {string} [proxy_url=""] - The URL to proxy the request to.
  * @returns {Handler} The handler function for Hono.
  */
-export default function basicProxy(proxy_url: string = ""): Handler {
+const webdav = (proxy_url: string = ""): Handler => {
   return async (c) => {
     // 获取原始请求的方法、URL和头部信息
     const method = c.req.method;
@@ -47,4 +52,21 @@ export default function basicProxy(proxy_url: string = ""): Handler {
       headers: responseHeaders,
     });
   };
+};
+
+// docker-compose 环境下代理 webdav
+if (env.WEBDAV_URL) {
+  console.log("Proxied webdav server: http://localhost:3000/dav");
+  // 验证 webdav
+  app.use(
+    "*",
+    basicAuth({
+      username: "docbase",
+      password: env.MEILI_MASTER_KEY,
+    })
+  );
+  // 代理 webdav
+  app.use("*", webdav(env.WEBDAV_URL));
 }
+
+export default app;
