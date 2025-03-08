@@ -16,7 +16,6 @@
 - 💻 支持本地安装部署（Plan）
 
 <!-- 基本 -->
-<!-- TODO webdav 验证 -->
 <!-- TODO 前端过 bearer 验证 -->
 <!-- TODO 上架 1panel -->
 <!-- TODO 文档和网站 -->

@@ -5,18 +5,28 @@ import { basicAuth } from "hono/basic-auth";
 
 const app = new OpenAPIHono();
 
-/**
- * Proxy the request to a specific URL.
- *
- * @param {string} [proxy_url=""] - The URL to proxy the request to.
- * @returns {Handler} The handler function for Hono.
- */
-const webdav = (proxy_url: string = ""): Handler => {
+interface ProxyOptions {
+  proxy_url?: string;
+  authorization?: (
+    old: string | null
+  ) => string | null | Promise<string | null>;
+}
+
+const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
   return async (c) => {
     // 获取原始请求的方法、URL和头部信息
     const method = c.req.method;
     const url = new URL(c.req.url);
     const headers = new Headers(c.req.header());
+
+    // 处理授权
+    const newAuth = await authorization(headers.get("authorization"));
+
+    if (newAuth) {
+      headers.set("authorization", newAuth);
+    } else {
+      headers.delete("authorization");
+    }
 
     // 获取请求基本路径
     // 使用字符串方法直接比较前缀，避免split和join操作
@@ -66,7 +76,13 @@ if (env.WEBDAV_URL) {
     })
   );
   // 代理 webdav
-  app.use("*", webdav(env.WEBDAV_URL));
+  app.use(
+    "*",
+    proxy({
+      proxy_url: env.WEBDAV_URL,
+      authorization: () => null,
+    })
+  );
 }
 
 export default app;
