@@ -1,6 +1,6 @@
 <div align="center">
   <h1>🗃️ DocBase</h1>
-  <p><strong>基于文件的实时本地知识库</strong></p>
+  <p><strong>基于文件实时同步的本地知识库</strong></p>
   <p>轻松构建 · 自动管理 · 极速搜索</p>
 </div>
 
@@ -9,7 +9,8 @@
   <a href="#快速开始">快速开始</a> •
   <a href="https://docbase.cc">文档</a> •
   <a href="#贡献">贡献</a> •
-  <a href="#许可证">许可证</a>
+  <a href="#许可证">许可证</a> •
+  <a href="./README.en.md">English</a>
 </p>
 
 ---
