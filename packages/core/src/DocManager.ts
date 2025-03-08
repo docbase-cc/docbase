@@ -514,27 +514,42 @@ export class DocManager {
       },
     });
     const hits = result.hits;
-    const outs: ((typeof hits)[0] & { paths: string[] })[] = [];
 
     // 查询后校验结果中引用到的本地文档是否存在，不存在则删除知识库内文档
     // 自动删除文档, 防止停止运行时用户偷偷删除文档
-    for (const hit of hits) {
-      const docs = this.#getChunkRelatedDocs(hit.hash);
-      let validDoc = false;
-      let paths: string[] = [];
-      for await (const doc of docs) {
-        const docExists = await exists(doc.path);
-        if (!docExists) {
-          // 异步删除
-          this.deleteDocByHash(doc.hash);
-        } else {
-          validDoc = true;
-          paths.push(doc.path);
-        }
-      }
-      if (validDoc) outs.push(merge(hit, { paths }));
-    }
+    const validHits = await Promise.all(
+      hits.map(async (hit) => {
+        const docs = this.#getChunkRelatedDocs(hit.hash);
+        let validDoc = false;
+        const paths: string[] = [];
 
-    return outs;
+        // 并行检查文档是否存在
+        const docChecks: Promise<boolean>[] = [];
+        for await (const doc of docs) {
+          docChecks.push(
+            exists(doc.path).then((exists) => {
+              if (!exists) {
+                // 异步删除无效文档
+                this.deleteDocByHash(doc.hash);
+              }
+              paths.push(doc.path);
+              return exists;
+            })
+          );
+        }
+
+        // 等待所有检查完成
+        const results = await Promise.all(docChecks);
+        validDoc = results.some((exists) => exists === true);
+
+        if (validDoc) {
+          return merge(hit, { paths });
+        }
+        return null;
+      })
+    );
+
+    // 过滤掉无效的结果
+    return validHits.filter(Boolean);
   };
 }
