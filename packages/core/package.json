@@ -5,7 +5,7 @@
   "types": "./dist/index.d.ts",
   "module": "./dist/index.js",
   "repository": {
-    "url": "https://github.com/SOVLOOKUP/docbase"
+    "url": "https://github.com/docbase-cc/docbase"
   },
   "homepage": "https://docbase.cc",
   "scripts": {
