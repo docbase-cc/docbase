@@ -7,7 +7,7 @@
 <p align="center">
   <a href="#特性">特性</a> •
   <a href="#快速开始">快速开始</a> •
-  <a href="#文档">文档</a> •
+  <a href="https://docbase.cc">文档</a> •
   <a href="#贡献">贡献</a> •
   <a href="#许可证">许可证</a>
 </p>
@@ -16,18 +16,55 @@
 
 ## ✨ 特性
 
-- 📂 支持多种文档格式：Markdown、TXT、PDF、Word、Excel 等
-- 🧩 插件化架构，易于扩展，文档格式随心适配
-- 🚀 实时监控文件变动，自动更新知识库数据
-- 🔍 强大的混合搜索（全文检索 + 模糊搜索 + 向量搜索）功能
-- 🐳 一键启动，支持 Docker Compose 部署
-- ☁️ 支持 WebDAV 管理知识库
-- 🔌 支持作为 Dify 外部知识库
-- 💻 支持本地安装部署（Plan）
+- 📂 全能文档支持：一站式继承，Markdown/Office 等格式全覆盖
+- 🧩 灵活插件系统：模块化设计，随心扩展文档类型支持
+- ☁️ 云端管理方案：支持 WebDAV，打造你的个人云端知识库
+- 🚀 智能实时同步：自动监测文件更新知识库，再也无须手动维护
+- 🔌 生态互联互通：可作为 Dify 外部知识库，扩展无限可能
+- 🔍 三重搜索引擎：MeiliSearch 驱动，全文、模糊、向量检索无死角
+- 🐳 极简部署方案：Docker 私有部署，一键启动，数据安全，省心省力
 
 ## 🚀 快速开始
 
 ### 使用 Docker Compose
+
+1. 下载 Docker Compose 文件：
+
+```bash
+curl -o docker-compose.yaml https://unpkg.com/docbase/docker-compose.yaml
+```
+
+2. 修改`docker-compose.yaml`中以下环境变量
+
+- MEILI_MASTER_KEY 设置 DocBase 应用密钥
+- EMBEDDING_APIKEY 嵌入模型服务（默认为硅基流动）密钥
+
+3. 启动服务
+
+```bash
+docker-compose up -d
+```
+
+### 下载安装客户端
+
+<!-- 客户端版 -->
+<!-- 动态选择知识库目录功能 -->
+<!-- 本地自动部署 meilisearch -->
+<!-- 作为 cherry studio 外部知识库 -->
+
+## 🤝 贡献
+
+我们欢迎所有形式的贡献，无论是新功能、文档改进还是 bug 修复。
+
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
+
+## 📄 许可证
+
+本项目采用 [GAPLv3](LICENSE) 许可证。如需闭源使用许可，请联系 Wechat SOVLOOKUP。
 
 <!-- 基本 -->
 <!-- TODO 创建一个产品LOGO -->
@@ -47,11 +84,6 @@
 <!-- 工程化 -->
 <!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
-
-<!-- 客户端版 -->
-<!-- 动态选择知识库目录功能 -->
-<!-- 本地自动部署 meilisearch -->
-<!-- 作为 cherry studio 外部知识库 -->
 
 <!-- 企业版 -->
 <!-- 多知识库管理 -->
