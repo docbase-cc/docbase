@@ -12,6 +12,24 @@ export type SearchParam = {
     q: string;
 };
 
+export type DifyKnowledgeResponseRecordSchema = {
+    content: string;
+    score: number;
+    title: string;
+    metadata?: {
+        paths: Array<string>;
+    };
+};
+
+export type DifyKnowledgeRequestSchema = {
+    knowledge_id: string;
+    query: string;
+    retrieval_setting: {
+        top_k: number;
+        score_threshold: number;
+    };
+};
+
 export type PostSearchData = {
     body?: SearchParam;
     path?: never;
@@ -27,6 +45,43 @@ export type PostSearchResponses = {
 };
 
 export type PostSearchResponse = PostSearchResponses[keyof PostSearchResponses];
+
+export type PostRetrievalData = {
+    body?: DifyKnowledgeRequestSchema;
+    path?: never;
+    query?: never;
+    url: '/retrieval';
+};
+
+export type PostRetrievalErrors = {
+    /**
+     * AccessDeniedException
+     */
+    403: {
+        error_code: '1002';
+        error_msg: string;
+    };
+    /**
+     * KnowledgeDoesNotExist
+     */
+    404: {
+        error_code: '2001';
+        error_msg: string;
+    };
+};
+
+export type PostRetrievalError = PostRetrievalErrors[keyof PostRetrievalErrors];
+
+export type PostRetrievalResponses = {
+    /**
+     * 搜索结果
+     */
+    200: {
+        records: Array<DifyKnowledgeResponseRecordSchema>;
+    };
+};
+
+export type PostRetrievalResponse = PostRetrievalResponses[keyof PostRetrievalResponses];
 
 export type ClientOptions = {
     baseUrl: `${string}://client` | (string & {});
