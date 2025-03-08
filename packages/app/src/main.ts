@@ -2,12 +2,12 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import apis from "./apis";
 import { version, name } from "~/package.json";
-import { cors } from "hono/cors";
 import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
 import { env } from "process";
+import { basicAuth } from "hono/basic-auth";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -20,7 +20,7 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
-// 挂在 docbase
+// 启动一个 docbase 实例
 app.use(async (c, next) => {
   c.set("docbase", docBase);
   await next();
@@ -29,14 +29,22 @@ app.use(async (c, next) => {
 // 前端
 app.use("/*", serveStatic({ root: "public" }));
 
-// webdav
+// docker-compose 环境下代理 webdav
 if (env.WEBDAV_URL) {
-  console.log("Proxyed webdav server: http://localhost:3000/dav");
+  console.log("Proxied webdav server: http://localhost:3000/dav");
+  // 代理 webdav
   app.use("/dav/*", webdav(env.WEBDAV_URL));
+  // 验证 webdav
+  app.use(
+    "/dav/*",
+    basicAuth({
+      username: "docbase",
+      password: env.MEILI_MASTER_KEY,
+    })
+  );
 }
 
-// 注册所有的跨域路由
-app.use(`/${routeVersion}/*`, cors());
+// 注册 API
 app.route(`/${routeVersion}/`, apis);
 
 // API 文档

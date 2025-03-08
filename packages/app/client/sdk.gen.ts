@@ -23,6 +23,12 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  */
 export const postSearch = <ThrowOnError extends boolean = false>(options?: Options<PostSearchData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).post<PostSearchResponse, unknown, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/search',
         ...options,
         headers: {
@@ -37,6 +43,12 @@ export const postSearch = <ThrowOnError extends boolean = false>(options?: Optio
  */
 export const postRetrieval = <ThrowOnError extends boolean = false>(options?: Options<PostRetrievalData, ThrowOnError>) => {
     return (options?.client ?? _heyApiClient).post<PostRetrievalResponse, PostRetrievalError, ThrowOnError>({
+        security: [
+            {
+                scheme: 'bearer',
+                type: 'http'
+            }
+        ],
         url: '/retrieval',
         ...options,
         headers: {

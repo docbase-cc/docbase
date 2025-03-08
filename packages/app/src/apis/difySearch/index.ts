@@ -9,6 +9,11 @@ export default createRoute({
   method: "post",
   path: "/retrieval",
   summary: "作为 dify 外部知识库搜索",
+  security: [
+    {
+      Bearer: [],
+    },
+  ],
   request: {
     body: {
       content: {

@@ -6,6 +6,11 @@ export default createRoute({
   method: "post",
   path: "/search",
   summary: "知识库搜索",
+  security: [
+    {
+      Bearer: [],
+    },
+  ],
   request: {
     body: {
       content: {
