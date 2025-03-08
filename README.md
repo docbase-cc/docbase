@@ -61,7 +61,7 @@ docker-compose up -d
 
 ## 📄 许可证
 
-本项目采用 [GAPLv3](LICENSE) 许可证。如需闭源使用许可，请联系 Wechat SOVLOOKUP。
+本项目采用 [GAPLv3](LICENSE) 许可证。如需闭源许可，请联系 Wechat SOVLOOKUP。
 
 <!-- 基本 -->
 <!-- TODO 文档和网站 -->
