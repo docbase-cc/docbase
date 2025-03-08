@@ -64,7 +64,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需闭源使用许可，请联系 Wechat SOVLOOKUP。
 
 <!-- 基本 -->
-<!-- TODO 创建一个产品LOGO -->
 <!-- TODO 文档和网站 -->
 <!-- TODO 上架 1panel -->
 
