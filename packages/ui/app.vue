@@ -19,11 +19,10 @@
       </Transition>
 
       <!-- 设置按钮 -->
-      <div class="fixed bottom-4 right-4">
+      <div class="fixed bottom-4 right-4" v-show="tokenStore.token">
         <button @click="settings = !settings"
-          class="bg-white/10 hover:bg-white/20 rounded-full p-3 transition-all duration-500"
-          :class="{ 'rotate-180 transform': settings }">
-          <i class="i-carbon-settings text-white text-xl" />
+          class="w-12 h-12 rounded-full flex items-center justify-center backdrop-blur-md bg-white/30 hover:bg-white/40 transition-colors shadow-lg cursor-pointer active:scale-95 active:bg-white/50">
+          <Icon name="uil:setting" class="text-white text-2xl" />
         </button>
       </div>
     </div>
