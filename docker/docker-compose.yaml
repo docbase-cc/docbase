@@ -5,8 +5,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      - MEILI_MASTER_KEY=${MEILI_API_KEY}
     # ports:
     #   - "7700:7700"
     volumes:
