@@ -119,9 +119,10 @@ export class DocBase {
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
       load: async (paths) => {
-        for (const path of paths) {
-          await this.#docManager.upsertDoc(path);
-        }
+        // 使用 Promise.all 并行处理多个文档插入
+        await Promise.all(
+          paths.map((path) => this.#docManager.upsertDoc(path))
+        );
       },
     });
   };
@@ -210,10 +211,10 @@ export class DocBase {
     indexPrefix?: string;
   }) => {
     // 加载所有插件
-    for (const initPlugin of initPlugins) {
-      // 插件构造体和插件初始化参数
-      await this.loadPlugin(initPlugin);
-    }
+    // 并行加载所有插件以提高效率
+    await Promise.all(
+      initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
+    );
 
     const docWatcherExist = typeof this.#docWatcher.func === "function";
     const docScannerExist = typeof this.#docScanner.func === "function";
@@ -247,9 +248,8 @@ export class DocBase {
     }
 
     // 开启监视，同步变动文档
-    for (const initPath of initPaths) {
-      await this.#watch(initPath);
-    }
+    // 并行监视所有初始路径以提高效率
+    await Promise.all(initPaths.map((initPath) => this.#watch(initPath)));
   };
 
   /**
@@ -392,7 +392,7 @@ export class DocBase {
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
     // TODO 多知识库
-    params.knowledge_id
+    params.knowledge_id;
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
 

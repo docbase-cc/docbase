@@ -380,14 +380,16 @@ export class DocManager {
     const chunkHashs: string[] = [];
 
     // 构造 chunk
-    for (const chunk of chunks) {
-      const chunkHash = await xxhash64(chunk);
-      chunkHashs.push(chunkHash);
-      docChunks.push({
-        hash: chunkHash,
-        content: chunk,
-      });
-    }
+    await Promise.all(
+      chunks.map(async (chunk) => {
+        const chunkHash = await xxhash64(chunk);
+        chunkHashs.push(chunkHash);
+        docChunks.push({
+          hash: chunkHash,
+          content: chunk,
+        });
+      })
+    );
 
     // 构造文档同步请求
     const docDiffReq: DocDocument = {
@@ -418,15 +420,19 @@ export class DocManager {
   #deleteChunks = async (chunkHashs: string[]) => {
     const needDeleteChunkHashs: string[] = [];
 
-    for (const chunkHash of chunkHashs) {
-      // 获取 chunk 关联的文档数量
-      const relatedDocsCount = await this.#getChunkRelatedDocsCount(chunkHash);
+    await Promise.all(
+      chunkHashs.map(async (chunkHash) => {
+        // 获取 chunk 关联的文档数量
+        const relatedDocsCount = await this.#getChunkRelatedDocsCount(
+          chunkHash
+        );
 
-      // 如果关联到 2 个以上文档, 则不删除
-      if (relatedDocsCount <= 1) {
-        needDeleteChunkHashs.push(chunkHash);
-      }
-    }
+        // 如果关联到 2 个以上文档, 则不删除
+        if (relatedDocsCount <= 1) {
+          needDeleteChunkHashs.push(chunkHash);
+        }
+      })
+    );
 
     // 删除 chunk
     await this.#docChunkIndex.deleteDocuments(needDeleteChunkHashs);
@@ -475,9 +481,9 @@ export class DocManager {
       }
 
       // 删除文档
-      for (const doc of docs.results) {
-        await this.#deleteDoc(doc);
-      }
+      const delteTasks = docs.results.map((doc) => this.#deleteDoc(doc));
+      // 等待删除完成
+      await Promise.all(delteTasks);
     }
   };
 
