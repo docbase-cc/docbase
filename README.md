@@ -16,7 +16,7 @@
 - 💻 支持本地安装部署（Plan）
 
 <!-- 基本 -->
-<!-- TODO 嵌入模型作为知识库设置 去掉docker繁琐参数 -->
+<!-- TODO 权限管理 -->
 <!-- TODO 文档和网站 -->
 <!-- TODO 上架 1panel -->
 
@@ -29,11 +29,18 @@
 
 <!-- 功能 -->
 <!-- TODO 插件管理 API -->
-<!-- TODO 多知识库功能 -->
-<!-- TODO 权限管理 -->
-<!-- TODO 多模态文档加载器（DocLoader 返回更多元信息） -->
+<!-- TODO 多模态文档加载器、流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
 
 <!-- 性能优化 -->
 <!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
-<!-- TODO 搜索后文件校验异步化 -->
-<!-- TODO 流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
+
+<!-- 客户端版 -->
+<!-- 动态选择知识库目录功能 -->
+<!-- 本地自动部署 meilisearch -->
+<!-- 作为 cherry studio 外部知识库 -->
+
+<!-- 企业版 -->
+<!-- 多知识库管理 -->
+<!-- 知识库粒度的权限管理（webdav权限+搜索权限控制） -->
+<!-- 知识库分享、挂载 -->
+<!-- OIDC 认证 -->

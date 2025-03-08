@@ -525,7 +525,8 @@ export class DocManager {
       for await (const doc of docs) {
         const docExists = await exists(doc.path);
         if (!docExists) {
-          await this.deleteDocByHash(doc.hash);
+          // 异步删除
+          this.deleteDocByHash(doc.hash);
         } else {
           validDoc = true;
           paths.push(doc.path);
