@@ -15,11 +15,11 @@ app.openapi(search, async (c) => {
 // dify 外部知识库搜索
 app.openapi(difySearch, async (c) => {
   // TODO: 权限管理
-  c.req.header("Authorization")
+  c.req.header("Authorization");
   const body = c.req.valid("json");
   const docBase = c.get("docbase");
   const results = await docBase.difySearch(body as any);
-  return c.json(results);
+  return c.json({ records: results });
 });
 
 export default app;
