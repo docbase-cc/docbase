@@ -12,34 +12,35 @@ services:
     volumes:
       - meili_data:/meili_data
 
+  # WebDAV 文件服务器
+  dufs:
+    image: sigoden/dufs:latest
+    restart: always
+    # ports:
+    #   - "5000:5000"
+    volumes:
+      - data:/data
+    command:
+      - /data
+      - -A
+      - --render-index
+
   # DocBase 知识同步系统
   docbase:
     depends_on:
       - meilisearch
+      - dufs
     image: gonorth/docbase:latest
     env_file:
       - .env
     environment:
       - INIT_PATH=/data
       - MEILI_URL=http://meilisearch:7700
+      - WEBDAV_URL=http://dufs:5000
     volumes:
       - data:/data
     ports:
       - "3000:3000"
-
-  # WebDAV 文件服务器
-  dufs:
-    image: sigoden/dufs:latest
-    restart: always
-    # env_file:
-    #   - .env
-    ports:
-      - "5000:5000"
-    volumes:
-      - data:/data
-    command:
-      - /data
-      - -A
 
 volumes:
   data:
