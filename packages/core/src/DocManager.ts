@@ -25,7 +25,7 @@ import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists } from "fs-extra";
-import { difference, merge } from "es-toolkit";
+import { difference, merge, retry } from "es-toolkit";
 import slash from "slash";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 
@@ -168,17 +168,15 @@ export class DocManager {
   #ensureContainsFilterFeatureOn = async () => {
     const host = this.#client.config.host;
     const key = this.#client.config.apiKey;
-    while (true) {
-      try {
+
+    // 尝试并等待 meilisearch 启动
+    await retry(
+      async () => {
         const res = await fetch(`${host}/experimental-features`, {
           headers: {
             Authorization: `Bearer ${key}`,
           },
         });
-
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
 
         const { containsFilter } = await res.json();
 
@@ -192,13 +190,9 @@ export class DocManager {
             body: JSON.stringify({ containsFilter: true }),
           });
         }
-
-        break; // 成功后跳出循环
-      } catch (error) {
-        console.log("等待 meilisearch 启动...");
-        await new Promise((resolve) => setTimeout(resolve, 3000)); // 等待3秒后重试
-      }
-    }
+      },
+      { retries: 3, delay: 3000 }
+    );
   };
 
   /**
