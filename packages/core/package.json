@@ -41,7 +41,8 @@
     "minify": true
   },
   "files": [
-    "./dist/**/*"
+    "./dist/**/*",
+    "./docker-compose.yaml"
   ],
   "optionalDependencies": {
     "filesystem-notify-win32-x64-msvc": "latest",

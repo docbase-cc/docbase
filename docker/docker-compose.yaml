@@ -1,16 +1,27 @@
+# Common environment variables
+x-environment: &common-env # Vector model name
+  EMBEDDING_MODEL: Pro/BAAI/bge-m3
+  # Vector service address
+  EMBEDDING_URL: https://api.siliconflow.cn/v1/embeddings
+  # Vector service API key
+  EMBEDDING_APIKEY: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  # Vector dimensions
+  EMBEDDING_DIMENSIONS: 1024
+  # Master key
+  MEILI_MASTER_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 services:
-  # meilisearch 搜索引擎服务
+  # Meilisearch search engine service
   meilisearch:
     image: getmeili/meilisearch:latest
     restart: always
-    env_file:
-      - .env
+    environment: *common-env
     # ports:
     #   - "7700:7700"
     volumes:
       - meili_data:/meili_data
 
-  # WebDAV 文件服务器
+  # WebDAV file server
   dufs:
     image: sigoden/dufs:latest
     restart: always
@@ -23,18 +34,17 @@ services:
       - -A
       - --render-index
 
-  # DocBase 知识同步系统
+  # DocBase knowledge sync system
   docbase:
     depends_on:
       - meilisearch
       - dufs
     image: gonorth/docbase:latest
-    env_file:
-      - .env
     environment:
-      - INIT_PATH=/data
-      - MEILI_URL=http://meilisearch:7700
-      - WEBDAV_URL=http://dufs:5000
+      <<: *common-env
+      INIT_PATH: /data
+      MEILI_URL: http://meilisearch:7700
+      WEBDAV_URL: http://dufs:5000
     volumes:
       - data:/data
     ports:
