@@ -2,8 +2,6 @@ import { Handler } from "hono";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { env } from "process";
 import { basicAuth } from "hono/basic-auth";
-import { join } from "path";
-import { platform } from "os";
 import { existsSync } from "fs";
 import { spawn } from "child_process";
 
@@ -56,13 +54,8 @@ const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
   };
 };
 
-const dufs = join(
-  import.meta.dir,
-  platform() === "win32" ? "dufs.exe" : "dufs"
-);
-
-if (existsSync(dufs) && env.INIT_PATH) {
-  const dufsProcess = spawn(dufs, [
+if (existsSync("/bin/dufs") && env.INIT_PATH) {
+  const dufsProcess = spawn("dufs", [
     // 运行 dufs
     "-A",
     "--path-prefix",

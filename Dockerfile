@@ -5,7 +5,9 @@ WORKDIR /app
 # 复制构建产物
 COPY dist/main /app
 
-RUN chmod 777 /app/dufs
+# 复制 dufs
+COPY dist/dufs /bin/dufs
+RUN chmod 777 /bin/dufs
 
 ENV NODE_ENV=production
 

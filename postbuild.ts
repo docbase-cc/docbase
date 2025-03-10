@@ -39,7 +39,7 @@ const p = platform().replace("win32", "windows");
 const names = await downloadRelease(
   user,
   repo,
-  outputdir,
+  "dist",
   (release) => release.prerelease === false,
   (asset) => asset.name.includes(p) && asset.name.includes(a),
   leaveZipped,
@@ -51,6 +51,6 @@ const target = names.at(0);
 if (await exists(target)) {
   const data = await readFile(target);
   const out = gunzipSync(data);
-  await writeFile(join(outputdir, p === "windows" ? "dufs.exe" : "dufs"), out);
+  await writeFile(join("dist", p === "windows" ? "dufs.exe" : "dufs"), out);
   await remove(target);
 }
