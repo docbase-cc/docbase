@@ -64,23 +64,20 @@ docker-compose up -d
 
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
-<!-- 基本 -->
-<!-- TODO 文档介绍 webdav 功能和 swagger 文档 -->
-<!-- TODO 1panel 上架通过后制作宣传视频发 bilibili -->
-
 <!-- 下一步-->
+<!-- TODO 多模态文档加载器、流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
 <!-- TDDO 扫描、监视、访问读取合为一个模块，且不作为插件 -->
 <!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
+<!-- TODO 制作宣传视频发 bilibili -->
+<!-- TODO 客户端版 -->
 
 <!-- 功能 -->
 <!-- TODO 插件管理 API -->
 <!-- TODO 插件变动重新触发扫描 -->
-<!-- TODO 多模态文档加载器、流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
 <!-- TODO 前端 i8n -->
 
 <!-- 工程化 -->
-<!-- TODO 支持 arm64 -->
-<!-- TODO action 自动更新 1panel -->
+<!-- TODO 支持 arm64 docker -->
 <!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
 
