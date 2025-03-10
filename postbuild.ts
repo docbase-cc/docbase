@@ -2,14 +2,18 @@ import { copy, readFile, writeFile, remove, exists } from "fs-extra";
 import { version } from "package.json";
 import { downloadRelease } from "@terascope/fetch-github-release";
 import { arch, platform } from "os";
+import { gunzipSync } from "zlib";
+import { join } from "path";
+
+const outputdir = "dist/main";
 
 // 删除已存在的 dist 文件夹
-if (await exists("dist/main")) {
-  await remove("dist/main");
+if (await exists(outputdir)) {
+  await remove(outputdir);
 }
 
 // 复制 docbase 后端构建
-await copy("packages/app/dist", "dist/main");
+await copy("packages/app/dist", outputdir);
 
 // 复制 docbase 前端构建
 await copy("packages/ui/dist", "dist/main/public");
@@ -22,7 +26,6 @@ await writeFile("dist/docker-compose.yaml", newContent);
 // 下载最新 dufs
 const user = "sigoden";
 const repo = "dufs";
-const outputdir = "dist/main";
 const leaveZipped = false;
 const disableLogging = false;
 
@@ -33,7 +36,7 @@ const a = arch()
 
 const p = platform().replace("win32", "windows");
 
-await downloadRelease(
+const names = await downloadRelease(
   user,
   repo,
   outputdir,
@@ -42,3 +45,12 @@ await downloadRelease(
   leaveZipped,
   disableLogging
 );
+
+const target = names.at(0);
+
+if (exists(target)) {
+  const data = await readFile(target);
+  const out = gunzipSync(data);
+  await writeFile(join(outputdir, p === "windows" ? "dufs.exe" : "dufs"), out);
+  await remove(target);
+}
