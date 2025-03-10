@@ -10,6 +10,7 @@
     "dev": "bun run ./dev.ts"
   },
   "devDependencies": {
+    "@terascope/fetch-github-release": "^2.0.0",
     "@types/bun": "^1.2.4",
     "chalk": "^5.4.1",
     "concurrently": "^9.1.2"
