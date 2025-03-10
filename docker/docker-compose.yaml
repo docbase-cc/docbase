@@ -25,7 +25,6 @@ services:
   docbase:
     depends_on:
       - meilisearch
-      - dufs
     image: gonorth/docbase:latest
     environment:
       <<: *common-env

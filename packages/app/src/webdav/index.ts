@@ -75,7 +75,6 @@ if (existsSync(dufs) && env.INIT_PATH) {
   // 代理 webdav
   app.use(
     "*",
-    // TODO 直接使用 dufs 进行认证
     basicAuth({
       username: "docbase",
       password: env.MEILI_MASTER_KEY,
