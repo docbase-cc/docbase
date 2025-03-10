@@ -65,8 +65,7 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 基本 -->
-<!-- TODO 上架 1panel -->
-<!-- TODO 制作宣传视频发 bilibili -->
+<!-- TODO 1panel 上架通过后制作宣传视频发 bilibili -->
 
 <!-- 下一步-->
 <!-- TDDO 扫描、监视、访问读取合为一个模块，且不作为插件 -->
@@ -79,6 +78,8 @@ docker-compose up -d
 <!-- TODO 前端 i8n -->
 
 <!-- 工程化 -->
+<!-- TODO 支持 arm64 -->
+<!-- TODO action 自动更新 1panel -->
 <!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
 
