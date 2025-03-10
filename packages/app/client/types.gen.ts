@@ -8,8 +8,116 @@ export type SearchResult = {
 
 export type SearchResults = Array<SearchResult>;
 
+export type SearchOptions = {
+    /**
+     * 分页偏移量
+     */
+    offset?: number;
+    /**
+     * 每页限制数量
+     */
+    limit?: number;
+    /**
+     * 需要高亮的属性数组
+     */
+    attributesToHighlight?: Array<string>;
+    /**
+     * 高亮前缀标签
+     */
+    highlightPreTag?: string;
+    /**
+     * 高亮后缀标签
+     */
+    highlightPostTag?: string;
+    /**
+     * 需要裁剪的属性数组
+     */
+    attributesToCrop?: Array<string>;
+    /**
+     * 裁剪长度
+     */
+    cropLength?: number;
+    /**
+     * 裁剪标记
+     */
+    cropMarker?: string;
+    /**
+     * 过滤条件
+     */
+    filter?: string | Array<string | Array<string>>;
+    /**
+     * 排序条件数组
+     */
+    sort?: Array<string>;
+    /**
+     * 分面搜索字段数组
+     */
+    facets?: Array<string>;
+    /**
+     * 需要检索的属性数组
+     */
+    attributesToRetrieve?: Array<string>;
+    /**
+     * 是否显示匹配位置
+     */
+    showMatchesPosition?: boolean;
+    /**
+     * 匹配策略
+     */
+    matchingStrategy?: 'all' | 'last' | 'frequency';
+    /**
+     * 每页命中数
+     */
+    hitsPerPage?: number;
+    /**
+     * 页码
+     */
+    page?: number;
+    /**
+     * 分面名称
+     */
+    facetName?: string;
+    /**
+     * 分面查询条件
+     */
+    facetQuery?: string;
+    /**
+     * 向量数组
+     */
+    vector?: Array<number> | null;
+    /**
+     * 是否显示排名分数
+     */
+    showRankingScore?: boolean;
+    /**
+     * 是否显示排名分数详情
+     */
+    showRankingScoreDetails?: boolean;
+    /**
+     * 排名分数阈值
+     */
+    rankingScoreThreshold?: number;
+    /**
+     * 搜索字段数组
+     */
+    attributesToSearchOn?: Array<string> | null;
+    /**
+     * 去重字段
+     */
+    distinct?: string;
+    /**
+     * 是否检索向量
+     */
+    retrieveVectors?: boolean;
+    /**
+     * 语言区域数组
+     */
+    locales?: Array<string>;
+};
+
 export type SearchParam = {
     q: string;
+    opts?: SearchOptions;
 };
 
 export type DifyKnowledgeResponseRecordSchema = {

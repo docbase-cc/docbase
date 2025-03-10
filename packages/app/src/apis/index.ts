@@ -18,9 +18,9 @@ app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
 
 // 搜索
 app.openapi(search, async (c) => {
-  const { q } = c.req.valid("json");
+  const { q, opts } = c.req.valid("json");
   const docBase = c.get("docbase");
-  const results = await docBase.search(q);
+  const results = await docBase.search(q, opts);
   return c.json(results);
 });
 

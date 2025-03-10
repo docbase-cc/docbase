@@ -1,14 +1,15 @@
 <template>
     <!-- 搜索结果展示区 -->
     <div v-if="searchResults.length > 0" class="mt-6 space-y-6">
-        <div v-for="({ content, paths }, index) of searchResults" :key="index"
+        <div v-for="(result, index) of searchResults" :key="index"
             class="relative bg-white/90 rounded-lg shadow-lg p-6 backdrop-blur-sm">
             <!-- 序号展示 -->
             <div class="absolute -left-4 -top-4 w-8 h-8 flex items-center justify-center 
                        bg-white/60 backdrop-blur-sm border border-white/50
                        rounded-full shadow-lg">
                 <span class="bg-gradient-to-br from-blue-500 to-indigo-600 bg-clip-text text-transparent 
-                           font-semibold text-sm">{{ index + 1 }}</span>
+                           font-semibold text-sm">{{ ((result as any)._rankingScore).toFixed(2).replace("0.", ".")
+                    }}</span>
             </div>
 
             <!-- 文件路径展示 -->
@@ -18,8 +19,7 @@
                         <i class="i-carbon-folder text-lg"></i>
                         <span class="text-sm font-medium">文件路径</span>
                         <div class="flex flex-wrap gap-2 pl-6">
-                            <span v-for="(path, idx) in paths" :key="idx" 
-                                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm
+                            <span v-for="(path, idx) in result.paths" :key="idx" class="inline-flex items-center px-3 py-1.5 rounded-full text-sm
                                 bg-gradient-to-r from-blue-50 to-indigo-50 
                                 text-gray-700 border border-gray-200/50
                                 hover:shadow-sm transition-shadow duration-200">
@@ -33,10 +33,10 @@
 
             <!-- 分割线 -->
             <div class="h-px bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200"></div>
-            
+
             <!-- Markdown内容渲染 -->
             <div class="prose prose-sm max-w-none break-words overflow-hidden max-w-full h-auto">
-                <div v-html="micromark(content)" />
+                <div v-html="micromark(result.content)" />
             </div>
         </div>
     </div>
