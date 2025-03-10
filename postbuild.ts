@@ -48,7 +48,7 @@ const names = await downloadRelease(
 
 const target = names.at(0);
 
-if (exists(target)) {
+if (await exists(target)) {
   const data = await readFile(target);
   const out = gunzipSync(data);
   await writeFile(join(outputdir, p === "windows" ? "dufs.exe" : "dufs"), out);

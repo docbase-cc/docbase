@@ -5,7 +5,7 @@ import { basicAuth } from "hono/basic-auth";
 import { join } from "path";
 import { platform } from "os";
 import { existsSync } from "fs";
-import { execa } from "execa";
+import { spawn } from "child_process";
 
 const app = new OpenAPIHono();
 const dufsPort = 15000;
@@ -62,8 +62,8 @@ const dufs = join(
 );
 
 if (existsSync(dufs) && env.INIT_PATH) {
-  // 运行 dufs
-  execa(dufs, [
+  const dufsProcess = spawn(dufs, [
+    // 运行 dufs
     "-A",
     "--path-prefix",
     "/dav",
@@ -71,6 +71,13 @@ if (existsSync(dufs) && env.INIT_PATH) {
     dufsPort.toString(),
     env.INIT_PATH,
   ]);
+  // 错误处理
+  dufsProcess.on("error", (err) => {
+    console.error("启动 dufs 失败:", err);
+  });
+  dufsProcess.stderr.on("data", (data) => {
+    console.error(`dufs 错误: ${data}`);
+  });
 
   // 代理 webdav
   app.use(
