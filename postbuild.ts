@@ -2,8 +2,7 @@ import { copy, readFile, writeFile, remove, exists } from "fs-extra";
 import { version } from "package.json";
 import { downloadRelease } from "@terascope/fetch-github-release";
 import { arch, platform } from "os";
-import { gunzipSync } from "zlib";
-import { join } from "path";
+import { spawnSync } from "child_process";
 
 const outputdir = "dist/main";
 
@@ -49,8 +48,9 @@ const names = await downloadRelease(
 const target = names.at(0);
 
 if (await exists(target)) {
-  const data = await readFile(target);
-  const out = gunzipSync(data);
-  await writeFile(join("dist", p === "windows" ? "dufs.exe" : "dufs"), out);
+  // 使用 tar -zxvf 文件名.tar.gz -C dist/ 并输出到命令行
+  spawnSync("tar", ["-zxvf", target, "-C", "dist/"], {
+    stdio: "inherit",
+  });
   await remove(target);
 }
