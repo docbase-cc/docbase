@@ -5,8 +5,10 @@ import { basicAuth } from "hono/basic-auth";
 import { join } from "path";
 import { platform } from "os";
 import { existsSync } from "fs";
+import { execa } from "execa";
 
 const app = new OpenAPIHono();
+const dufsPort = 15000;
 
 interface ProxyOptions {
   proxy_url?: string;
@@ -31,21 +33,8 @@ const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
       headers.delete("authorization");
     }
 
-    // 获取请求基本路径
-    // 使用字符串方法直接比较前缀，避免split和join操作
-    let base = "";
-    const pathLen = Math.min(c.req.path.length, c.req.routePath.length);
-    for (let i = 0; i < pathLen; i++) {
-      if (c.req.path[i] === c.req.routePath[i]) {
-        base += c.req.path[i];
-      } else {
-        break;
-      }
-    }
-    base = base.replace(/\/$/, "");
-
     // 构建代理URL
-    const targetUrl = new URL(url.pathname.replace(base, ""), proxy_url);
+    const targetUrl = new URL(c.req.path, proxy_url);
 
     // 转发请求到目标WebDAV服务器
     const response = await fetch(targetUrl.toString(), {
@@ -74,36 +63,33 @@ const dufs = join(
 
 if (existsSync(dufs) && env.INIT_PATH) {
   // 运行 dufs
-  // - INIT_PATH
-  // - -A
-  // - --render-index
-}
+  execa(dufs, [
+    "-A",
+    "--path-prefix",
+    "/dav",
+    "-p",
+    dufsPort.toString(),
+    env.INIT_PATH,
+  ]);
 
-// docker-compose 环境下代理 webdav
-if (env.WEBDAV_URL) {
-  try {
-    // 校验 env.WEBDAV_URL 可否联通
-    await fetch(env.WEBDAV_URL);
-    // 验证 webdav
-    app.use(
-      "*",
-      basicAuth({
-        username: "docbase",
-        password: env.MEILI_MASTER_KEY,
-      })
-    );
-    // 代理 webdav
-    app.use(
-      "*",
-      proxy({
-        proxy_url: env.WEBDAV_URL,
-        authorization: () => null,
-      })
-    );
-    console.log("Proxied webdav server: http://localhost:3000/dav");
-  } catch (error) {
-    console.error("WebDAV is not reachable.");
-  }
+  // 代理 webdav
+  app.use(
+    "*",
+    // TODO 直接使用 dufs 进行认证
+    basicAuth({
+      username: "docbase",
+      password: env.MEILI_MASTER_KEY,
+    })
+  );
+  // 代理 webdav
+  app.use(
+    "*",
+    proxy({
+      proxy_url: `http://localhost:${dufsPort}`,
+      authorization: () => null,
+    })
+  );
+  console.log("Proxied webdav server: http://localhost:3000/dav");
 }
 
 export default app;

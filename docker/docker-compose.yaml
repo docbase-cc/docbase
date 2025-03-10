@@ -21,19 +21,6 @@ services:
     volumes:
       - meili_data:/meili_data
 
-  # WebDAV file server
-  dufs:
-    image: sigoden/dufs:latest
-    restart: always
-    # ports:
-    #   - "5000:5000"
-    volumes:
-      - data:/data
-    command:
-      - /data
-      - -A
-      - --render-index
-
   # DocBase knowledge sync system
   docbase:
     depends_on:
@@ -44,7 +31,6 @@ services:
       <<: *common-env
       INIT_PATH: /data
       MEILI_URL: http://meilisearch:7700
-      WEBDAV_URL: http://dufs:5000
     volumes:
       - data:/data
     ports:
