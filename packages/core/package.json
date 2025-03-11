@@ -17,6 +17,7 @@
     "tsup": "^8.4.0"
   },
   "dependencies": {
+    "@llm-tools/embedjs-loader-pdf": "^0.1.28",
     "es-toolkit": "^1.32.0",
     "fdir": "^6.4.3",
     "filesystem-notify": "latest",
