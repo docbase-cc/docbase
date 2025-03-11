@@ -6,25 +6,15 @@ import {
 } from "./DocLoader";
 import { DocManager, type EmbeddingConfig } from "./DocManager";
 import {
-  defaultDocScannerPlugin,
-  type DocScanner,
-  type DocScannerPlugin,
-} from "./DocScanner";
-import {
   defaultDocSplitterPlugin,
   type DocSplitter,
   type DocSplitterPlugin,
 } from "./DocSplitter";
-import {
-  defaultDocWatcherPlugin,
-  type DocWatcher,
-  type DocWatcherPlugin,
-  type UnWatch,
-} from "./DocWatcher";
 import type { PluginWithParams } from "./Plugin";
 import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 import { basename } from "path";
+import { FSLayer, Scanner, Watcher } from "./FSlayer";
 
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
@@ -56,22 +46,14 @@ export class DocBase {
   #docSplitter!: DocSplitterPlugin & { func: DocSplitter };
 
   /** 文档监视器 */
-  #docWatcher!: DocWatcherPlugin & { func: DocWatcher };
+  #docWatcher!: Watcher;
 
   /** 文档扫描器 */
-  #docScanner!: DocScannerPlugin & { func: DocScanner };
-
-  /** 挂载的知识库目录，存储目录路径和对应的取消监视函数 */
-  #baseDirs = new Map<
-    string,
-    {
-      unwatch: UnWatch;
-    }
-  >();
+  #docScanner!: Scanner;
 
   /**  获取挂载的知识库目录 */
   get dirs() {
-    return Array.from(this.#baseDirs.keys());
+    return this.#docWatcher.getWatchedPaths();
   }
 
   /** 获取支持的文档类型 */
@@ -115,7 +97,7 @@ export class DocBase {
    * @param dirs - 要扫描的目录数组
    */
   #scan = async (dirs: string[]) => {
-    await this.#docScanner.func({
+    await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
       load: async (paths) => {
@@ -124,27 +106,6 @@ export class DocBase {
           paths.map((path) => this.#docManager.upsertDoc(path))
         );
       },
-    });
-  };
-
-  /**
-   * 监视指定目录的文档变化
-   * @param dir - 要监视的目录路径
-   */
-  #watch = async (dir: string) => {
-    const unwatch = await this.#docWatcher.func({
-      path: dir,
-      filter: (path: string) => {
-        const ext = getExtFromPath(path);
-        return this.#docExtToLoaderName.has(ext);
-      },
-      upsert: async (path: string) => await this.#docManager.upsertDoc(path),
-      remove: async (path: string) =>
-        await this.#docManager.deleteDocByPath(path),
-    });
-
-    this.#baseDirs.set(dir, {
-      unwatch,
     });
   };
 
@@ -160,18 +121,10 @@ export class DocBase {
         params: {},
       },
       {
-        plugin: defaultDocScannerPlugin,
-        params: {},
-      },
-      {
         plugin: defaultDocSplitterPlugin,
         params: {
           len: 1000,
         },
-      },
-      {
-        plugin: defaultDocWatcherPlugin,
-        params: {},
       },
     ],
     initscan = true,
@@ -194,9 +147,7 @@ export class DocBase {
      * @default
      * [
      *   { plugin: defaultDocLoaderPlugin, params: {} },
-     *   { plugin: defaultDocScannerPlugin, params: {} },
-     *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } },
-     *   { plugin: defaultDocWatcherPlugin, params: {} }
+     *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
      * ]
      */
     initPlugins?: PluginWithParams<any>[];
@@ -216,19 +167,12 @@ export class DocBase {
       initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
     );
 
-    const docWatcherExist = typeof this.#docWatcher.func === "function";
-    const docScannerExist = typeof this.#docScanner.func === "function";
     const docSplitterExist = typeof this.#docSplitter.func === "function";
     const docLoadersExist = this.#docLoaders.size > 0;
 
     // 校验文档监视器、文档扫描器、文档分割器是否存在
-    if (
-      !docWatcherExist ||
-      !docScannerExist ||
-      !docSplitterExist ||
-      !docLoadersExist
-    ) {
-      const msg = `DocWatcher: ${docWatcherExist} | DocScanner: ${docScannerExist}\nDocLoaders: ${docLoadersExist} | DocSplitter: ${docSplitterExist}`;
+    if (!docSplitterExist || !docLoadersExist) {
+      const msg = `DocLoaders: ${docLoadersExist} | DocSplitter: ${docSplitterExist}`;
       throw new Error("Loaded components: \n" + msg);
     }
 
@@ -242,14 +186,26 @@ export class DocBase {
     });
     await this.#docManager.init();
 
+    // 初始化监视器扫描器
+    const { watcher, scanner } = FSLayer({
+      filter: (path: string) => {
+        const ext = getExtFromPath(path);
+        return this.#docExtToLoaderName.has(ext);
+      },
+      upsert: async (path: string) => await this.#docManager.upsertDoc(path),
+      remove: async (path: string) =>
+        await this.#docManager.deleteDocByPath(path),
+    });
+    this.#docWatcher = watcher;
+    this.#docScanner = scanner;
+
     // 扫描加载默认目录下文档
     if (initscan) {
       await this.#scan(initPaths);
     }
 
     // 开启监视，同步变动文档
-    // 并行监视所有初始路径以提高效率
-    await Promise.all(initPaths.map((initPath) => this.#watch(initPath)));
+    initPaths.map((initPath) => this.#docWatcher.watch(initPath));
   };
 
   /**
@@ -319,22 +275,8 @@ export class DocBase {
 
         break;
 
-      case "DocScanner":
-        this.#docScanner = pluginToLoad as any;
-        break;
-
       case "DocSplitter":
         this.#docSplitter = pluginToLoad as any;
-        break;
-
-      case "DocWatcher":
-        this.#docWatcher = pluginToLoad as any;
-
-        // 需要重新监视所有目录
-        this.#baseDirs.entries().forEach(async ([dir, { unwatch }]) => {
-          await unwatch();
-          await this.#watch(dir);
-        });
         break;
 
       default:
@@ -349,7 +291,7 @@ export class DocBase {
   addDir = async (dir: string) => {
     // 扫描并监视
     await this.#scan([dir]);
-    await this.#watch(dir);
+    this.#docWatcher.watch(dir);
   };
 
   /**
@@ -357,16 +299,14 @@ export class DocBase {
    * @param dir - 要删除的目录路径
    */
   delDir = async (dir: string) => {
-    const baseDir = this.#baseDirs.get(dir);
+    // 取消监视
+    const hasDir = this.#docWatcher.unwatch(dir);
 
-    if (baseDir) {
-      // 取消监视
-      await baseDir.unwatch();
-      // 删除知识库中目录下所有文档
-      await this.#docManager.deleteDocByPathPrefix(dir);
-      // 删除知识库
-      this.#baseDirs.delete(dir);
-    }
+    // TODO 获取有还是没有
+    // if (hasDir) { await this.#docManager.deleteDocByPathPrefix(dir) }
+
+    // 删除知识库中目录下所有文档
+    await this.#docManager.deleteDocByPathPrefix(dir);
   };
 
   /**
@@ -375,9 +315,8 @@ export class DocBase {
    * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) => {
-    return await this.#docManager.search(query, opt);
-  };
+  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) =>
+    await this.#docManager.search(query, opt);
 
   /**
    * 作为 Dify 外部知识库搜索
@@ -392,7 +331,7 @@ export class DocBase {
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
     // TODO 多知识库
-    params.knowledge_id;
+    // params.knowledge_id;
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
 

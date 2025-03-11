@@ -65,7 +65,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TDDO 扫描、监视、访问读取合为一个模块，且不作为插件 -->
 <!-- TODO 多模态文档加载器、流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
 <!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
 <!-- TODO 制作宣传视频发 bilibili -->

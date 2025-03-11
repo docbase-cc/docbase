@@ -1,7 +1,5 @@
 import type { DocLoaderPlugin } from "./DocLoader";
-import type { DocScannerPlugin } from "./DocScanner";
 import type { DocSplitterPlugin } from "./DocSplitter";
-import type { DocWatcherPlugin } from "./DocWatcher";
 
 /**
  * 基础插件接口
@@ -40,10 +38,6 @@ export interface BasePlugin<
 export type DocBasePlugin<T extends object> =
   // 文档加载器
   | DocLoaderPlugin<T>
-  // 文档监视器
-  | DocWatcherPlugin<T>
-  // 文档扫描器
-  | DocScannerPlugin<T>
   // 文档分割器
   | DocSplitterPlugin<T>;
 
