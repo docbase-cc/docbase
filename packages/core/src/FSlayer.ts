@@ -21,7 +21,15 @@ export type Watcher = Pick<
   "getWatchedPaths" | "unwatch" | "watch"
 >;
 
-export const FSLayer = ({ filter, upsert, remove }) => {
+export const FSLayer = ({
+  filter,
+  upsert,
+  remove,
+}: {
+  filter: (path: string) => boolean;
+  upsert: (path: string) => void;
+  remove: (path: string) => void;
+}) => {
   const fd = new fdir().withBasePath();
 
   // 扫描器
@@ -40,23 +48,21 @@ export const FSLayer = ({ filter, upsert, remove }) => {
   };
 
   // 监视器
-  const watcher: DirectoryWatcher = DirectoryWatcher.new(
-    async (_err, event) => {
-      const e = JSON.parse(event);
-      const type = e.event.type;
-      const path = e.event.paths[0];
+  const watcher: DirectoryWatcher = DirectoryWatcher.new((_err, event) => {
+    const e = JSON.parse(event);
+    const type = e.event.type;
+    const path = e.event.paths[0];
 
-      // 过滤需要的路径
-      if (filter(path)) {
-        console.log(`[${type}] ${path}`);
-        if (type === "create" || type === "modify") {
-          await upsert(path);
-        } else if (type === "remove") {
-          await remove(path);
-        }
+    // 过滤需要的路径
+    if (filter(path)) {
+      console.log(`[${type}] ${path}`);
+      if (type === "create" || type === "modify") {
+        upsert(path);
+      } else if (type === "remove") {
+        remove(path);
       }
     }
-  );
+  });
 
   return { watcher, scanner };
 };

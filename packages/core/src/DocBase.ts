@@ -1,4 +1,4 @@
-import { omit } from "es-toolkit";
+import { omit, throttle } from "es-toolkit";
 import {
   defaultDocLoaderPlugin,
   type DocLoader,
@@ -45,11 +45,29 @@ export class DocBase {
   /** 文档分割器 */
   #docSplitter!: DocSplitterPlugin & { func: DocSplitter };
 
+  /** 文档扫描器 */
+  #docScanner!: Scanner;
+
   /** 文档监视器 */
   #docWatcher!: Watcher;
 
-  /** 文档扫描器 */
-  #docScanner!: Scanner;
+  /** 任务缓存器 */
+  #watcherTaskCache = new Map<string, "remove" | "upsert">();
+  // 节流器默认 500 毫秒
+  fileOpThrottleMs: number = 500;
+
+  // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
+  #doWatcherTask = throttle(async () => {
+    return await Promise.allSettled(
+      this.#watcherTaskCache.entries().map(async ([path, type]) => {
+        if (type === "upsert") {
+          await this.#docManager.upsertDoc(path);
+        } else if (type === "remove") {
+          await this.#docManager.deleteDocByPath(path);
+        }
+      })
+    );
+  }, this.fileOpThrottleMs);
 
   /**  获取挂载的知识库目录 */
   get dirs() {
@@ -128,6 +146,7 @@ export class DocBase {
       },
     ],
     initscan = true,
+    fileOpThrottleMs,
   }: {
     /**
      * MeiliSearch 配置
@@ -160,7 +179,12 @@ export class DocBase {
      * 索引前缀
      */
     indexPrefix?: string;
+    /**
+     * 文件变动时间节流时段(毫秒)，在该时段内每个文件最多执行一次嵌入更新操作
+     */
+    fileOpThrottleMs?: number;
   }) => {
+    this.fileOpThrottleMs = fileOpThrottleMs;
     // 加载所有插件
     // 并行加载所有插件以提高效率
     await Promise.all(
@@ -192,9 +216,14 @@ export class DocBase {
         const ext = getExtFromPath(path);
         return this.#docExtToLoaderName.has(ext);
       },
-      upsert: async (path: string) => await this.#docManager.upsertDoc(path),
-      remove: async (path: string) =>
-        await this.#docManager.deleteDocByPath(path),
+      upsert: (path: string) => {
+        this.#watcherTaskCache.set(path, "upsert");
+        this.#doWatcherTask();
+      },
+      remove: (path: string) => {
+        this.#watcherTaskCache.set(path, "remove");
+        this.#doWatcherTask();
+      },
     });
     this.#docWatcher = watcher;
     this.#docScanner = scanner;
