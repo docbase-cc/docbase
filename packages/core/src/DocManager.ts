@@ -331,9 +331,6 @@ export class DocManager {
       let docSyncContent: DocChunkDocument[];
 
       if (!remoteDocByPath) {
-        // 文档不存在
-        await this.#docIndex.addDocuments([localDoc]);
-
         // 需要上传的所有 chunk
         docSyncContent = await getDocSyncContent(localDoc.chunkHashs);
       } else {
@@ -348,21 +345,24 @@ export class DocManager {
           needAddChunkHashs,
         } = chunkDiff(remoteChunkHashs, incomingChunkHashs);
 
-        // 删除旧 chunk
-        await this.#deleteChunks(needDeleteChunkHashs);
-
-        // 删除旧 doc
-        await this.#docIndex.deleteDocument(remoteDocByPath.hash);
-
-        // 增加新 doc
-        await this.#docIndex.addDocuments([localDoc]);
-
-        // 需要上传的所有 chunk
-        docSyncContent = await getDocSyncContent(needAddChunkHashs);
+        // 并行执行删除和获取内容的操作
+        [, , docSyncContent] = await Promise.all([
+          // 删除旧 chunk
+          this.#deleteChunks(needDeleteChunkHashs),
+          // 删除旧 doc
+          this.#docIndex.deleteDocument(remoteDocByPath.hash),
+          // 需要上传的所有 chunk
+          getDocSyncContent(needAddChunkHashs),
+        ]);
       }
 
-      // 添加新 chunk
-      await this.#docChunkIndex.addDocuments(docSyncContent);
+      // 并行执行添加文档和 chunk 的操作
+      await Promise.all([
+        // 增加新 doc
+        this.#docIndex.addDocuments([localDoc]),
+        // 添加新 chunk
+        this.#docChunkIndex.addDocuments(docSyncContent),
+      ]);
     } else {
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {
@@ -397,42 +397,40 @@ export class DocManager {
     const content = await this.#docLoader(path);
     // 分割内容
     const chunks = await this.#docSplitter(content);
-    // 添加 hash
-    const docChunks: DocChunkDocument[] = [];
+
+    const docChunks: DocChunkDocument[] = new Array(chunks.length);
     const chunkHashs = new Set<string>();
 
-    // 构造 chunk
+    // 并行构造所有 chunks
     await Promise.all(
-      chunks.map(async (chunk) => {
+      chunks.map(async (chunk, index) => {
         const chunkHash = await xxhash64(chunk);
         chunkHashs.add(chunkHash);
-        docChunks.push({
+        docChunks[index] = {
           hash: chunkHash,
           content: chunk,
-        });
+        };
       })
     );
 
-    // 计算 chunkHashs 的总 hash
-    const hasher = await createXXHash64();
-    hasher.init();
-    chunkHashs.forEach((chunkHash) => hasher.update(chunkHash));
-    const hash = hasher.digest();
+    // 计算文档总 hash
+    const hash = await xxhash64(docChunks.map((i) => i.hash).join(""));
 
     // 构造文档同步请求
     const localDoc: DocDocument = {
       path,
       hash,
-      chunkHashs: chunkHashs,
+      chunkHashs,
       updateAt: mtimeMs,
     };
 
-    // 文档提交请求构造器, 查找总文档中需要更新的块
+    // 获取需要上传的 chunks
     const getDocSyncContent = async (
       needAddChunkHashs: Set<string>
     ): Promise<DocChunkDocument[]> =>
       docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
 
+    // 获取远程文档
     const remoteDocByHash = await this.#getDocIfExist(hash);
 
     // 上传知识库
