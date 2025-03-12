@@ -471,6 +471,8 @@ export class DocManager {
           localDoc,
           getDocSyncContent,
         });
+
+        console.log(`[embeded] ${path}`);
       }
     }
   };
