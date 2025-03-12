@@ -464,11 +464,13 @@ export class DocManager {
   };
 
   #deleteDoc = async (doc: DocDocument) => {
-    // 删除内容
-    await this.#deleteChunks(doc.chunkHashs);
-
-    // 删除文档
-    await this.#docIndex.deleteDocument(doc.hash);
+    // 并行删除内容和文档
+    await Promise.all([
+      // 删除内容
+      this.#deleteChunks(doc.chunkHashs),
+      // 删除文档
+      this.#docIndex.deleteDocument(doc.hash),
+    ]);
   };
 
   /**
