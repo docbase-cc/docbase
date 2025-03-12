@@ -208,13 +208,6 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          load: true
-          push: false
-
       - run: docker manifest create gonorth/docbase:latest gonorth/docbase:latest-x86 gonorth/docbase:latest-arm --amend
       - run: docker manifest annotate gonorth/docbase:latest gonorth/docbase:latest-x86 --os linux --arch amd64
       - run: docker manifest annotate gonorth/docbase:latest gonorth/docbase:latest-arm --os linux --arch arm
