@@ -68,6 +68,8 @@ export class DocManager {
   /** MeiliSearch 客户端实例 */
   #client: MeiliSearch;
 
+  /** 索引版本 */
+  #indexVersion = "v0";
   /** 索引前缀 */
   #indexPrefix: string;
   /** 文档 Chunk 索引 */
@@ -105,7 +107,8 @@ export class DocManager {
     this.#client = new MeiliSearch(meiliSearchConfig);
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
-    this.#indexPrefix = indexPrefix;
+    const prefix = compact([indexPrefix, this.#indexVersion]).join("_");
+    this.#indexPrefix = `${prefix}-`;
     this.#embeddingConfig = embeddingConfig;
   }
 
@@ -236,6 +239,10 @@ export class DocManager {
     this.#docChunkIndex = await this.#getIndexOrCreate(
       `${this.#indexPrefix}chunks`
     );
+
+    // 重置索引
+    // await this.#docChunkIndex.deleteAllDocuments();
+    // await this.#docIndex.deleteAllDocuments();
 
     const embedders = await this.#docChunkIndex.getEmbedders();
 
