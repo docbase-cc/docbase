@@ -1,7 +1,8 @@
 /**
- * 文档索引类型
+ * 文档类型
+ * chunkHashs 换成 Set 提高性能
  */
-export interface DocDocument {
+export interface Doc {
   /** 文档 hash */
   hash: string;
   /** 文档路径 */
@@ -11,6 +12,11 @@ export interface DocDocument {
   /** 文档 chunkHash 集合 */
   chunkHashs: Set<string>;
 }
+
+/**
+ * 文档索引类型
+ */
+export type DocDocument = Omit<Doc, "chunkHashs"> & { chunkHashs: string[] };
 
 /**
  * 文档 chunk 索引类型
@@ -25,7 +31,7 @@ export interface DocChunkDocument {
 import { Index, MeiliSearch } from "meilisearch";
 import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
-import { xxhash64, createXXHash64 } from "hash-wasm";
+import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
 import { compact, difference, merge, retry } from "es-toolkit";
 import slash from "slash";
@@ -269,7 +275,8 @@ export class DocManager {
    */
   #getDocIfExist = async (hash: string): Promise<DocDocument | false> => {
     try {
-      return (await this.#docIndex.getDocument(hash)) as DocDocument;
+      const res = await this.#docIndex.getDocument(hash);
+      return res;
     } catch (error) {
       const msg = (error as Error).message;
       if (msg === `Document \`${hash}\` not found.`) {
@@ -291,11 +298,16 @@ export class DocManager {
     });
 
     if (docs.total > 0) {
-      return docs.results[0] as DocDocument;
+      return docs.results[0];
     } else {
       return false;
     }
   };
+
+  #convertDoc2DocDocument = (doc: Doc): DocDocument =>
+    merge(doc, { chunkHashs: doc.chunkHashs.values().toArray() });
+  #convertDocDocument2Doc = (doc: DocDocument): Doc =>
+    merge(doc, { chunkHashs: new Set(doc.chunkHashs) });
 
   /**
    * 文档上传器，用于自动增删文档
@@ -320,9 +332,9 @@ export class DocManager {
     localDoc,
     getDocSyncContent,
   }: {
-    remoteDocByHash: DocDocument | false;
-    remoteDocByPath: DocDocument | false;
-    localDoc: DocDocument;
+    remoteDocByHash: Doc | false;
+    remoteDocByPath: Doc | false;
+    localDoc: Doc;
     getDocSyncContent: (
       needAddChunkHashs: Set<string>
     ) => Promise<DocChunkDocument[]>;
@@ -348,7 +360,7 @@ export class DocManager {
         // 并行执行删除和获取内容的操作
         [, , docSyncContent] = await Promise.all([
           // 删除旧 chunk
-          this.#deleteChunks(needDeleteChunkHashs),
+          this.#deleteChunks(needDeleteChunkHashs.values().toArray()),
           // 删除旧 doc
           this.#docIndex.deleteDocument(remoteDocByPath.hash),
           // 需要上传的所有 chunk
@@ -359,7 +371,7 @@ export class DocManager {
       // 并行执行添加文档和 chunk 的操作
       await Promise.all([
         // 增加新 doc
-        this.#docIndex.addDocuments([localDoc]),
+        this.#docIndex.addDocuments([this.#convertDoc2DocDocument(localDoc)]),
         // 添加新 chunk
         this.#docChunkIndex.addDocuments(docSyncContent),
       ]);
@@ -417,7 +429,7 @@ export class DocManager {
     const hash = await xxhash64(docChunks.map((i) => i.hash).join(""));
 
     // 构造文档同步请求
-    const localDoc: DocDocument = {
+    const localDoc: Doc = {
       path,
       hash,
       chunkHashs,
@@ -435,17 +447,21 @@ export class DocManager {
 
     // 上传知识库
     await this.#upload({
-      remoteDocByHash,
-      remoteDocByPath,
+      remoteDocByHash: remoteDocByHash
+        ? this.#convertDocDocument2Doc(remoteDocByHash)
+        : false,
+      remoteDocByPath: remoteDocByPath
+        ? this.#convertDocDocument2Doc(remoteDocByPath)
+        : false,
       localDoc,
       getDocSyncContent,
     });
   };
 
-  #deleteChunks = async (chunkHashs: Set<string>) => {
+  #deleteChunks = async (chunkHashs: string[]) => {
     const needDeleteChunkHashs = compact(
       await Promise.all(
-        chunkHashs.values().map(async (chunkHash) => {
+        chunkHashs.map(async (chunkHash) => {
           // 获取 chunk 关联的文档数量
           const relatedDocsCount = await this.#getChunkRelatedDocsCount(
             chunkHash
