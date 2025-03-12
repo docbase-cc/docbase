@@ -1,6 +1,6 @@
 {
   "name": "docbase",
-  "version": "0.0.31",
+  "version": "0.1.0",
   "type": "module",
   "workspaces": [
     "packages/*"
