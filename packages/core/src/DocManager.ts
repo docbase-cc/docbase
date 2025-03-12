@@ -375,9 +375,11 @@ export class DocManager {
     path = slash(path);
 
     // 修改时间
-    const { mtimeMs } = await stat(path);
     // 查询该路径有无文档
-    const doc = await this.#getDocByPathIfExist(path);
+    const [{ mtimeMs }, doc] = await Promise.all([
+      stat(path),
+      this.#getDocByPathIfExist(path),
+    ]);
 
     // 如果有且修改时间相等则为已上传过，直接跳过
     if (doc && doc.updateAt === mtimeMs) {
