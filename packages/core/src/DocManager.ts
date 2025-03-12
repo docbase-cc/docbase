@@ -6,6 +6,8 @@ export interface DocDocument {
   hash: string;
   /** 文档路径 */
   path: string;
+  // 文件修改时间戳
+  updateAt: number;
   /** 文档 chunkHash 数组 */
   chunkHashs: string[];
 }
@@ -24,7 +26,7 @@ import { Index, MeiliSearch } from "meilisearch";
 import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
-import { exists } from "fs-extra";
+import { exists, stat } from "fs-extra";
 import { difference, merge, retry } from "es-toolkit";
 import slash from "slash";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
@@ -371,6 +373,17 @@ export class DocManager {
 
   upsertDoc = async (path: string) => {
     path = slash(path);
+
+    // 修改时间
+    const { mtimeMs } = await stat(path);
+    // 查询该路径有无文档
+    const doc = await this.#getDocByPathIfExist(path);
+
+    // 如果有且修改时间相等则为已上传过，直接跳过
+    if (doc && doc.updateAt === mtimeMs) {
+      return;
+    }
+
     // 加载内容
     const content = await this.#docLoader(path);
     // 分割内容
@@ -396,6 +409,7 @@ export class DocManager {
       path,
       hash: await xxhash64(chunkHashs.join()),
       chunkHashs: chunkHashs,
+      updateAt: mtimeMs,
     };
 
     // 文档提交请求构造器
