@@ -3,6 +3,7 @@ import { readFile } from "fs-extra";
 import { version } from "~/package.json";
 import mammoth from "mammoth";
 import { getExtFromPath } from "./Utils";
+import { basename } from "path";
 
 /**
  * 文档加载器类型定义
@@ -39,7 +40,7 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
     return async (path: string) => {
       const ext = getExtFromPath(path);
 
-      if (ext === "docx") {
+      if (ext === "docx" && !basename(path).startsWith("~$")) {
         // @ts-ignore
         return (await mammoth.convertToMarkdown({ path })).value;
       }
