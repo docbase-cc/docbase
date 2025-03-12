@@ -122,7 +122,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -132,13 +132,13 @@ jobs:
           context: .
           load: true
           push: false
-          tags: gonorth/docbase:latest,gonorth/docbase:${{ steps.package-version.outputs.current-version }}
+          tags: gonorth/docbase:latest-x86,gonorth/docbase:${{ steps.package-version.outputs.current-version }}-x86
 
       # Push to the registry
       - run: docker image push "gonorth/docbase" --all-tags
 
-  docker-arm64:
-    name: Build and Push Docker Image
+  docker-arm:
+    name: Build and Push Docker Image ARM
     needs: build
     if: needs.build.outputs.has_update == 'true'
     runs-on: ubuntu-24.04-arm
@@ -170,7 +170,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/arm64
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -182,7 +182,45 @@ jobs:
           context: .
           load: true
           push: false
-          tags: gonorth/docbase:latest,gonorth/docbase:${{ steps.package-version.outputs.current-version }}
+          tags: gonorth/docbase:latest-arm,gonorth/docbase:${{ steps.package-version.outputs.current-version }}-arm
 
       # Push to the registry
       - run: docker image push "gonorth/docbase" --all-tags
+
+  docker-union:
+    name: Union Docker Image
+    needs:
+      - docker
+      - docker-arm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 登录到 Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: gonorth
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          push: false
+
+      - run: docker manifest create gonorth/docbase:latest gonorth/docbase:latest-x86 gonorth/docbase:latest-arm --amend
+      - run: docker manifest annotate gonorth/docbase:latest gonorth/docbase:latest-x86 --os linux --arch amd64
+      - run: docker manifest annotate gonorth/docbase:latest gonorth/docbase:latest-arm --os linux --arch arm
+      - run: docker manifest push gonorth/docbase:latest
+
+      - run: docker manifest create gonorth/docbase:${{ steps.package-version.outputs.current-version }} gonorth/docbase:${{ steps.package-version.outputs.current-version }}-x86 gonorth/docbase:${{ steps.package-version.outputs.current-version }}-arm --amend
+      - run: docker manifest annotate gonorth/docbase:${{ steps.package-version.outputs.current-version }} gonorth/docbase:${{ steps.package-version.outputs.current-version }}-x86 --os linux --arch amd64
+      - run: docker manifest annotate gonorth/docbase:${{ steps.package-version.outputs.current-version }} gonorth/docbase:${{ steps.package-version.outputs.current-version }}-arm --os linux --arch arm
+      - run: docker manifest push gonorth/docbase:${{ steps.package-version.outputs.current-version }}
