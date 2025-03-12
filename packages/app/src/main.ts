@@ -6,7 +6,6 @@ import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
-import { join } from "path";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -42,7 +41,7 @@ app.doc("/openapi.json", {
 });
 
 // 前端
-app.use("/*", serveStatic({ root: join(import.meta.dir, "public") }));
+app.use("/*", serveStatic({ root: "public" }));
 
 export default {
   port: 3000,
