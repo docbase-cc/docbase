@@ -8,8 +8,8 @@ export interface DocDocument {
   path: string;
   // 文件修改时间戳
   updateAt: number;
-  /** 文档 chunkHash 数组 */
-  chunkHashs: string[];
+  /** 文档 chunkHash 集合 */
+  chunkHashs: Set<string>;
 }
 
 /**
@@ -25,19 +25,19 @@ export interface DocChunkDocument {
 import { Index, MeiliSearch } from "meilisearch";
 import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
-import { xxhash64 } from "hash-wasm";
+import { xxhash64, createXXHash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
-import { difference, merge, retry } from "es-toolkit";
+import { compact, difference, merge, retry } from "es-toolkit";
 import slash from "slash";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
-  remoteChunkHashs: string[],
-  incomingChunkHashs: string[]
+  remoteChunkHashs: Set<string>,
+  incomingChunkHashs: Set<string>
 ) => {
-  const needAddChunkHashs = difference(incomingChunkHashs, remoteChunkHashs);
-  const needDeleteChunkHashs = difference(remoteChunkHashs, incomingChunkHashs);
+  const needAddChunkHashs = incomingChunkHashs.difference(remoteChunkHashs);
+  const needDeleteChunkHashs = remoteChunkHashs.difference(incomingChunkHashs);
 
   return {
     // 需要删除的旧 chunk
@@ -313,7 +313,7 @@ export class DocManager {
   #upload = async (
     docDiffReq: DocDocument,
     getDocSyncContent: (
-      needAddChunkHashs: string[]
+      needAddChunkHashs: Set<string>
     ) => Promise<DocChunkDocument[]>
   ) => {
     const remoteDoc = await this.#getDocIfExist(docDiffReq.hash);
@@ -390,13 +390,13 @@ export class DocManager {
     const chunks = await this.#docSplitter(content);
     // 添加 hash
     const docChunks: DocChunkDocument[] = [];
-    const chunkHashs: string[] = [];
+    const chunkHashs = new Set<string>();
 
     // 构造 chunk
     await Promise.all(
       chunks.map(async (chunk) => {
         const chunkHash = await xxhash64(chunk);
-        chunkHashs.push(chunkHash);
+        chunkHashs.add(chunkHash);
         docChunks.push({
           hash: chunkHash,
           content: chunk,
@@ -404,48 +404,44 @@ export class DocManager {
       })
     );
 
+    // 计算 chunkHashs 的总 hash
+    const hasher = await createXXHash64();
+    hasher.init();
+    chunkHashs.forEach((chunkHash) => hasher.update(chunkHash));
+
     // 构造文档同步请求
     const docDiffReq: DocDocument = {
       path,
-      hash: await xxhash64(chunkHashs.join()),
+      hash: hasher.digest(),
       chunkHashs: chunkHashs,
       updateAt: mtimeMs,
     };
 
-    // 文档提交请求构造器
+    // 文档提交请求构造器, 查找总文档中需要更新的块
     const getDocSyncContent = async (
-      needAddChunkHashs: string[]
-    ): Promise<DocChunkDocument[]> => {
-      const chunksNeedAdd: DocChunkDocument[] = [];
-
-      for (const docChunk of docChunks) {
-        if (needAddChunkHashs.includes(docChunk.hash)) {
-          chunksNeedAdd.push(docChunk);
-        }
-      }
-
-      return chunksNeedAdd;
-    };
+      needAddChunkHashs: Set<string>
+    ): Promise<DocChunkDocument[]> =>
+      docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
 
     // 上传知识库
     await this.#upload(docDiffReq, getDocSyncContent);
   };
 
-  #deleteChunks = async (chunkHashs: string[]) => {
-    const needDeleteChunkHashs: string[] = [];
+  #deleteChunks = async (chunkHashs: Set<string>) => {
+    const needDeleteChunkHashs = compact(
+      await Promise.all(
+        chunkHashs.values().map(async (chunkHash) => {
+          // 获取 chunk 关联的文档数量
+          const relatedDocsCount = await this.#getChunkRelatedDocsCount(
+            chunkHash
+          );
 
-    await Promise.all(
-      chunkHashs.map(async (chunkHash) => {
-        // 获取 chunk 关联的文档数量
-        const relatedDocsCount = await this.#getChunkRelatedDocsCount(
-          chunkHash
-        );
-
-        // 如果关联到 2 个以上文档, 则不删除
-        if (relatedDocsCount <= 1) {
-          needDeleteChunkHashs.push(chunkHash);
-        }
-      })
+          // 如果关联到 2 个以上文档, 则不删除
+          if (relatedDocsCount <= 1) {
+            return chunkHash;
+          }
+        })
+      )
     );
 
     // 删除 chunk
