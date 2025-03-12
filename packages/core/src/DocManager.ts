@@ -129,6 +129,7 @@ export class DocManager {
    * @param chunkHash - chunk hash
    * @returns 返回关联的文档数量
    */
+  // TODO 性能优化：批量获取
   #getChunkRelatedDocsCount = async (chunkHash: string) => {
     const docs = await this.#docIndex.getDocuments({
       filter: `chunkHashs IN ["${chunkHash}"]`,
@@ -143,6 +144,7 @@ export class DocManager {
    * @param chunkHash - chunk hash
    * @yields 返回关联的文档
    */
+  // TODO 性能优化：一次性全部获取、批量获取
   async *#getChunkRelatedDocs(chunkHash: string) {
     const batchSize = 100; // 每次获取的文档数量
     let offset = 0;
@@ -297,7 +299,9 @@ export class DocManager {
 
   /**
    * 文档上传器，用于自动增删文档
-   * @param docDiffReq - 文档差异请求
+   * @param remoteDocByHash - 按 Hash 检索的远程文档
+   * @param remoteDocByPath - 按路径检索的远程文档
+   * @param localDoc - 文档差异请求
    * @function getDocSyncContent - 获取需要同步的文档内容
    */
   // 根据文档路径、hash 查找文档是否存在、是否修改过
@@ -310,29 +314,32 @@ export class DocManager {
   // hash 不存在 -> 文档不存在 | 文档已落后
   //     path 存在 文档已落后 -> 更新文档
   //     path 不存在 文档不存在 -> 增加文档
-  #upload = async (
-    docDiffReq: DocDocument,
+  #upload = async ({
+    remoteDocByHash,
+    remoteDocByPath,
+    localDoc,
+    getDocSyncContent,
+  }: {
+    remoteDocByHash: DocDocument | false;
+    remoteDocByPath: DocDocument | false;
+    localDoc: DocDocument;
     getDocSyncContent: (
       needAddChunkHashs: Set<string>
-    ) => Promise<DocChunkDocument[]>
-  ) => {
-    const remoteDoc = await this.#getDocIfExist(docDiffReq.hash);
-
-    if (!remoteDoc) {
-      // 查找知识库中有无该 path 的文档
-      const remoteDocByPath = await this.#getDocByPathIfExist(docDiffReq.path);
+    ) => Promise<DocChunkDocument[]>;
+  }) => {
+    if (!remoteDocByHash) {
       let docSyncContent: DocChunkDocument[];
 
       if (!remoteDocByPath) {
         // 文档不存在
-        await this.#docIndex.addDocuments([docDiffReq]);
+        await this.#docIndex.addDocuments([localDoc]);
 
         // 需要上传的所有 chunk
-        docSyncContent = await getDocSyncContent(docDiffReq.chunkHashs);
+        docSyncContent = await getDocSyncContent(localDoc.chunkHashs);
       } else {
         // 文档已落后
         const remoteChunkHashs = remoteDocByPath.chunkHashs;
-        const incomingChunkHashs = docDiffReq.chunkHashs;
+        const incomingChunkHashs = localDoc.chunkHashs;
 
         const {
           // 需要删除的旧 chunk
@@ -348,7 +355,7 @@ export class DocManager {
         await this.#docIndex.deleteDocument(remoteDocByPath.hash);
 
         // 增加新 doc
-        await this.#docIndex.addDocuments([docDiffReq]);
+        await this.#docIndex.addDocuments([localDoc]);
 
         // 需要上传的所有 chunk
         docSyncContent = await getDocSyncContent(needAddChunkHashs);
@@ -358,13 +365,13 @@ export class DocManager {
       await this.#docChunkIndex.addDocuments(docSyncContent);
     } else {
       // 文档存在
-      if (!(remoteDoc.path === docDiffReq.path)) {
+      if (!(remoteDocByHash.path === localDoc.path)) {
         // path 错误
-        const oldPathFileExists = await exists(remoteDoc.path);
+        const oldPathFileExists = await exists(remoteDocByHash.path);
         if (!oldPathFileExists) {
           // 更新 path
           await this.#docIndex.updateDocuments([
-            { hash: remoteDoc.hash, path: docDiffReq.path },
+            { hash: remoteDocByHash.hash, path: localDoc.path },
           ]);
         }
       }
@@ -376,13 +383,13 @@ export class DocManager {
 
     // 修改时间
     // 查询该路径有无文档
-    const [{ mtimeMs }, doc] = await Promise.all([
+    const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
       stat(path),
       this.#getDocByPathIfExist(path),
     ]);
 
     // 如果有且修改时间相等则为已上传过，直接跳过
-    if (doc && doc.updateAt === mtimeMs) {
+    if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
       return;
     }
 
@@ -410,11 +417,12 @@ export class DocManager {
     const hasher = await createXXHash64();
     hasher.init();
     chunkHashs.forEach((chunkHash) => hasher.update(chunkHash));
+    const hash = hasher.digest();
 
     // 构造文档同步请求
-    const docDiffReq: DocDocument = {
+    const localDoc: DocDocument = {
       path,
-      hash: hasher.digest(),
+      hash,
       chunkHashs: chunkHashs,
       updateAt: mtimeMs,
     };
@@ -425,8 +433,15 @@ export class DocManager {
     ): Promise<DocChunkDocument[]> =>
       docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
 
+    const remoteDocByHash = await this.#getDocIfExist(hash);
+
     // 上传知识库
-    await this.#upload(docDiffReq, getDocSyncContent);
+    await this.#upload({
+      remoteDocByHash,
+      remoteDocByPath,
+      localDoc,
+      getDocSyncContent,
+    });
   };
 
   #deleteChunks = async (chunkHashs: Set<string>) => {
