@@ -393,69 +393,79 @@ export class DocManager {
   upsertDoc = async (path: string) => {
     path = slash(path);
 
-    // 修改时间
-    // 查询该路径有无文档
-    const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
-      stat(path),
-      this.#getDocByPathIfExist(path),
-    ]);
+    // 加载内容 Promise
+    const docToLoad = this.#docLoader(path);
 
-    // 如果有且修改时间相等则为已上传过，直接跳过
-    if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
-      return;
-    }
+    if (docToLoad !== false) {
+      // 修改时间
+      // 查询该路径有无文档
+      const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
+        stat(path),
+        this.#getDocByPathIfExist(path),
+      ]);
 
-    // 加载内容
-    const content = await this.#docLoader(path);
-    // 分割内容
-    const chunks = await this.#docSplitter(content);
+      // 如果有且修改时间相等则为已上传过，直接跳过
+      if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
+        return;
+      }
 
-    const docChunks: DocChunkDocument[] = new Array(chunks.length);
-    const chunkHashs = new Set<string>();
+      // 实际加载文档
+      const doc = await docToLoad;
 
-    // 并行构造所有 chunks
-    await Promise.all(
-      chunks.map(async (chunk, index) => {
-        const chunkHash = await xxhash64(chunk);
-        chunkHashs.add(chunkHash);
-        docChunks[index] = {
-          hash: chunkHash,
-          content: chunk,
+      if (doc !== false) {
+        const { content } = doc;
+
+        // 分割内容
+        const chunks = await this.#docSplitter(content);
+
+        const docChunks: DocChunkDocument[] = new Array(chunks.length);
+        const chunkHashs = new Set<string>();
+
+        // 并行构造所有 chunks
+        await Promise.all(
+          chunks.map(async (chunk, index) => {
+            const chunkHash = await xxhash64(chunk);
+            chunkHashs.add(chunkHash);
+            docChunks[index] = {
+              hash: chunkHash,
+              content: chunk,
+            };
+          })
+        );
+
+        // 计算文档总 hash
+        const hash = await xxhash64(docChunks.map((i) => i.hash).join(""));
+
+        // 构造文档同步请求
+        const localDoc: Doc = {
+          path,
+          hash,
+          chunkHashs,
+          updateAt: mtimeMs,
         };
-      })
-    );
 
-    // 计算文档总 hash
-    const hash = await xxhash64(docChunks.map((i) => i.hash).join(""));
+        // 获取需要上传的 chunks
+        const getDocSyncContent = async (
+          needAddChunkHashs: Set<string>
+        ): Promise<DocChunkDocument[]> =>
+          docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
 
-    // 构造文档同步请求
-    const localDoc: Doc = {
-      path,
-      hash,
-      chunkHashs,
-      updateAt: mtimeMs,
-    };
+        // 获取远程文档
+        const remoteDocByHash = await this.#getDocIfExist(hash);
 
-    // 获取需要上传的 chunks
-    const getDocSyncContent = async (
-      needAddChunkHashs: Set<string>
-    ): Promise<DocChunkDocument[]> =>
-      docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
-
-    // 获取远程文档
-    const remoteDocByHash = await this.#getDocIfExist(hash);
-
-    // 上传知识库
-    await this.#upload({
-      remoteDocByHash: remoteDocByHash
-        ? this.#convertDocDocument2Doc(remoteDocByHash)
-        : false,
-      remoteDocByPath: remoteDocByPath
-        ? this.#convertDocDocument2Doc(remoteDocByPath)
-        : false,
-      localDoc,
-      getDocSyncContent,
-    });
+        // 上传知识库
+        await this.#upload({
+          remoteDocByHash: remoteDocByHash
+            ? this.#convertDocDocument2Doc(remoteDocByHash)
+            : false,
+          remoteDocByPath: remoteDocByPath
+            ? this.#convertDocDocument2Doc(remoteDocByPath)
+            : false,
+          localDoc,
+          getDocSyncContent,
+        });
+      }
+    }
   };
 
   #deleteChunks = async (chunkHashs: string[]) => {

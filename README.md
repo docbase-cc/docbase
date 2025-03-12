@@ -65,20 +65,19 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 多模态文档加载器、流式加载文档(使用https://llm-tools.mintlify.app/components/data-sources/overview) -->
-<!-- TODO 校验 doc hash 是否存在放到 docloader 执行前 -->
 <!-- TODO 制作宣传视频发 bilibili -->
-<!-- TODO 客户端版 -->
-
-<!-- 功能 -->
-<!-- TODO 插件管理 API -->
-<!-- TODO 插件变动重新触发扫描 -->
-<!-- TODO 前端 i8n -->
 
 <!-- 工程化 -->
 <!-- TODO 支持 arm64 docker -->
 <!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
+
+<!-- 功能 -->
+<!-- TODO 插件管理 API -->
+<!-- TODO 插件变动重新触发扫描 -->
+<!-- TODO 客户端版 -->
+<!-- TODO 文件加载器、分割器支持自定义向量 -->
+<!-- TODO 前端 i8n -->
 
 <!-- 企业版 -->
 <!-- 多知识库管理 -->

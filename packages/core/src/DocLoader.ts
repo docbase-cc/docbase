@@ -6,11 +6,21 @@ import { getExtFromPath } from "./Utils";
 import { basename } from "path";
 
 /**
+ * 加载后的文档文件接口定义
+ */
+export interface DocFileToLoad {
+  // 文档内容
+  content: string;
+}
+
+/**
  * 文档加载器类型定义
  * @param path - 文档路径
- * @returns 返回文档内容字符串或Promise
+ * @returns 返回加载后的文档对象，false 表示不符合条件的文件，跳过处理
  */
-export type DocLoader = (path: string) => string | Promise<string>;
+export type DocLoader = (
+  path: string
+) => Promise<DocFileToLoad | false> | false;
 
 /**
  * 文档加载器插件接口
@@ -37,15 +47,23 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   exts: ["md", "txt", "docx"],
   init: async () => {
     // 读取文件内容
-    return async (path: string) => {
+    return async (path) => {
       const ext = getExtFromPath(path);
 
       if (ext === "docx" && !basename(path).startsWith("~$")) {
-        // @ts-ignore
-        return (await mammoth.convertToMarkdown({ path })).value;
+        return {
+          // @ts-ignore
+          content: (await mammoth.convertToMarkdown({ path })).value,
+        };
       }
 
-      return await readFile(path, "utf-8");
+      if (ext === "md") {
+        return {
+          content: await readFile(path, "utf-8"),
+        };
+      }
+
+      return false;
     };
   },
 };
