@@ -57,17 +57,21 @@ export class DocBase {
   fileOpThrottleMs: number = 500;
 
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
-  #doWatcherTask = throttle(async () => {
-    return await Promise.allSettled(
-      this.#watcherTaskCache.entries().map(async ([path, type]) => {
-        if (type === "upsert") {
-          await this.#docManager.upsertDoc(path);
-        } else if (type === "remove") {
-          await this.#docManager.deleteDocByPath(path);
-        }
-      })
-    );
-  }, this.fileOpThrottleMs);
+  #doWatcherTask = throttle(
+    async () => {
+      return await Promise.allSettled(
+        this.#watcherTaskCache.entries().map(async ([path, type]) => {
+          if (type === "upsert") {
+            await this.#docManager.upsertDoc(path);
+          } else if (type === "remove") {
+            await this.#docManager.deleteDocByPath(path);
+          }
+        })
+      );
+    },
+    this.fileOpThrottleMs,
+    { edges: ["trailing"] }
+  );
 
   /**  获取挂载的知识库目录 */
   get dirs() {
