@@ -13,7 +13,7 @@
 
 ## ✨ 特性
 
-- 📂 全能文档支持：一站式继承，Markdown/Office 等格式全覆盖
+- 📂 全能文档支持：一站式集成，Markdown/Office 等格式全覆盖
 - 🧩 灵活插件系统：模块化设计，随心扩展文档类型支持
 - ☁️ 云端管理方案：支持 WebDAV，打造专业云端知识仓库
 - 🚀 智能实时同步：自动监测文件更新知识库，再也无须手动维护
@@ -28,7 +28,7 @@
 1. 下载 Docker Compose 文件：
 
 ```bash
-curl -o docker-compose.yaml https://unpkg.com/docbase/docker-compose.yaml
+curl -L -o docker-compose.yaml https://unpkg.com/docbase/docker-compose.yaml
 ```
 
 2. 修改`docker-compose.yaml`中以下环境变量
