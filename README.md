@@ -47,6 +47,7 @@ docker-compose up -d
 <!-- 客户端版（插件、多模态重构结束后才会做） -->
 <!-- 动态选择知识库目录功能 -->
 <!-- 本地自动部署 meilisearch -->
+<!-- 制作为 aiaw 插件（MCP协议） -->
 <!-- 整合 aiaw 前端 -->
 <!-- 制作图文发小红书 -->
 
@@ -65,6 +66,7 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
+<!-- TODO 添加全部 llmjs 支持的文件类型 -->
 <!-- TODO 制作宣传视频发 bilibili -->
 
 <!-- 工程化 -->
