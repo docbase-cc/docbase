@@ -51,10 +51,16 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
       const ext = getExtFromPath(path);
 
       if (ext === "docx" && !basename(path).startsWith("~$")) {
-        return {
-          // @ts-ignore
-          content: (await mammoth.convertToMarkdown({ path })).value,
-        };
+        // @ts-ignore
+        const content = (await mammoth.convertToMarkdown({ path })).value;
+
+        if (content) {
+          return {
+            content,
+          };
+        } else {
+          return false;
+        }
       }
 
       if (ext === "md") {

@@ -66,6 +66,8 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
+<!-- TODO 插件管理 API -->
+<!-- TODO 插件变动重新触发扫描 -->
 <!-- TODO 添加全部 llmjs 支持的文件类型 -->
 <!-- TODO 制作宣传视频发 bilibili -->
 
@@ -74,8 +76,6 @@ docker-compose up -d
 <!-- TODO 打点日志 -->
 
 <!-- 功能 -->
-<!-- TODO 插件管理 API -->
-<!-- TODO 插件变动重新触发扫描 -->
 <!-- TODO 客户端版 -->
 <!-- TODO 文件加载器、分割器支持自定义向量 -->
 <!-- TODO 前端 i8n -->
