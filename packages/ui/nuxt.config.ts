@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   nitro: {
     preset: 'static'
   },
-  compatibilityDate: '2024-11-01',
+  compatibilityDate: '2025-03-17',
   devtools: { enabled: true },
   modules: [
     '@unocss/nuxt',

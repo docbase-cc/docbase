@@ -1,12 +1,12 @@
 {
   "name": "docbase",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "build": "bun run --filter '*' build && bun ./postbuild.ts",
+    "build": "bun run --bun --filter '*' build && bun ./postbuild.ts",
     "dev": "bun run ./dev.ts"
   },
   "devDependencies": {

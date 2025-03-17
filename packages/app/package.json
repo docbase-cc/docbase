@@ -11,7 +11,7 @@
     "@hono/zod-openapi": "^0.19.2",
     "hono": "^4.7.4",
     "core": "workspace:*",
-    "@hey-api/openapi-ts": "^0.64.10"
+    "@hey-api/openapi-ts": "^0.64.12"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.3"
