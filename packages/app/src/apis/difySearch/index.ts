@@ -6,6 +6,7 @@ import {
 
 // dify 外部知识库搜索
 export default createRoute({
+  tags: ["search"],
   method: "post",
   path: "/retrieval",
   summary: "作为 dify 外部知识库搜索",

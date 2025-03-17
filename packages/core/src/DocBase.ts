@@ -81,7 +81,7 @@ export class DocBase {
 
   /** 获取支持的文档类型 */
   get exts() {
-    return Array.from(this.#docExtToLoaderName.keys());
+    return this.#docExtToLoaderName.entries();
   }
 
   /** 获取所有可用文档加载器 */
@@ -90,6 +90,10 @@ export class DocBase {
     return Array.from(
       this.#docLoaders.values().map((v) => omit(v, ["func", "init"]))
     );
+  }
+
+  get docSplitter() {
+    return omit(this.#docSplitter, ["func", "init"]);
   }
 
   /**
@@ -269,14 +273,17 @@ export class DocBase {
     const docLoader = this.#docLoaders.get(docLoaderName);
 
     if (!docLoader) {
-      throw new Error(`No such docLoaderName ${docLoaderName}`);
+      return false
+      // throw new Error(`No such docLoaderName ${docLoaderName}`);
     }
 
     if (!docLoader.exts.includes(ext)) {
-      throw new Error(`${docLoaderName} not support ${ext}`);
+      return false
+      // throw new Error(`${docLoaderName} not support ${ext}`);
     }
 
     this.#docExtToLoaderName.set(ext, docLoaderName);
+    return true
   };
 
   /**

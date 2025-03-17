@@ -3,6 +3,7 @@ import { SearchParamSchema, SearchResultsSchema } from "./schemas";
 
 // 搜索
 export default createRoute({
+  tags: ["search"],
   method: "post",
   path: "/search",
   summary: "知识库搜索",

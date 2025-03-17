@@ -1,5 +1,6 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import search from "./search";
+import plugin from "./plugin"
 import difySearch from "./difySearch";
 import { cors } from "hono/cors";
 import { bearerAuth } from "hono/bearer-auth";
@@ -31,5 +32,7 @@ app.openapi(difySearch, async (c) => {
   const results = await docBase.difySearch(body as any);
   return c.json({ records: results });
 });
+
+app.route("/plugin", plugin)
 
 export default app;
