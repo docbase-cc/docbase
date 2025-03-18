@@ -14,6 +14,7 @@
       "name": "app",
       "dependencies": {
         "@hey-api/client-fetch": "^0.8.3",
+        "nypm": "^0.6.0",
       },
       "devDependencies": {
         "@hey-api/openapi-ts": "^0.64.12",
