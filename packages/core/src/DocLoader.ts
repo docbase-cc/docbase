@@ -1,9 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import { readFile } from "fs-extra";
 import { version } from "~/package.json";
-import mammoth from "mammoth";
-import { getExtFromPath } from "./Utils";
-import { basename } from "path";
 
 /**
  * 加载后的文档文件接口定义
@@ -44,32 +41,11 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   name: "default",
   version,
   type: "DocLoader",
-  exts: ["md", "txt", "docx"],
+  exts: ["md", "txt"],
   init: async () => {
     // 读取文件内容
-    return async (path) => {
-      const ext = getExtFromPath(path);
-
-      if (ext === "docx" && !basename(path).startsWith("~$")) {
-        // @ts-ignore
-        const content = (await mammoth.convertToMarkdown({ path })).value;
-
-        if (content) {
-          return {
-            content,
-          };
-        } else {
-          return false;
-        }
-      }
-
-      if (ext === "md") {
-        return {
-          content: await readFile(path, "utf-8"),
-        };
-      }
-
-      return false;
-    };
+    return async (path) => ({
+      content: await readFile(path, "utf-8"),
+    });
   },
 };
