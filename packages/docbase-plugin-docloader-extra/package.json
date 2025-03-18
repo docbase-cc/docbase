@@ -15,7 +15,8 @@
     "json"
   ],
   "scripts": {
-    "build": "bun ./build.ts"
+    "build": "bun ./build.ts",
+    "test": "bun run ./test.ts"
   },
   "devDependencies": {
     "@llm-tools/embedjs": "^0.1.28",
