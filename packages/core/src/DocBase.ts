@@ -247,6 +247,11 @@ export class DocBase {
   };
 
   /**
+   * 立即扫描所有目录
+   */
+  scanAllNow = async () => await this.#scan(this.dirs);
+
+  /**
    * 卸载文档加载器插件
    * @param docLoaderName - 要卸载的文档加载器名称
    * @throws 如果文档加载器正在使用中会抛出错误

@@ -221,6 +221,9 @@ app.openapi(addPlugin, async (c) => {
         plugin,
         params: body
       })
+      // 保存插件配置 name -> body
+      // 立即开始重扫描
+      docBase.scanAllNow()
       return c.json({ installed });
     }
   } catch (error) {

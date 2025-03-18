@@ -21,6 +21,10 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
+// const pluginNames = Object.keys(await pkgManager.list())
+// const plugins: DocBasePlugin<object>[] = await Promise.all(pluginNames.map(plugin => pkgManager.import(plugin)))
+// 获取插件配置并加载插件
+
 // 启动 docbase 实例
 app.use(async (c, next) => {
   c.set("pkgManager", pkgManager);

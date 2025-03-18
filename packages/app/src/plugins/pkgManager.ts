@@ -20,12 +20,12 @@ export class PackageManager {
         silent: true
     })
 
-    list = async () => {
+    list = async (): Promise<{ [key: string]: string }> => {
         const ex = await exists(this.#pkgPath)
         if (ex) {
             return (await readJSON(this.#pkgPath))["dependencies"]
         } else {
-            return []
+            return {}
         }
     }
 
