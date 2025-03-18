@@ -34,6 +34,7 @@ const addPlugin = createRoute({
         "application/json": {
           schema: z.object({
             installed: z.boolean(),
+            msg: z.string().optional(),
           })
         }
       }
@@ -64,6 +65,7 @@ const delPlugin = createRoute({
         "application/json": {
           schema: z.object({
             deleted: z.boolean(),
+            msg: z.string().optional(),
           })
         }
       }
@@ -197,14 +199,35 @@ app.openapi(addPlugin, async (c) => {
   const pkgManager = c.get("pkgManager")
   // 安装 npm 包
   await pkgManager.add(name)
-  // 导入 npm 包插件
-  const plugin: DocBasePlugin<object> = await pkgManager.import(name)
-  // 加载插件
-  const installed = await docBase.loadPlugin({
-    plugin,
-    params: body
-  })
-  return c.json({ installed });
+
+  try {
+    // 导入 npm 包插件
+    const plugin: DocBasePlugin<object> = await pkgManager.import(name)
+    if (plugin.type === "DocSplitter") {
+      const oldPlugin = docBase.docSplitter.name
+      // 加载插件
+      const installed = await docBase.loadPlugin({
+        plugin,
+        params: body
+      })
+      // 删除旧的非默认 DocSplitter 插件
+      if (oldPlugin !== "default") {
+        await pkgManager.del(oldPlugin)
+      }
+      return c.json({ installed });
+    } else {
+      // 加载插件
+      const installed = await docBase.loadPlugin({
+        plugin,
+        params: body
+      })
+      return c.json({ installed });
+    }
+  } catch (error) {
+    await pkgManager.del(name)
+    const err = (error as Error)
+    return c.json({ installed: false, msg: err.message });
+  }
 })
 
 app.openapi(listPlugin, async (c) => {
@@ -232,8 +255,16 @@ app.openapi(listExt, async (c) => {
 app.openapi(delPlugin, async (c) => {
   const docBase = c.get("docbase");
   const { name } = c.req.valid("query")
-  await c.get("pkgManager").del(name)
+  if (name === "default") {
+    return c.json({ deleted: false, msg: "无法删除默认插件" });
+  }
+
+  if (docBase.docSplitter.name === name) {
+    return c.json({ deleted: false, msg: "无法删除 DocSplitter 插件, 请直接安装新插件替代" });
+  }
+
   const deleted = await docBase.delDocLoader(name)
+  await c.get("pkgManager").del(name)
   return c.json({ deleted });
 })
 
