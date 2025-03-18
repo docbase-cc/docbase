@@ -27,6 +27,6 @@
     "@llm-tools/embedjs-loader-xml": "^0.1.28",
     "itertools-ts": "^2.2.0",
     "@types/bun": "^1.2.5",
-    "docbase": "^0.1.7"
+    "core": "workspace:*"
   }
 }
