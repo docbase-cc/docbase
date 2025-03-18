@@ -273,13 +273,17 @@ export class DocBase {
     const docLoader = this.#docLoaders.get(docLoaderName);
 
     if (!docLoader) {
-      return false
-      // throw new Error(`No such docLoaderName ${docLoaderName}`);
+      return {
+        modified: false,
+        msg: `No such docLoaderName ${docLoaderName}`
+      }
     }
 
     if (!docLoader.exts.includes(ext)) {
-      return false
-      // throw new Error(`${docLoaderName} not support ${ext}`);
+      return {
+        modified: false,
+        msg: `${docLoaderName} not support ${ext}`
+      }
     }
 
     this.#docExtToLoaderName.set(ext, docLoaderName);

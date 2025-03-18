@@ -6,7 +6,7 @@ const app = new OpenAPIHono();
 
 // 删除插件
 const addPlugin = createRoute({
-  tags: ["plguin"],
+  tags: ["plugin"],
   method: "put",
   path: "/",
   summary: "安装插件",
@@ -44,7 +44,7 @@ const addPlugin = createRoute({
 
 // 删除插件
 const delPlugin = createRoute({
-  tags: ["plguin"],
+  tags: ["plugin"],
   method: "delete",
   path: "/",
   summary: "删除插件",
@@ -75,7 +75,7 @@ const delPlugin = createRoute({
 
 // 查询插件
 const listPlugin = createRoute({
-  tags: ["plguin"],
+  tags: ["plugin"],
   method: "get",
   path: "/",
   summary: "查询插件列表",
@@ -137,7 +137,7 @@ const listPlugin = createRoute({
 
 // 查询拓展插件
 const listExt = createRoute({
-  tags: ["plguin"],
+  tags: ["plugin"],
   method: "get",
   path: "/ext",
   summary: "获取拓展-插件映射",
@@ -160,7 +160,7 @@ const listExt = createRoute({
 
 // 设置拓展插件
 const setExt = createRoute({
-  tags: ["plguin"],
+  tags: ["plugin"],
   method: "patch",
   path: "/ext",
   summary: "修改拓展-插件映射",
@@ -242,9 +242,7 @@ app.openapi(setExt, async (c) => {
   const docBase = c.get("docbase");
   const { ext, docLoaderName } = c.req.valid("query")
 
-  return c.json({
-    modified: await docBase.setDocLoader(ext, docLoaderName),
-  });
+  return c.json(await docBase.setDocLoader(ext, docLoaderName));
 })
 
 app.openapi(listExt, async (c) => {
@@ -256,7 +254,7 @@ app.openapi(delPlugin, async (c) => {
   const docBase = c.get("docbase");
   const { name } = c.req.valid("query")
   if (name === "default") {
-    return c.json({ deleted: false, msg: "无法删除默认插件" });
+    return c.json({ deleted: false, msg: "默认插件无法删除" });
   }
 
   if (docBase.docSplitter.name === name) {
