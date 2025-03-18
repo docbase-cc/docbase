@@ -1,7 +1,45 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { DocBasePlugin } from "core/src";
 
 const app = new OpenAPIHono();
+
+// 删除插件
+const addPlugin = createRoute({
+  tags: ["plguin"],
+  method: "put",
+  path: "/",
+  summary: "安装插件",
+  security: [
+    {
+      Bearer: [],
+    },
+  ],
+  request: {
+    query: z.object({
+      name: z.string(),
+    }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.any(),
+        },
+      },
+    }
+  },
+  responses: {
+    200: {
+      description: "是否成功安装",
+      content: {
+        "application/json": {
+          schema: z.object({
+            installed: z.boolean(),
+          })
+        }
+      }
+    },
+  },
+});
 
 // 删除插件
 const delPlugin = createRoute({
@@ -149,9 +187,25 @@ const setExt = createRoute({
   },
 });
 
-
-// TODO 加载插件
-// docBase.loadPlugin
+// 安装插件
+app.openapi(addPlugin, async (c) => {
+  const docBase = c.get("docbase");
+  // npm 名称
+  const { name } = c.req.valid("query")
+  // 插件初始化参数
+  const body = c.req.valid("json")
+  const pkgManager = c.get("pkgManager")
+  // 安装 npm 包
+  await pkgManager.add(name)
+  // 导入 npm 包插件
+  const plugin: DocBasePlugin<object> = await pkgManager.import(name)
+  // 加载插件
+  const installed = await docBase.loadPlugin({
+    plugin,
+    params: body
+  })
+  return c.json({ installed });
+})
 
 app.openapi(listPlugin, async (c) => {
   const docBase = c.get("docbase");
@@ -178,6 +232,7 @@ app.openapi(listExt, async (c) => {
 app.openapi(delPlugin, async (c) => {
   const docBase = c.get("docbase");
   const { name } = c.req.valid("query")
+  await c.get("pkgManager").del(name)
   const deleted = await docBase.delDocLoader(name)
   return c.json({ deleted });
 })

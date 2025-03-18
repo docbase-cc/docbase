@@ -6,6 +6,8 @@ import docBase from "./docbase";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
+import { pkgManager } from "./plugins";
+import { PackageManager } from "./plugins/pkgManager";
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -13,13 +15,15 @@ export const routeVersion = `v${version.split(".")[0]}`;
 declare module "hono" {
   interface ContextVariableMap {
     docbase: DocBase;
+    pkgManager: PackageManager
   }
 }
 
 const app = new OpenAPIHono();
 
-// 启动一个 docbase 实例
+// 启动 docbase 实例
 app.use(async (c, next) => {
+  c.set("pkgManager", pkgManager);
   c.set("docbase", docBase);
   await next();
 });
