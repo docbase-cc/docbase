@@ -70,7 +70,6 @@ docker-compose up -d
 <!-- TODO 制作宣传视频发 bilibili -->
 
 <!-- 工程化 -->
-<!-- TODO 单元测试 -->
 <!-- TODO 打点日志 -->
 
 <!-- 插件 -->
