@@ -1,10 +1,14 @@
 {
   "name": "docbase-plugin-docloader-extra",
+  "displayName": "DocBase 额外文档支持",
   "version": "0.0.1",
+  "author": "DocBase",
   "type": "module",
+  "homepage": "https://docbase.cc",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "description": "DocBase 额外文档加载插件，支持更多格式",
+  "icon": "https://docbase.cc/logo.svg",
   "exts": [
     "pdf",
     "csv",
@@ -27,6 +31,10 @@
     "@llm-tools/embedjs-loader-xml": "^0.1.28",
     "itertools-ts": "^2.2.0",
     "@types/bun": "^1.2.5",
+    "zod": "^3.24.2",
     "core": "workspace:*"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }

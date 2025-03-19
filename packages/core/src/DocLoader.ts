@@ -1,5 +1,6 @@
 import type { BasePlugin } from "./Plugin";
 import { readFile } from "fs-extra";
+import { AnyZodObject } from "zod";
 import { version } from "~/package.json";
 
 /**
@@ -23,7 +24,7 @@ export type DocLoader = (
  * 文档加载器插件接口
  * @template T - 插件参数类型，默认为空对象
  */
-export interface DocLoaderPlugin<T extends object = {}>
+export interface DocLoaderPlugin<T extends AnyZodObject = AnyZodObject>
   extends BasePlugin<DocLoader, T> {
   /** 插件类型，固定为"DocLoader" */
   type: "DocLoader";

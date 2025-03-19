@@ -1,5 +1,5 @@
-import { DocBasePlugin } from "core"
-import { name, version, description, exts } from "./package.json"
+import { DocBasePlugin } from "core/src"
+import { name, version, description, exts, icon, displayName, author, homepage } from "./package.json"
 import { PdfLoader } from '@llm-tools/embedjs-loader-pdf';
 import { CsvLoader } from '@llm-tools/embedjs-loader-csv';
 import { PptLoader, ExcelLoader, DocxLoader } from '@llm-tools/embedjs-loader-msoffice';
@@ -9,17 +9,21 @@ import { readJSON } from "fs-extra"
 import { BaseLoader } from "@llm-tools/embedjs-interfaces";
 import { basename } from "path";
 import { single, transform } from "itertools-ts"
+import { z } from "zod"
 
-const plugin: DocBasePlugin<{}> = {
+const paramsSchema = z.object({})
+
+const plugin: DocBasePlugin<typeof paramsSchema> = {
     type: "DocLoader",
     exts: exts,
     name: name,
     version: version,
-    showName: "DocBase 额外文档支持",
-    author: "DocBase",
+    displayName,
+    author,
     description: description,
-    url: "https://docbase.cc",
-    icon: "https://docbase.cc/logo.svg",
+    homepage,
+    icon,
+    paramsSchema,
     init: async () => {
         return async (path) => {
             if (basename(path).startsWith("~$")) {

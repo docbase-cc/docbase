@@ -12,7 +12,14 @@ export class PackageManager {
         this.#modulePath = join(path, "node_modules")
     }
 
-    import = async (name: string) => await import(join(this.#modulePath, name))
+    import = async (name: string) => {
+        const m = await import(join(this.#modulePath, name))
+        if (m.default) {
+            return m.default
+        } else {
+            return m
+        }
+    }
 
     add = async (name: string) => await addDependency(name, {
         cwd: this.#path,

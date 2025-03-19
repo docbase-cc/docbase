@@ -100,13 +100,13 @@ const listPlugin = createRoute({
               /** 插件版本 */
               version: z.string(),
               /** 插件显示名称 */
-              showName: z.string().optional(),
+              displayName: z.string().optional(),
               /** 插件作者 */
               author: z.string().optional(),
               /** 插件描述 */
               description: z.string().optional(),
               /** 插件仓库或网站地址 */
-              url: z.string().optional(),
+              homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),
             })),
@@ -118,13 +118,13 @@ const listPlugin = createRoute({
               /** 插件版本 */
               version: z.string(),
               /** 插件显示名称 */
-              showName: z.string().optional(),
+              displayName: z.string().optional(),
               /** 插件作者 */
               author: z.string().optional(),
               /** 插件描述 */
               description: z.string().optional(),
               /** 插件仓库或网站地址 */
-              url: z.string().optional(),
+              homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),
             }),
@@ -202,7 +202,7 @@ app.openapi(addPlugin, async (c) => {
 
   try {
     // 导入 npm 包插件
-    const plugin: DocBasePlugin<object> = await pkgManager.import(name)
+    const plugin: DocBasePlugin = await pkgManager.import(name)
     if (plugin.type === "DocSplitter") {
       const oldPlugin = docBase.docSplitter.name
       // 加载插件
