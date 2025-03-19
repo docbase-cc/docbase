@@ -263,10 +263,10 @@ export class DocBase {
       .some((v) => v === docLoaderName);
 
     if (using) {
-      throw new Error(`DocLoader ${docLoaderName} is using.`);
+      return { deleted: false, msg: `DocLoader ${docLoaderName} is using.` }
     }
 
-    return this.#docLoaders.delete(docLoaderName);
+    return { deleted: this.#docLoaders.delete(docLoaderName) };
   };
 
   /**
@@ -275,7 +275,12 @@ export class DocBase {
    * @param docLoaderName - 文档加载器名称
    * @throws 如果文档加载器不存在或不支持该扩展名会抛出错误
    */
-  setDocLoader = async (ext: string, docLoaderName: string) => {
+  setDocLoader = async (ext: string, docLoaderName?: string) => {
+    if (docLoaderName === undefined) {
+      return {
+        modified: this.#docExtToLoaderName.delete(ext),
+      };
+    }
     const docLoader = this.#docLoaders.get(docLoaderName);
 
     if (!docLoader) {

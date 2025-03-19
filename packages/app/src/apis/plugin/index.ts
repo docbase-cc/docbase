@@ -172,7 +172,7 @@ const setExt = createRoute({
   request: {
     query: z.object({
       ext: z.string(),
-      docLoaderName: z.string(),
+      docLoaderName: z.string().optional(),
     })
   },
   responses: {
@@ -236,7 +236,7 @@ app.openapi(addPlugin, async (c) => {
 app.openapi(listPlugin, async (c) => {
   const docBase = c.get("docbase");
   return c.json({
-    docLoaders: docBase.docLoaders,
+    docLoaders: docBase.docLoaders.map(i => i),
     docSplitter: docBase.docSplitter,
   });
 })
@@ -265,8 +265,10 @@ app.openapi(delPlugin, async (c) => {
   }
 
   const deleted = await docBase.delDocLoader(name)
-  await c.get("pkgManager").del(name)
-  return c.json({ deleted });
+  if (deleted.deleted) {
+    await c.get("pkgManager").del(name)
+  }
+  return c.json(deleted);
 })
 
 export default app

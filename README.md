@@ -66,7 +66,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 发布并测试插件 -->
 <!-- TODO 开一个可信插件仓库 -->
 <!-- TODO 前端插件管理页面 -->
 <!-- TODO 文档补充搜索参数和插件管理 -->
