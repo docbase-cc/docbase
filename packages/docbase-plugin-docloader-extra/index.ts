@@ -11,9 +11,9 @@ import { basename } from "path";
 import { single, transform } from "itertools-ts"
 import { z } from "zod"
 
-const paramsSchema = z.object({})
+export const schema = z.object({})
 
-const plugin: DocBasePlugin<typeof paramsSchema> = {
+const plugin: DocBasePlugin<typeof schema> = {
     type: "DocLoader",
     exts: exts,
     name: name,
@@ -23,7 +23,6 @@ const plugin: DocBasePlugin<typeof paramsSchema> = {
     description: description,
     homepage,
     icon,
-    paramsSchema,
     init: async () => {
         return async (path) => {
             if (basename(path).startsWith("~$")) {

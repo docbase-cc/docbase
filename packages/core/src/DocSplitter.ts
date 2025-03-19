@@ -36,7 +36,6 @@ export const defaultDocSplitterPlugin: DocSplitterPlugin<typeof DocSplitterPlugi
   name: "default",
   version,
   type: "DocSplitter",
-  paramsSchema: DocSplitterPluginParams,
   init:
     ({ len }) =>
       (text: string) => {

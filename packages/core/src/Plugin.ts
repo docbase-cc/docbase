@@ -27,8 +27,6 @@ export interface BasePlugin<
   homepage?: string;
   /** 插件图标 */
   icon?: string;
-  /** 插件参数校验 schema */
-  paramsSchema?: PluginParams;
   /**
    * 插件初始化函数
    * @param params - 插件初始化参数

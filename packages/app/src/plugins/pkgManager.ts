@@ -1,6 +1,7 @@
 import { removeDependency, addDependency } from "nypm"
 import { exists, readJSON } from "fs-extra"
 import { join } from "path"
+import { DocBasePlugin } from "core/src"
 
 export class PackageManager {
     #path: string
@@ -12,7 +13,7 @@ export class PackageManager {
         this.#modulePath = join(path, "node_modules")
     }
 
-    import = async (name: string) => {
+    import = async (name: string): Promise<DocBasePlugin> => {
         const m = await import(join(this.#modulePath, name))
         if (m.default) {
             return m.default
