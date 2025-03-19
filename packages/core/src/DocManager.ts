@@ -382,6 +382,8 @@ export class DocManager {
         // 添加新 chunk
         this.#docChunkIndex.addDocuments(docSyncContent),
       ]);
+
+      console.log(`[embeded ${docSyncContent.length} chunks] ${localDoc.path}`);
     } else {
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {

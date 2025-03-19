@@ -65,7 +65,6 @@ export class DocBase {
         this.#watcherTaskCache.entries().map(async ([path, type]) => {
           if (type === "upsert") {
             await this.#docManager.upsertDoc(path);
-            console.log(`[embeded] ${path}`);
           } else if (type === "remove") {
             await this.#docManager.deleteDocByPath(path);
           }

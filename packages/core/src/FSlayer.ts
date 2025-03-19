@@ -44,7 +44,7 @@ export const FSLayer = ({
         .crawl(dir)
         .withPromise();
 
-      await load(outs);
+      await load(outs.map(path => slash(path)));
     }
   };
 
