@@ -1,6 +1,7 @@
 import { fdir } from "fdir";
 import { DirectoryWatcher } from "filesystem-notify";
 import { getExtFromPath } from "./Utils";
+import slash from "slash";
 
 /**
  * 扫描器类型定义
@@ -57,9 +58,9 @@ export const FSLayer = ({
     if (filter(path)) {
       console.log(`[${type}] ${path}`);
       if (type === "create" || type === "modify") {
-        upsert(path);
+        upsert(slash(path));
       } else if (type === "remove") {
-        remove(path);
+        remove(slash(path));
       }
     }
   });

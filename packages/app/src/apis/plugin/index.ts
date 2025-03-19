@@ -197,10 +197,10 @@ app.openapi(addPlugin, async (c) => {
   // 插件初始化参数
   const body = c.req.valid("json")
   const pkgManager = c.get("pkgManager")
-  // 安装 npm 包
-  await pkgManager.add(name)
 
   try {
+    // 安装 npm 包
+    await pkgManager.add(name)
     // 导入 npm 包插件
     const plugin: DocBasePlugin = await pkgManager.import(name)
     if (plugin.type === "DocSplitter") {
@@ -217,14 +217,14 @@ app.openapi(addPlugin, async (c) => {
       return c.json({ installed });
     } else {
       // 加载插件
-      const installed = await docBase.loadPlugin({
+      await docBase.loadPlugin({
         plugin,
         params: body
       })
       // 保存插件配置 name -> body
       // 立即开始重扫描
       docBase.scanAllNow()
-      return c.json({ installed });
+      return c.json({ installed: true });
     }
   } catch (error) {
     await pkgManager.del(name)

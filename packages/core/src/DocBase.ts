@@ -15,6 +15,8 @@ import { getExtFromPath } from "./Utils";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSlayer";
+import slash from "slash";
+import { AnyZodObject } from "zod";
 
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
@@ -301,7 +303,7 @@ export class DocBase {
    * @param pluginWithParams - 包含插件和参数的配置对象
    * @throws 如果插件类型错误会抛出错误
    */
-  loadPlugin = async <T extends object>(
+  loadPlugin = async <T extends AnyZodObject>(
     pluginWithParams: PluginWithParams<T>
   ) => {
     const { plugin, params } = pluginWithParams;
@@ -350,6 +352,8 @@ export class DocBase {
    * @returns 是否存在 dir
    */
   delDir = async (dir: string) => {
+    dir = slash(dir);
+
     // 取消监视
     const hasDir = this.#docWatcher.unwatch(dir);
 

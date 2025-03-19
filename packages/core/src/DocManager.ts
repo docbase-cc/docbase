@@ -398,8 +398,6 @@ export class DocManager {
   };
 
   upsertDoc = async (path: string) => {
-    path = slash(path);
-
     // 加载内容 Promise
     const docToLoad = this.#docLoader(path);
 
@@ -511,7 +509,6 @@ export class DocManager {
    * @param path - 文档路径
    */
   deleteDocByPath = async (path: string) => {
-    path = slash(path);
     const doc = await this.#getDocByPathIfExist(path);
 
     if (doc) {
@@ -524,8 +521,6 @@ export class DocManager {
    * @param path - 目录路径
    */
   deleteDocByPathPrefix = async (path: string) => {
-    path = slash(path);
-
     const getDocs = async () =>
       await this.#docIndex.getDocuments({
         filter: `path STARTS WITH "${path}"`,
