@@ -22,8 +22,7 @@ export interface DocSplitterPlugin<T extends AnyZodObject = AnyZodObject>
 }
 
 const DocSplitterPluginParams = z.object({
-  /** 每个文本块的长度 */
-  len: z.number(),
+  len: z.number().describe("分割得到的每个文本块的长度"),
 })
 
 // 默认实现 ============

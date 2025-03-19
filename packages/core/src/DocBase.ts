@@ -88,9 +88,7 @@ export class DocBase {
   /** 获取所有可用文档加载器 */
   get docLoaders() {
     // 去掉 func init
-    return Array.from(
-      this.#docLoaders.values().map((v) => omit(v, ["func", "init"]))
-    );
+    return this.#docLoaders.values().map((v) => omit(v, ["func", "init"]));
   }
 
   get docSplitter() {

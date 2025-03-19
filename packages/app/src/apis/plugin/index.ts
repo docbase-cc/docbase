@@ -1,6 +1,8 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { DocBasePlugin } from "core/src";
+import { merge } from "es-toolkit";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 const app = new OpenAPIHono();
 
@@ -109,6 +111,8 @@ const listPlugin = createRoute({
               homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),
+              /** 插件参数校验 schema */
+              paramsSchema: z.any().optional(),
             })),
             docSplitter: z.object({
               /** 插件类型，固定为"DocLoader" */
@@ -127,6 +131,8 @@ const listPlugin = createRoute({
               homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),
+              /** 插件参数校验 schema */
+              paramsSchema: z.any().optional(),
             }),
           }),
         },
@@ -233,11 +239,13 @@ app.openapi(addPlugin, async (c) => {
   }
 })
 
+const convertJSONSchema = (i: { paramsSchema?: z.ZodType; }) => merge(i, { paramsSchema: i.paramsSchema ? zodToJsonSchema(i.paramsSchema) : i.paramsSchema })
+
 app.openapi(listPlugin, async (c) => {
   const docBase = c.get("docbase");
   return c.json({
-    docLoaders: docBase.docLoaders.map(i => i),
-    docSplitter: docBase.docSplitter,
+    docLoaders: docBase.docLoaders.map(convertJSONSchema).toArray(),
+    docSplitter: convertJSONSchema(docBase.docSplitter),
   });
 })
 

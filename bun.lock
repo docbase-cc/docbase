@@ -14,14 +14,16 @@
       "name": "app",
       "dependencies": {
         "@hey-api/client-fetch": "^0.8.3",
-        "nypm": "^0.6.0",
       },
       "devDependencies": {
         "@hey-api/openapi-ts": "^0.64.12",
         "@hono/swagger-ui": "^0.5.1",
         "@hono/zod-openapi": "^0.19.2",
         "core": "workspace:*",
+        "es-toolkit": "^1.33.0",
         "hono": "^4.7.4",
+        "nypm": "^0.6.0",
+        "zod-to-json-schema": "^3.24.4",
       },
     },
     "packages/core": {
