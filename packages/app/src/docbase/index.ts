@@ -43,7 +43,6 @@ if (
 }
 
 // 启动 docBase
-console.info("Starting DocBase...");
 await docBase.start({
   meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_MASTER_KEY },
   embeddingConfig: {

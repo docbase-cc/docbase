@@ -36,6 +36,7 @@ export const FSLayer = ({
   // 扫描器
   const scanner: Scanner = async ({ dirs, exts, load }) => {
     for (const dir of dirs) {
+      console.info(`Starting to scan directory: ${dir}`);
       const outs = await fd
         .filter((path) => {
           const ext = getExtFromPath(path);
@@ -43,25 +44,29 @@ export const FSLayer = ({
         })
         .crawl(dir)
         .withPromise();
-
+      console.info(`Scanning directory ${dir} completed, found ${outs.length} files`);
       await load(outs.map(path => slash(path)));
     }
   };
 
   // 监视器
   const watcher: DirectoryWatcher = DirectoryWatcher.new((_err, event) => {
-    const e = JSON.parse(event);
-    const type = e.event.type;
-    const path = e.event.paths[0];
+    try {
+      const e = JSON.parse(event);
+      const type = e.event.type;
+      const path = e.event.paths[0];
 
-    // 过滤需要的路径
-    if (filter(path)) {
-      console.info(`[${type}] ${path}`);
-      if (type === "create" || type === "modify") {
-        upsert(slash(path));
-      } else if (type === "remove") {
-        remove(slash(path));
+      // 过滤需要的路径
+      if (filter(path)) {
+        console.info(`[${type}] ${path}`);
+        if (type === "create" || type === "modify") {
+          upsert(slash(path));
+        } else if (type === "remove") {
+          remove(slash(path));
+        }
       }
+    } catch (parseError) {
+      console.error(`Error parsing event data: ${parseError}`);
     }
   });
 

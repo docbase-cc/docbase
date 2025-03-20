@@ -4,12 +4,12 @@ import { DocBasePlugin } from "core/src";
 
 const app = new OpenAPIHono();
 
-// 删除插件
+// Add a plugin
 const addPlugin = createRoute({
   tags: ["plugin"],
   method: "put",
   path: "/",
-  summary: "安装插件",
+  summary: "Install a plugin",
   security: [
     {
       Bearer: [],
@@ -29,7 +29,7 @@ const addPlugin = createRoute({
   },
   responses: {
     200: {
-      description: "是否成功安装",
+      description: "Whether the plugin was successfully installed",
       content: {
         "application/json": {
           schema: z.object({
@@ -42,12 +42,12 @@ const addPlugin = createRoute({
   },
 });
 
-// 删除插件
+// Delete a plugin
 const delPlugin = createRoute({
   tags: ["plugin"],
   method: "delete",
   path: "/",
-  summary: "删除插件",
+  summary: "Delete a plugin",
   security: [
     {
       Bearer: [],
@@ -60,7 +60,7 @@ const delPlugin = createRoute({
   },
   responses: {
     200: {
-      description: "是否成功删除",
+      description: "Whether the plugin was successfully deleted",
       content: {
         "application/json": {
           schema: z.object({
@@ -73,12 +73,12 @@ const delPlugin = createRoute({
   },
 });
 
-// 查询插件
+// List plugins
 const listPlugin = createRoute({
   tags: ["plugin"],
   method: "get",
   path: "/",
-  summary: "查询插件列表",
+  summary: "List plugins",
   security: [
     {
       Bearer: [],
@@ -86,50 +86,50 @@ const listPlugin = createRoute({
   ],
   responses: {
     200: {
-      description: "插件列表",
+      description: "List of plugins",
       content: {
         "application/json": {
           schema: z.object({
             docLoaders: z.array(z.object({
-              /** 插件类型，固定为"DocLoader" */
+              /** Plugin type, fixed as "DocLoader" */
               type: z.literal("DocLoader"),
-              /** 支持的文件扩展名列表 */
+              /** List of supported file extensions */
               exts: z.array(z.string()),
-              /** 插件名称 */
+              /** Plugin name */
               name: z.string(),
-              /** 插件版本 */
+              /** Plugin version */
               version: z.string(),
-              /** 插件显示名称 */
+              /** Plugin display name */
               displayName: z.string().optional(),
-              /** 插件作者 */
+              /** Plugin author */
               author: z.string().optional(),
-              /** 插件描述 */
+              /** Plugin description */
               description: z.string().optional(),
-              /** 插件仓库地址 */
+              /** Plugin repository URL */
               repository: z.string().optional(),
-              /** 插件网站地址 */
+              /** Plugin website URL */
               homepage: z.string().optional(),
-              /** 插件图标 */
+              /** Plugin icon */
               icon: z.string().optional(),
             })),
             docSplitter: z.object({
-              /** 插件类型，固定为"DocLoader" */
+              /** Plugin type, fixed as "DocLoader" */
               type: z.literal("DocSplitter"),
-              /** 插件名称 */
+              /** Plugin name */
               name: z.string(),
-              /** 插件版本 */
+              /** Plugin version */
               version: z.string(),
-              /** 插件显示名称 */
+              /** Plugin display name */
               displayName: z.string().optional(),
-              /** 插件作者 */
+              /** Plugin author */
               author: z.string().optional(),
-              /** 插件描述 */
+              /** Plugin description */
               description: z.string().optional(),
-              /** 插件仓库地址 */
+              /** Plugin repository URL */
               repository: z.string().optional(),
-              /** 插件网站地址 */
+              /** Plugin website URL */
               homepage: z.string().optional(),
-              /** 插件图标 */
+              /** Plugin icon */
               icon: z.string().optional(),
             }),
           }),
@@ -139,12 +139,12 @@ const listPlugin = createRoute({
   },
 });
 
-// 查询拓展插件
+// List extension plugins
 const listExt = createRoute({
   tags: ["plugin"],
   method: "get",
   path: "/ext",
-  summary: "获取拓展-插件映射",
+  summary: "Get extension-plugin mapping",
   security: [
     {
       Bearer: [],
@@ -152,7 +152,7 @@ const listExt = createRoute({
   ],
   responses: {
     200: {
-      description: "插件-拓展映射",
+      description: "Plugin-extension mapping",
       content: {
         "application/json": {
           schema: z.record(z.string())
@@ -162,12 +162,12 @@ const listExt = createRoute({
   },
 });
 
-// 设置拓展插件
+// Set extension plugins
 const setExt = createRoute({
   tags: ["plugin"],
   method: "patch",
   path: "/ext",
-  summary: "修改拓展-插件映射",
+  summary: "Modify extension-plugin mapping",
   security: [
     {
       Bearer: [],
@@ -181,7 +181,7 @@ const setExt = createRoute({
   },
   responses: {
     200: {
-      description: "是否成功修改",
+      description: "Whether the mapping was successfully modified",
       content: {
         "application/json": {
           schema: z.object({
@@ -193,51 +193,60 @@ const setExt = createRoute({
   },
 });
 
-// 安装插件
+// Install a plugin
 app.openapi(addPlugin, async (c) => {
+  console.info('Starting to install plugin:', c.req.valid("query").name);
   const docBase = c.get("docbase");
-  // npm 名称
+  // npm name
   const { name } = c.req.valid("query")
-  // 插件初始化参数
+  // Plugin initialization parameters
   const body = c.req.valid("json")
   const pkgManager = c.get("pkgManager")
 
   try {
-    // 安装 npm 包
+    // Install the npm package
     await pkgManager.add(name)
-    // 导入 npm 包插件
+    console.info('Successfully installed npm package:', name);
+    // Import the npm package plugin
     const plugin: DocBasePlugin = await pkgManager.import(name)
+    console.info('Successfully imported plugin:', name);
     if (plugin.type === "DocSplitter") {
       const oldPlugin = docBase.docSplitter.name
-      // 加载插件
+      // Load the plugin
       const installed = await docBase.loadPlugin({
         plugin,
         params: body
       })
-      // 删除旧的非默认 DocSplitter 插件
+      console.info('Successfully loaded DocSplitter plugin:', name);
+      // Delete the old non-default DocSplitter plugin
       if (oldPlugin !== "default") {
         await pkgManager.del(oldPlugin)
+        console.info('Deleted old non-default DocSplitter plugin:', oldPlugin);
       }
       return c.json({ installed });
     } else {
-      // 加载插件
+      // Load the plugin
       await docBase.loadPlugin({
         plugin,
         params: body
       })
-      // 保存插件配置 name -> body
-      // 立即开始重扫描
+      console.info('Successfully loaded plugin:', name);
+      // Save the plugin configuration name -> body
+      // Start a full re-scan immediately
       docBase.scanAllNow()
+      console.info('Started full re-scan after plugin installation:', name);
       return c.json({ installed: true });
     }
   } catch (error) {
     await pkgManager.del(name)
     const err = (error as Error)
+    console.error('Failed to install plugin:', name, err.message);
     return c.json({ installed: false, msg: err.message });
   }
 })
 
 app.openapi(listPlugin, async (c) => {
+  console.info('Listing plugins');
   const docBase = c.get("docbase");
   return c.json({
     docLoaders: docBase.docLoaders.toArray(),
@@ -246,31 +255,36 @@ app.openapi(listPlugin, async (c) => {
 })
 
 app.openapi(setExt, async (c) => {
-  const docBase = c.get("docbase");
   const { ext, docLoaderName } = c.req.valid("query")
-
+  console.info('Modifying extension-plugin mapping for ext:', ext, 'with docLoaderName:', docLoaderName);
+  const docBase = c.get("docbase");
   return c.json(await docBase.setDocLoader(ext, docLoaderName));
 })
 
 app.openapi(listExt, async (c) => {
+  console.info('Getting extension-plugin mapping');
   const docBase = c.get("docbase");
   return c.json(Object.fromEntries(docBase.exts));
 })
 
 app.openapi(delPlugin, async (c) => {
-  const docBase = c.get("docbase");
   const { name } = c.req.valid("query")
+  console.info('Starting to delete plugin:', name);
+  const docBase = c.get("docbase");
   if (name === "default") {
-    return c.json({ deleted: false, msg: "默认插件无法删除" });
+    console.warn('Attempted to delete default plugin:', name);
+    return c.json({ deleted: false, msg: "The default plugin cannot be deleted" });
   }
 
   if (docBase.docSplitter.name === name) {
-    return c.json({ deleted: false, msg: "无法删除 DocSplitter 插件, 请直接安装新插件替代" });
+    console.warn('Attempted to delete DocSplitter plugin:', name);
+    return c.json({ deleted: false, msg: "Cannot delete the DocSplitter plugin. Please install a new plugin to replace it" });
   }
 
   const deleted = await docBase.delDocLoader(name)
   if (deleted.deleted) {
     await c.get("pkgManager").del(name)
+    console.info('Successfully deleted plugin:', name);
   }
   return c.json(deleted);
 })

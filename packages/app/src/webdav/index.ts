@@ -19,7 +19,6 @@ const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
   return async (c) => {
     // 获取原始请求的方法、URL和头部信息
     const method = c.req.method;
-    const url = new URL(c.req.url);
     const headers = new Headers(c.req.header());
 
     // 处理授权

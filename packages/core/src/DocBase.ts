@@ -61,15 +61,22 @@ export class DocBase {
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
     async () => {
-      return await Promise.allSettled(
+      console.info("Starting to execute watcher tasks...");
+      const results = await Promise.allSettled(
         this.#watcherTaskCache.entries().map(async ([path, type]) => {
           if (type === "upsert") {
+            console.info(`Upserting document: ${path}`);
             await this.#docManager.upsertDoc(path);
+            console.info(`Document upserted: ${path}`);
           } else if (type === "remove") {
+            console.info(`Deleting document: ${path}`);
             await this.#docManager.deleteDocByPath(path);
+            console.info(`Document deleted: ${path}`);
           }
         })
       );
+      console.info("Watcher tasks execution completed.");
+      return results;
     },
     this.fileOpThrottleMs,
     { edges: ["trailing"] }
@@ -77,22 +84,33 @@ export class DocBase {
 
   /**  获取挂载的知识库目录 */
   get dirs() {
-    return this.#docWatcher.getWatchedPaths();
+    console.info("Fetching watched directories...");
+    const watchedPaths = this.#docWatcher.getWatchedPaths();
+    console.info("Watched directories fetched successfully.");
+    return watchedPaths;
   }
 
   /** 获取支持的文档类型 */
   get exts() {
-    return this.#docExtToLoaderName.entries();
+    console.info("Fetching supported document extensions...");
+    const extensions = this.#docExtToLoaderName.entries();
+    console.info("Supported document extensions fetched successfully.");
+    return extensions;
   }
 
   /** 获取所有可用文档加载器 */
   get docLoaders() {
-    // 去掉 func init
-    return this.#docLoaders.values().map((v) => omit(v, ["func", "init"]));
+    console.info("Fetching all available document loaders...");
+    const loaders = this.#docLoaders.values().map((v) => omit(v, ["func", "init"]));
+    console.info("All available document loaders fetched successfully.");
+    return loaders;
   }
 
   get docSplitter() {
-    return omit(this.#docSplitter, ["func", "init"]);
+    console.info("Fetching document splitter...");
+    const splitter = omit(this.#docSplitter, ["func", "init"]);
+    console.info("Document splitter fetched successfully.");
+    return splitter;
   }
 
   /**
@@ -101,21 +119,27 @@ export class DocBase {
    * @throws 如果没有找到对应的文档加载器会抛出错误
    */
   #hyperDocLoader: DocLoader = async (path) => {
+    console.info(`Attempting to load document: ${path}`);
     const ext = getExtFromPath(path);
-
     const docLoaderName = this.#docExtToLoaderName.get(ext);
 
     if (!docLoaderName) {
-      throw new Error(`No such docLoaderName can solve ext ${ext}`);
+      const errorMsg = `No such docLoaderName can solve ext ${ext}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     const dockLoader = this.#docLoaders.get(docLoaderName);
 
     if (!dockLoader) {
-      throw new Error(`No such docLoaderName ${docLoaderName}`);
+      const errorMsg = `No such docLoaderName ${docLoaderName}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
-    return await dockLoader.func(path);
+    const document = await dockLoader.func(path);
+    console.info(`Document loaded successfully: ${path}`);
+    return document;
   };
 
   /**
@@ -123,16 +147,24 @@ export class DocBase {
    * @param dirs - 要扫描的目录数组
    */
   #scan = async (dirs: string[]) => {
+    console.info(`Starting to scan directories: ${dirs.join(', ')}`);
     await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
       load: async (paths) => {
+        console.info(`Loading documents from paths: ${paths.join(', ')}`);
         // 使用 Promise.all 并行处理多个文档插入
         await Promise.all(
-          paths.map((path) => this.#docManager.upsertDoc(path))
+          paths.map(async (path) => {
+            console.info(`Upserting document during scan: ${path}`);
+            await this.#docManager.upsertDoc(path);
+            console.info(`Document upserted during scan: ${path}`);
+          })
         );
+        console.info(`Documents loaded from paths: ${paths.join(', ')}`);
       },
     });
+    console.info(`Directories scanned successfully: ${dirs.join(', ')}`);
   };
 
   /** 启动 docbase */
@@ -192,12 +224,15 @@ export class DocBase {
      */
     fileOpThrottleMs?: number;
   }) => {
+    console.info("Starting DocBase...");
     this.fileOpThrottleMs = fileOpThrottleMs;
     // 加载所有插件
     // 并行加载所有插件以提高效率
+    console.info("Loading all plugins...");
     await Promise.all(
       initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
     );
+    console.info("All plugins loaded successfully.");
 
     const docSplitterExist = typeof this.#docSplitter.func === "function";
     const docLoadersExist = this.#docLoaders.size > 0;
@@ -205,10 +240,12 @@ export class DocBase {
     // 校验文档监视器、文档扫描器、文档分割器是否存在
     if (!docSplitterExist || !docLoadersExist) {
       const msg = `DocLoaders: ${docLoadersExist} | DocSplitter: ${docSplitterExist}`;
+      console.error("Loaded components: \n" + msg);
       throw new Error("Loaded components: \n" + msg);
     }
 
     // 初始化文档管理器
+    console.info("Initializing document manager...");
     this.#docManager = new DocManager({
       indexPrefix,
       meiliSearchConfig,
@@ -219,6 +256,7 @@ export class DocBase {
     await this.#docManager.init();
 
     // 初始化监视器扫描器
+    console.info("Initializing watcher and scanner...");
     const { watcher, scanner } = FSLayer({
       filter: (path: string) => {
         const ext = getExtFromPath(path);
@@ -235,20 +273,30 @@ export class DocBase {
     });
     this.#docWatcher = watcher;
     this.#docScanner = scanner;
+    console.info("Watcher and scanner initialized successfully.");
 
     // 扫描加载默认目录下文档
     if (initscan) {
+      console.info("Scanning initial directories...");
       await this.#scan(initPaths);
+      console.info("Initial directories scanned successfully.");
     }
 
     // 开启监视，同步变动文档
+    console.info("Starting to watch directories...");
     initPaths.map((initPath) => this.#docWatcher.watch(initPath));
+    console.info("Directories are being watched.");
+    console.info("DocBase started successfully.");
   };
 
   /**
    * 立即扫描所有目录
    */
-  scanAllNow = async () => await this.#scan(this.dirs);
+  scanAllNow = async () => {
+    console.info("Starting to scan all directories immediately...");
+    await this.#scan(this.dirs);
+    console.info("All directories scanned immediately.");
+  };
 
   /**
    * 卸载文档加载器插件
@@ -256,15 +304,21 @@ export class DocBase {
    * @throws 如果文档加载器正在使用中会抛出错误
    */
   delDocLoader = async (docLoaderName: string) => {
+    console.info(`Attempting to delete document loader: ${docLoaderName}`);
     const using = this.#docExtToLoaderName
       .values()
       .some((v) => v === docLoaderName);
 
     if (using) {
-      return { deleted: false, msg: `DocLoader ${docLoaderName} is using.` }
+      const result = { deleted: false, msg: `DocLoader ${docLoaderName} is using.` };
+      console.warn(`Failed to delete document loader: ${docLoaderName}. Reason: ${result.msg}`);
+      return result;
     }
 
-    return { deleted: this.#docLoaders.delete(docLoaderName) };
+    const deleted = this.#docLoaders.delete(docLoaderName);
+    const result = { deleted };
+    console.info(`Document loader deleted: ${docLoaderName}. Result: ${JSON.stringify(result)}`);
+    return result;
   };
 
   /**
@@ -274,29 +328,36 @@ export class DocBase {
    * @throws 如果文档加载器不存在或不支持该扩展名会抛出错误
    */
   setDocLoader = async (ext: string, docLoaderName?: string) => {
+    console.info(`Attempting to set document loader for extension ${ext}: ${docLoaderName}`);
     if (docLoaderName === undefined) {
-      return {
-        modified: this.#docExtToLoaderName.delete(ext),
-      };
+      const modified = this.#docExtToLoaderName.delete(ext);
+      const result = { modified };
+      console.info(`Document loader setting for extension ${ext} updated. Result: ${JSON.stringify(result)}`);
+      return result;
     }
     const docLoader = this.#docLoaders.get(docLoaderName);
 
     if (!docLoader) {
-      return {
+      const result = {
         modified: false,
         msg: `No such docLoaderName ${docLoaderName}`
-      }
+      };
+      console.warn(`Failed to set document loader for extension ${ext}. Reason: ${result.msg}`);
+      return result;
     }
 
     if (!docLoader.exts.includes(ext)) {
-      return {
+      const result = {
         modified: false,
         msg: `${docLoaderName} not support ${ext}`
-      }
+      };
+      console.warn(`Failed to set document loader for extension ${ext}. Reason: ${result.msg}`);
+      return result;
     }
 
     this.#docExtToLoaderName.set(ext, docLoaderName);
-    return true
+    console.info(`Document loader set successfully for extension ${ext}: ${docLoaderName}`);
+    return true;
   };
 
   /**
@@ -308,6 +369,7 @@ export class DocBase {
   loadPlugin = async <T extends AnyZodObject>(
     pluginWithParams: PluginWithParams<T>
   ) => {
+    console.info(`Loading ${pluginWithParams.plugin.type} plugin ${pluginWithParams.plugin.name}`);
     const { plugin, params } = pluginWithParams;
 
     const pluginToLoad = {
@@ -326,15 +388,18 @@ export class DocBase {
             this.#docExtToLoaderName.set(ext, pluginToLoad.name);
           }
         }
-
+        console.info(`Document loader plugin loaded: ${pluginToLoad.name}`);
         break;
 
       case "DocSplitter":
         this.#docSplitter = pluginToLoad as any;
+        console.info(`Document splitter plugin loaded: ${pluginToLoad.name}`);
         break;
 
       default:
-        throw new Error("Plugin type not implemented.");
+        const errorMsg = "Plugin type not implemented.";
+        console.error(errorMsg);
+        throw new Error(errorMsg);
     }
   };
 
@@ -343,9 +408,11 @@ export class DocBase {
    * @param dir - 要添加的目录路径
    */
   addDir = async (dir: string) => {
+    console.info(`Adding knowledge base directory: ${dir}`);
     // 扫描并监视
     await this.#scan([dir]);
     this.#docWatcher.watch(dir);
+    console.info(`Knowledge base directory added successfully: ${dir}`);
   };
 
   /**
@@ -354,6 +421,7 @@ export class DocBase {
    * @returns 是否存在 dir
    */
   delDir = async (dir: string) => {
+    console.info(`Attempting to delete knowledge base directory: ${dir}`);
     dir = slash(dir);
 
     // 取消监视
@@ -361,9 +429,12 @@ export class DocBase {
 
     // 删除知识库中目录下所有文档
     if (hasDir) {
+      console.info(`Deleting documents in directory: ${dir}`);
       await this.#docManager.deleteDocByPathPrefix(dir);
+      console.info(`Documents in directory deleted: ${dir}`);
     }
 
+    console.info(`Knowledge base directory deletion result: ${hasDir ? 'Directory deleted.' : 'Directory not found.'}`);
     return hasDir;
   };
 
@@ -373,8 +444,12 @@ export class DocBase {
    * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) =>
-    await this.#docManager.search(query, opt);
+  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) => {
+    console.info(`Searching for documents with query: ${query}`);
+    const results = await this.#docManager.search(query, opt);
+    console.info(`Search completed. Found ${results.length} documents.`);
+    return results;
+  };
 
   /**
    * 作为 Dify 外部知识库搜索
@@ -388,6 +463,7 @@ export class DocBase {
   difySearch = async (
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
+    console.info("Performing Dify search...");
     // TODO 多知识库
     // params.knowledge_id;
     const q = params.query;
@@ -399,7 +475,7 @@ export class DocBase {
       showRankingScore: true,
     });
 
-    return results.map((i) => ({
+    const difyResults = results.map((i) => ({
       content: i.content,
       score: i._rankingScore,
       title: basename(i.paths.at(0)),
@@ -407,5 +483,7 @@ export class DocBase {
         paths: i.paths,
       },
     }));
+    console.info(`Dify search completed. Found ${difyResults.length} documents.`);
+    return difyResults;
   };
 }

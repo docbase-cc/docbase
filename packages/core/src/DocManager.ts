@@ -109,6 +109,7 @@ export class DocManager {
     const prefix = compact([indexPrefix, this.#indexVersion]).join("_");
     this.#indexPrefix = `${prefix}-`;
     this.#embeddingConfig = embeddingConfig;
+    console.info(`DocManager initialized with index prefix: ${this.#indexPrefix}`);
   }
 
   /**
@@ -121,13 +122,15 @@ export class DocManager {
     const index = this.#client.index(uid);
     try {
       await this.#client.getIndex(uid);
-      console.trace(`Index ${uid} get success`);
+      console.info(`Index ${uid} retrieved successfully`);
     } catch (error) {
       if ((error as Error).message === `Index \`${uid}\` not found.`) {
-        console.trace(`Index ${uid} not found, create it`);
+        console.warn(`Index ${uid} not found, creating it...`);
         const task = await this.#client.createIndex(uid, { primaryKey });
         await this.#client.waitForTask(task.taskUid);
+        console.info(`Index ${uid} created successfully`);
       } else {
+        console.error(`Error retrieving or creating index ${uid}:`, error);
         throw error;
       }
     }
@@ -141,7 +144,7 @@ export class DocManager {
    */
   // TODO 性能优化：批量获取
   #getChunkRelatedDocsCount = async (chunkHash: string) => {
-    console.trace(`getChunkRelatedDocsCount ${chunkHash}`)
+    console.debug(`Getting related docs count for chunk ${chunkHash}`);
     const docs = await this.#docIndex.getDocuments({
       filter: `chunkHashs IN ["${chunkHash}"]`,
       limit: 0,
@@ -157,7 +160,7 @@ export class DocManager {
    */
   // TODO 性能优化：一次性全部获取、批量获取
   async *#getChunkRelatedDocs(chunkHash: string) {
-    console.trace(`getChunkRelatedDocs ${chunkHash}`)
+    console.debug(`Getting related docs for chunk ${chunkHash}`);
     const batchSize = 100; // 每次获取的文档数量
     let offset = 0;
 
@@ -188,7 +191,7 @@ export class DocManager {
     // 尝试并等待 meilisearch 启动
     await retry(
       async () => {
-        console.trace("try ensureContainsFilterFeatureOn");
+        console.debug("Trying to ensure ContainsFilter feature is on");
         const res = await fetch(`${host}/experimental-features`, {
           headers: {
             Authorization: `Bearer ${key}`,
@@ -198,6 +201,7 @@ export class DocManager {
         const { containsFilter } = await res.json();
 
         if (!containsFilter) {
+          console.warn("ContainsFilter feature is off, turning it on...");
           await fetch(`${host}/experimental-features`, {
             method: "PATCH",
             headers: {
@@ -206,6 +210,9 @@ export class DocManager {
             },
             body: JSON.stringify({ containsFilter: true }),
           });
+          console.info("ContainsFilter feature turned on successfully");
+        } else {
+          console.debug("ContainsFilter feature is on");
         }
       },
       { retries: 3, delay: 3000 }
@@ -216,6 +223,7 @@ export class DocManager {
    * 初始化文档管理器
    */
   init = async () => {
+    console.info("Initializing DocManager...");
     await this.#ensureContainsFilterFeatureOn();
 
     this.#docIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}docs`);
@@ -232,8 +240,8 @@ export class DocManager {
 
     // 设置可筛选属性
     if (docIndexFilterableAttributesNeedCreate.length > 0) {
-      console.trace(
-        `docIndexFilterableAttributesNeedCreate ${docIndexFilterableAttributesNeedCreate}`
+      console.info(
+        `Creating filterable attributes for doc index: ${docIndexFilterableAttributesNeedCreate}`
       );
       await this.#docIndex.updateSettings({
         filterableAttributes: [
@@ -252,7 +260,7 @@ export class DocManager {
     // await this.#docIndex.deleteAllDocuments();
 
     const embedders = await this.#docChunkIndex.getEmbedders();
-    console.trace(`docChunkIndex embedders: ${JSON.stringify(embedders, null, 2)}`);
+    console.debug(`DocChunkIndex embedders: ${JSON.stringify(Object.keys(embedders), null, 2)}`);
 
     // 无该 embedders 新增
     if (
@@ -261,7 +269,7 @@ export class DocManager {
         Object.keys(embedders).includes(this.#embeddingConfig.model)
       )
     ) {
-      console.trace(`add embedder: ${this.#embeddingConfig.model}`);
+      console.info(`Adding embedder: ${this.#embeddingConfig.model}`);
       await this.#docChunkIndex.updateEmbedders({
         [this.#embeddingConfig.model]: {
           source: "rest",
@@ -282,6 +290,7 @@ export class DocManager {
         },
       });
     }
+    console.info("DocManager initialized successfully");
   };
 
   /**
@@ -290,15 +299,17 @@ export class DocManager {
    * @returns 返回文档实例或 false
    */
   #getDocIfExist = async (hash: string): Promise<DocDocument | false> => {
-    console.trace(`getDocIfExist ${hash}`);
+    console.debug(`Checking if document ${hash} exists`);
     try {
       const res = await this.#docIndex.getDocument(hash);
       return res;
     } catch (error) {
       const msg = (error as Error).message;
       if (msg === `Document \`${hash}\` not found.`) {
+        console.debug(`Document ${hash} not found`);
         return false;
       } else {
+        console.error(`Error getting document ${hash}:`, error);
         throw error;
       }
     }
@@ -310,7 +321,7 @@ export class DocManager {
    * @returns 返回文档实例或 false
    */
   #getDocByPathIfExist = async (path: string): Promise<DocDocument | false> => {
-    console.trace(`getDocByPathIfExist ${path}`);
+    console.debug(`Checking if document at path ${path} exists`);
     const docs = await this.#docIndex.getDocuments({
       filter: `path = "${path}"`,
     });
@@ -318,6 +329,7 @@ export class DocManager {
     if (docs.total > 0) {
       return docs.results[0];
     } else {
+      console.debug(`Document at path ${path} not found`);
       return false;
     }
   };
@@ -362,9 +374,11 @@ export class DocManager {
 
       if (!remoteDocByPath) {
         // 需要上传的所有 chunk
+        console.info(`Uploading new document: ${localDoc.path}`);
         docSyncContent = await getDocSyncContent(localDoc.chunkHashs);
       } else {
         // 文档已落后
+        console.info(`Document at path ${localDoc.path} is outdated, updating...`);
         const remoteChunkHashs = remoteDocByPath.chunkHashs;
         const incomingChunkHashs = localDoc.chunkHashs;
 
@@ -394,15 +408,16 @@ export class DocManager {
         this.#docChunkIndex.addDocuments(docSyncContent),
       ]);
 
-      console.info(`[embeded ${docSyncContent.length} chunks] ${localDoc.path}`);
+      console.info(`[Embedded ${docSyncContent.length} chunks] ${localDoc.path}`);
     } else {
-      console.debug(`[skipped] ${localDoc.path}`);
+      console.debug(`[Skipped] ${localDoc.path}`);
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {
         // path 错误
         const oldPathFileExists = await exists(remoteDocByHash.path);
         if (!oldPathFileExists) {
           // 更新 path
+          console.info(`Updating document path from ${remoteDocByHash.path} to ${localDoc.path}`);
           await this.#docIndex.updateDocuments([
             { hash: remoteDocByHash.hash, path: localDoc.path },
           ]);
@@ -412,7 +427,7 @@ export class DocManager {
   };
 
   upsertDoc = async (path: string) => {
-    console.trace(`upsertDoc ${path}`);
+    console.info(`Upserting document at path: ${path}`);
     // 加载内容 Promise
     const docToLoad = this.#docLoader(path);
 
@@ -426,6 +441,7 @@ export class DocManager {
 
       // 如果有且修改时间相等则为已上传过，直接跳过
       if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
+        console.debug(`Document at path ${path} is already up-to-date, skipping...`);
         return;
       }
 
@@ -505,12 +521,15 @@ export class DocManager {
       )
     );
 
-    // 删除 chunk
-    await this.#docChunkIndex.deleteDocuments(needDeleteChunkHashs);
+    if (needDeleteChunkHashs.length > 0) {
+      console.info(`Deleting chunks: ${needDeleteChunkHashs}`);
+      // 删除 chunk
+      await this.#docChunkIndex.deleteDocuments(needDeleteChunkHashs);
+    }
   };
 
   #deleteDoc = async (doc: DocDocument) => {
-    console.trace(`deleteDoc ${doc.path}`);
+    console.info(`Deleting document: ${doc.path}`);
     // 并行删除内容和文档
     await Promise.all([
       // 删除内容
@@ -525,10 +544,13 @@ export class DocManager {
    * @param path - 文档路径
    */
   deleteDocByPath = async (path: string) => {
+    console.info(`Deleting document at path: ${path}`);
     const doc = await this.#getDocByPathIfExist(path);
 
     if (doc) {
       await this.#deleteDoc(doc);
+    } else {
+      console.debug(`Document at path ${path} not found, skipping deletion...`);
     }
   };
 
@@ -537,6 +559,7 @@ export class DocManager {
    * @param path - 目录路径
    */
   deleteDocByPathPrefix = async (path: string) => {
+    console.info(`Deleting all documents under path prefix: ${path}`);
     const getDocs = async () =>
       await this.#docIndex.getDocuments({
         filter: `path STARTS WITH "${path}"`,
@@ -548,6 +571,7 @@ export class DocManager {
 
       // 没有文档则结束
       if (docs.total === 0) {
+        console.debug(`No documents found under path prefix ${path}, stopping deletion...`);
         break;
       }
 
@@ -563,10 +587,13 @@ export class DocManager {
    * @param hash - 文档 hash
    */
   deleteDocByHash = async (hash: string) => {
+    console.info(`Deleting document with hash: ${hash}`);
     const doc = await this.#getDocIfExist(hash);
 
     if (doc) {
       await this.#deleteDoc(doc);
+    } else {
+      console.debug(`Document with hash ${hash} not found, skipping deletion...`);
     }
   };
 
@@ -577,6 +604,7 @@ export class DocManager {
    * @returns 返回搜索结果
    */
   search = async (query: string, opts?: Omit<SearchParams, "hybrid">) => {
+    console.info(`Searching for query: ${query}`);
     const result = await this.#docChunkIndex.search(query, {
       ...opts,
       hybrid: {
@@ -601,6 +629,7 @@ export class DocManager {
             exists(doc.path).then((exists) => {
               if (!exists) {
                 // 异步删除无效文档
+                console.info(`Deleting invalid document with hash ${doc.hash}`);
                 this.deleteDocByHash(doc.hash);
               }
               paths.push(doc.path);
@@ -621,6 +650,8 @@ export class DocManager {
     );
 
     // 过滤掉无效的结果
-    return validHits.filter(Boolean);
+    const finalResults = validHits.filter(Boolean);
+    console.info(`Search results: ${finalResults.length} valid hits found`);
+    return finalResults;
   };
 }
