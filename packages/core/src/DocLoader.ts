@@ -1,15 +1,7 @@
-import type { BasePlugin } from "./Plugin";
+import type { BasePlugin, Content } from "./Plugin";
 import { readFile } from "fs-extra";
 import { AnyZodObject } from "zod";
 import { version } from "~/package.json";
-
-/**
- * 加载后的文档文件接口定义
- */
-export interface DocFileToLoad {
-  // 文档内容
-  content: string;
-}
 
 /**
  * 文档加载器类型定义
@@ -18,7 +10,7 @@ export interface DocFileToLoad {
  */
 export type DocLoader = (
   path: string
-) => Promise<DocFileToLoad | false> | false;
+) => Promise<Content | false> | false;
 
 /**
  * 文档加载器插件接口
@@ -46,7 +38,7 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   init: async () => {
     // 读取文件内容
     return async (path) => ({
-      content: await readFile(path, "utf-8"),
+      text: await readFile(path, "utf-8"),
     });
   },
 };

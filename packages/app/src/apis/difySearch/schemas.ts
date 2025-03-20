@@ -13,7 +13,7 @@ export const DifyKnowledgeRequestSchema = z
 
 export const DifyKnowledgeResponseRecordSchema = z
   .object({
-    content: z.string(),
+    text: z.string(),
     score: z.number().min(0).max(1),
     title: z.string(),
     metadata: z.object({ paths: z.array(z.string()) }).optional(),

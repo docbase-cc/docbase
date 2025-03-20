@@ -36,7 +36,7 @@
 
             <!-- Markdown内容渲染 -->
             <div class="prose prose-sm max-w-none break-words overflow-hidden max-w-full h-auto">
-                <div v-html="micromark(result.content)" />
+                <div v-html="micromark(result.text)" />
             </div>
         </div>
     </div>

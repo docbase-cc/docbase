@@ -28,7 +28,7 @@ export interface DifyKnowledgeRequest {
 }
 
 export interface DifyKnowledgeResponseRecord {
-  content: string;
+  text: string;
   score: number;
   title: string;
   metadata?: object;
@@ -476,7 +476,7 @@ export class DocBase {
     });
 
     const difyResults = results.map((i) => ({
-      content: i.content,
+      text: i.text,
       score: i._rankingScore,
       title: basename(i.paths.at(0)),
       metadata: {

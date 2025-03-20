@@ -57,10 +57,10 @@ const plugin: DocBasePlugin<typeof schema> = {
             }
 
             if (loader) {
-                const content = await transform.toArrayAsync(single.mapAsync(loader.getChunks(), async (chunk) => chunk.pageContent))
+                const texts = await transform.toArrayAsync(single.mapAsync(loader.getChunks(), async (chunk) => chunk.pageContent))
 
                 return {
-                    content: content.join(),
+                    text: texts.join(),
                 }
             } else {
                 return false

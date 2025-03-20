@@ -7,7 +7,7 @@ export const SearchResultSchema = z
   .object({
     hash: z.string().length(16),
     paths: z.array(z.string()),
-    content: z.string(),
+    text: z.string(),
   })
   .openapi("SearchResult");
 

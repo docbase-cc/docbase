@@ -3,6 +3,16 @@ import type { DocSplitterPlugin } from "./DocSplitter";
 import { AnyZodObject, z } from "zod"
 
 /**
+ * 文档内容
+ */
+export interface Content {
+  // 文档内容文本
+  text: string;
+  // 多模态矢量
+  _vector?: number[];
+}
+
+/**
  * 基础插件接口
  * @template PluginFunc - 插件函数类型，默认为Function
  * @template PluginParams - 插件参数类型，默认为object

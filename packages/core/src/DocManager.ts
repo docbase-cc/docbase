@@ -25,7 +25,7 @@ export interface DocChunkDocument {
   /** 内容 hash */
   hash: string;
   /** 内容 */
-  content: string;
+  text: string;
 }
 
 import { Index, MeiliSearch } from "meilisearch";
@@ -449,10 +449,10 @@ export class DocManager {
       const doc = await docToLoad;
 
       if (doc !== false) {
-        const { content } = doc;
+        const { text } = doc;
 
         // 分割内容
-        const chunks = await this.#docSplitter(content);
+        const chunks = await this.#docSplitter(text);
 
         const docChunks: DocChunkDocument[] = new Array(chunks.length);
         const chunkHashs = new Set<string>();
@@ -464,7 +464,7 @@ export class DocManager {
             chunkHashs.add(chunkHash);
             docChunks[index] = {
               hash: chunkHash,
-              content: chunk,
+              text: chunk,
             };
           })
         );

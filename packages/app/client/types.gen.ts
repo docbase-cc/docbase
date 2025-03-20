@@ -3,7 +3,7 @@
 export type SearchResult = {
     hash: string;
     paths: Array<string>;
-    content: string;
+    text: string;
 };
 
 export type SearchResults = Array<SearchResult>;
@@ -121,7 +121,7 @@ export type SearchParam = {
 };
 
 export type DifyKnowledgeResponseRecordSchema = {
-    content: string;
+    text: string;
     score: number;
     title: string;
     metadata?: {
@@ -147,7 +147,7 @@ export type PostSearchData = {
 
 export type PostSearchResponses = {
     /**
-     * 搜索结果
+     * Search results
      */
     200: SearchResults;
 };
@@ -182,7 +182,7 @@ export type PostRetrievalError = PostRetrievalErrors[keyof PostRetrievalErrors];
 
 export type PostRetrievalResponses = {
     /**
-     * 搜索结果
+     * Search results
      */
     200: {
         records: Array<DifyKnowledgeResponseRecordSchema>;
@@ -190,6 +190,127 @@ export type PostRetrievalResponses = {
 };
 
 export type PostRetrievalResponse = PostRetrievalResponses[keyof PostRetrievalResponses];
+
+export type DeletePluginData = {
+    body?: never;
+    path?: never;
+    query: {
+        name: string;
+    };
+    url: '/plugin';
+};
+
+export type DeletePluginResponses = {
+    /**
+     * Whether the plugin was successfully deleted
+     */
+    200: {
+        deleted: boolean;
+        msg?: string;
+    };
+};
+
+export type DeletePluginResponse = DeletePluginResponses[keyof DeletePluginResponses];
+
+export type GetPluginData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/plugin';
+};
+
+export type GetPluginResponses = {
+    /**
+     * List of plugins
+     */
+    200: {
+        docLoaders: Array<{
+            type: 'DocLoader';
+            exts: Array<string>;
+            name: string;
+            version: string;
+            displayName?: string;
+            author?: string;
+            description?: string;
+            repository?: string;
+            homepage?: string;
+            icon?: string;
+        }>;
+        docSplitter: {
+            type: 'DocSplitter';
+            name: string;
+            version: string;
+            displayName?: string;
+            author?: string;
+            description?: string;
+            repository?: string;
+            homepage?: string;
+            icon?: string;
+        };
+    };
+};
+
+export type GetPluginResponse = GetPluginResponses[keyof GetPluginResponses];
+
+export type PutPluginData = {
+    body?: unknown;
+    path?: never;
+    query: {
+        name: string;
+    };
+    url: '/plugin';
+};
+
+export type PutPluginResponses = {
+    /**
+     * Whether the plugin was successfully installed
+     */
+    200: {
+        installed: boolean;
+        msg?: string;
+    };
+};
+
+export type PutPluginResponse = PutPluginResponses[keyof PutPluginResponses];
+
+export type GetPluginExtData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/plugin/ext';
+};
+
+export type GetPluginExtResponses = {
+    /**
+     * Plugin-extension mapping
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type GetPluginExtResponse = GetPluginExtResponses[keyof GetPluginExtResponses];
+
+export type PatchPluginExtData = {
+    body?: never;
+    path?: never;
+    query: {
+        ext: string;
+        docLoaderName?: string;
+    };
+    url: '/plugin/ext';
+};
+
+export type PatchPluginExtResponses = {
+    /**
+     * Whether the mapping was successfully modified
+     */
+    200: {
+        modified: boolean;
+    };
+};
+
+export type PatchPluginExtResponse = PatchPluginExtResponses[keyof PatchPluginExtResponses];
 
 export type ClientOptions = {
     baseUrl: `${string}://client` | (string & {});
