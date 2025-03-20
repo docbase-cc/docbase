@@ -34,7 +34,6 @@ import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
 import { compact, difference, merge, retry } from "es-toolkit";
-import slash from "slash";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 
 // 从新旧 chunks 计算需要执行的操作
@@ -122,8 +121,10 @@ export class DocManager {
     const index = this.#client.index(uid);
     try {
       await this.#client.getIndex(uid);
+      console.trace(`Index ${uid} get success`);
     } catch (error) {
       if ((error as Error).message === `Index \`${uid}\` not found.`) {
+        console.trace(`Index ${uid} not found, create it`);
         const task = await this.#client.createIndex(uid, { primaryKey });
         await this.#client.waitForTask(task.taskUid);
       } else {
@@ -140,6 +141,7 @@ export class DocManager {
    */
   // TODO 性能优化：批量获取
   #getChunkRelatedDocsCount = async (chunkHash: string) => {
+    console.trace(`getChunkRelatedDocsCount ${chunkHash}`)
     const docs = await this.#docIndex.getDocuments({
       filter: `chunkHashs IN ["${chunkHash}"]`,
       limit: 0,
@@ -155,6 +157,7 @@ export class DocManager {
    */
   // TODO 性能优化：一次性全部获取、批量获取
   async *#getChunkRelatedDocs(chunkHash: string) {
+    console.trace(`getChunkRelatedDocs ${chunkHash}`)
     const batchSize = 100; // 每次获取的文档数量
     let offset = 0;
 
@@ -185,6 +188,7 @@ export class DocManager {
     // 尝试并等待 meilisearch 启动
     await retry(
       async () => {
+        console.trace("try ensureContainsFilterFeatureOn");
         const res = await fetch(`${host}/experimental-features`, {
           headers: {
             Authorization: `Bearer ${key}`,
@@ -228,6 +232,9 @@ export class DocManager {
 
     // 设置可筛选属性
     if (docIndexFilterableAttributesNeedCreate.length > 0) {
+      console.trace(
+        `docIndexFilterableAttributesNeedCreate ${docIndexFilterableAttributesNeedCreate}`
+      );
       await this.#docIndex.updateSettings({
         filterableAttributes: [
           ...docIndexFilterableAttributes,
@@ -245,6 +252,7 @@ export class DocManager {
     // await this.#docIndex.deleteAllDocuments();
 
     const embedders = await this.#docChunkIndex.getEmbedders();
+    console.trace(`docChunkIndex embedders: ${JSON.stringify(embedders, null, 2)}`);
 
     // 无该 embedders 新增
     if (
@@ -253,6 +261,7 @@ export class DocManager {
         Object.keys(embedders).includes(this.#embeddingConfig.model)
       )
     ) {
+      console.trace(`add embedder: ${this.#embeddingConfig.model}`);
       await this.#docChunkIndex.updateEmbedders({
         [this.#embeddingConfig.model]: {
           source: "rest",
@@ -281,6 +290,7 @@ export class DocManager {
    * @returns 返回文档实例或 false
    */
   #getDocIfExist = async (hash: string): Promise<DocDocument | false> => {
+    console.trace(`getDocIfExist ${hash}`);
     try {
       const res = await this.#docIndex.getDocument(hash);
       return res;
@@ -300,6 +310,7 @@ export class DocManager {
    * @returns 返回文档实例或 false
    */
   #getDocByPathIfExist = async (path: string): Promise<DocDocument | false> => {
+    console.trace(`getDocByPathIfExist ${path}`);
     const docs = await this.#docIndex.getDocuments({
       filter: `path = "${path}"`,
     });
@@ -383,8 +394,9 @@ export class DocManager {
         this.#docChunkIndex.addDocuments(docSyncContent),
       ]);
 
-      console.log(`[embeded ${docSyncContent.length} chunks] ${localDoc.path}`);
+      console.info(`[embeded ${docSyncContent.length} chunks] ${localDoc.path}`);
     } else {
+      console.debug(`[skipped] ${localDoc.path}`);
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {
         // path 错误
@@ -400,6 +412,7 @@ export class DocManager {
   };
 
   upsertDoc = async (path: string) => {
+    console.trace(`upsertDoc ${path}`);
     // 加载内容 Promise
     const docToLoad = this.#docLoader(path);
 
@@ -497,6 +510,7 @@ export class DocManager {
   };
 
   #deleteDoc = async (doc: DocDocument) => {
+    console.trace(`deleteDoc ${doc.path}`);
     // 并行删除内容和文档
     await Promise.all([
       // 删除内容

@@ -31,19 +31,19 @@ if (
   !MEILI_MASTER_KEY
 ) {
   // 打印缺失的参数
-  console.log("以下参数缺失：");
-  if (!EMBEDDING_MODEL) console.log("EMBEDDING_MODEL");
-  if (!EMBEDDING_URL) console.log("EMBEDDING_URL");
-  if (!EMBEDDING_APIKEY) console.log("EMBEDDING_APIKEY");
-  if (!EMBEDDING_DIMENSIONS) console.log("EMBEDDING_DIMENSIONS");
-  if (!INIT_PATH) console.log("INIT_PATH");
-  if (!MEILI_URL) console.log("MEILI_URL");
-  if (!MEILI_MASTER_KEY) console.log("MEILI_MASTER_KEY");
+  console.error("以下参数缺失：");
+  if (!EMBEDDING_MODEL) console.error("EMBEDDING_MODEL");
+  if (!EMBEDDING_URL) console.error("EMBEDDING_URL");
+  if (!EMBEDDING_APIKEY) console.error("EMBEDDING_APIKEY");
+  if (!EMBEDDING_DIMENSIONS) console.error("EMBEDDING_DIMENSIONS");
+  if (!INIT_PATH) console.error("INIT_PATH");
+  if (!MEILI_URL) console.error("MEILI_URL");
+  if (!MEILI_MASTER_KEY) console.error("MEILI_MASTER_KEY");
   throw new Error("参数缺失");
 }
 
 // 启动 docBase
-console.log("Starting DocBase...");
+console.info("Starting DocBase...");
 await docBase.start({
   meiliSearchConfig: { host: MEILI_URL, apiKey: MEILI_MASTER_KEY },
   embeddingConfig: {

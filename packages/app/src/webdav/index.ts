@@ -88,7 +88,7 @@ if (existsSync("/bin/dufs") && env.INIT_PATH) {
       authorization: () => null,
     })
   );
-  console.log("Proxied webdav server: http://localhost:3000/dav");
+  console.info("Proxied webdav server: http://localhost:3000/dav");
 }
 
 export default app;

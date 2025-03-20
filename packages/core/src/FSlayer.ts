@@ -56,7 +56,7 @@ export const FSLayer = ({
 
     // 过滤需要的路径
     if (filter(path)) {
-      console.log(`[${type}] ${path}`);
+      console.info(`[${type}] ${path}`);
       if (type === "create" || type === "modify") {
         upsert(slash(path));
       } else if (type === "remove") {
