@@ -105,7 +105,9 @@ const listPlugin = createRoute({
               author: z.string().optional(),
               /** 插件描述 */
               description: z.string().optional(),
-              /** 插件仓库或网站地址 */
+              /** 插件仓库地址 */
+              repository: z.string().optional(),
+              /** 插件网站地址 */
               homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),
@@ -123,7 +125,9 @@ const listPlugin = createRoute({
               author: z.string().optional(),
               /** 插件描述 */
               description: z.string().optional(),
-              /** 插件仓库或网站地址 */
+              /** 插件仓库地址 */
+              repository: z.string().optional(),
+              /** 插件网站地址 */
               homepage: z.string().optional(),
               /** 插件图标 */
               icon: z.string().optional(),

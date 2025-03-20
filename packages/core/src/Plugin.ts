@@ -23,7 +23,9 @@ export interface BasePlugin<
   author?: string;
   /** 插件描述 */
   description?: string;
-  /** 插件仓库或网站地址 */
+  /** 插件仓库地址 */
+  repository?: string;
+  /** 插件网站地址 */
   homepage?: string;
   /** 插件图标 */
   icon?: string;

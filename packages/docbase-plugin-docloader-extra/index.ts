@@ -1,5 +1,5 @@
 import { DocBasePlugin } from "core/src"
-import { name, version, description, exts, icon, displayName, author, homepage } from "./package.json"
+import { name, version, description, exts, icon, displayName, author, homepage, repository } from "./package.json"
 import { PdfLoader } from '@llm-tools/embedjs-loader-pdf';
 import { CsvLoader } from '@llm-tools/embedjs-loader-csv';
 import { PptLoader, ExcelLoader, DocxLoader } from '@llm-tools/embedjs-loader-msoffice';
@@ -21,6 +21,7 @@ const plugin: DocBasePlugin<typeof schema> = {
     displayName,
     author,
     description: description,
+    repository,
     homepage,
     icon,
     init: async () => {

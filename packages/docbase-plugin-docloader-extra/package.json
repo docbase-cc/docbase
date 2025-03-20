@@ -1,10 +1,11 @@
 {
   "name": "docbase-plugin-docloader-extra",
   "displayName": "DocBase 额外文档支持",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "DocBase",
   "type": "module",
   "homepage": "https://docbase.cc",
+  "repository": "https://github.com/docbase-cc/docbase",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "schema": "dist/schema.json",
