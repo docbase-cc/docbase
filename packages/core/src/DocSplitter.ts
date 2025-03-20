@@ -1,5 +1,5 @@
 import { AnyZodObject, z } from "zod";
-import type { BasePlugin } from "./Plugin";
+import type { BasePlugin, Content } from "./Plugin";
 import { version } from "~/package.json";
 
 // 文档分割器
@@ -9,7 +9,7 @@ import { version } from "~/package.json";
  * @param text - 输入的文本内容
  * @returns 返回分割后的文本块数组或Promise
  */
-export type DocSplitter = (text: string) => string[] | Promise<string[]>;
+export type DocSplitter = (text: string) => Content[] | Promise<Content[]>;
 
 /**
  * 文档分割器插件接口
@@ -43,6 +43,6 @@ export const defaultDocSplitterPlugin: DocSplitterPlugin<typeof DocSplitterPlugi
         for (let i = 0; i < text.length; i += len) {
           result.push(text.substring(i, i + len));
         }
-        return result;
+        return result.map((text) => ({ text }));
       },
 };

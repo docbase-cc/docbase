@@ -460,11 +460,11 @@ export class DocManager {
         // 并行构造所有 chunks
         await Promise.all(
           chunks.map(async (chunk, index) => {
-            const chunkHash = await xxhash64(chunk);
+            const chunkHash = await xxhash64(chunk.text);
             chunkHashs.add(chunkHash);
             docChunks[index] = {
               hash: chunkHash,
-              text: chunk,
+              text: chunk.text,
             };
           })
         );

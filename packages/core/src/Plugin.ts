@@ -9,7 +9,7 @@ export interface Content {
   // 文档内容文本
   text: string;
   // 多模态矢量
-  _vector?: number[];
+  vector?: number[];
 }
 
 /**
