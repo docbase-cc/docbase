@@ -9,11 +9,11 @@
   "devDependencies": {
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
-    "hono": "^4.7.4",
+    "hono": "^4.7.5",
     "core": "workspace:*",
     "es-toolkit": "^1.33.0",
     "nypm": "^0.6.0",
-    "@hey-api/openapi-ts": "^0.64.12"
+    "@hey-api/openapi-ts": "^0.64.13"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.3"
