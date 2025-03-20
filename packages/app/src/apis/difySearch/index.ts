@@ -4,12 +4,12 @@ import {
   DifyKnowledgeResponseRecordSchema,
 } from "./schemas";
 
-// dify 外部知识库搜索
+// Dify external knowledge base search
 export default createRoute({
   tags: ["search"],
   method: "post",
   path: "/retrieval",
-  summary: "作为 dify 外部知识库搜索",
+  summary: "Search as an external knowledge base for Dify",
   security: [
     {
       Bearer: [],
@@ -26,7 +26,7 @@ export default createRoute({
   },
   responses: {
     200: {
-      description: "搜索结果",
+      description: "Search results",
       content: {
         "application/json": {
           schema: z.object({

@@ -1,12 +1,12 @@
 import { createRoute } from "@hono/zod-openapi";
 import { SearchParamSchema, SearchResultsSchema } from "./schemas";
 
-// 搜索
+// Search
 export default createRoute({
   tags: ["search"],
   method: "post",
   path: "/search",
-  summary: "知识库搜索",
+  summary: "Knowledge base search",
   security: [
     {
       Bearer: [],
@@ -28,7 +28,7 @@ export default createRoute({
           schema: SearchResultsSchema,
         },
       },
-      description: "搜索结果",
+      description: "Search results",
     },
   },
 });

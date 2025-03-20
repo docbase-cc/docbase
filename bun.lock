@@ -19,6 +19,7 @@
         "@hey-api/openapi-ts": "^0.64.13",
         "@hono/swagger-ui": "^0.5.1",
         "@hono/zod-openapi": "^0.19.2",
+        "consola": "^3.4.2",
         "core": "workspace:*",
         "es-toolkit": "^1.33.0",
         "hono": "^4.7.5",
@@ -28,7 +29,6 @@
     "packages/core": {
       "name": "core",
       "dependencies": {
-        "consola": "^3.4.2",
         "es-toolkit": "^1.33.0",
         "fdir": "^6.4.3",
         "filesystem-notify": "^0.0.3",
