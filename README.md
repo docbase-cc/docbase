@@ -65,7 +65,8 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 搜索同时搜索docs和chunks -->
+<!-- TODO 上传自定义矢量到meilisearch，搜索同时搜索docs和chunks -->
+<!-- TODO EMBEDDING 四个参数为可选，不提供时使用全文搜索 -->
 <!-- TODO 数据持久化层 -->
 <!-- TODO 添加数据持久化层，将插件安装、配置、映射信息存入 -->
 <!-- TODO 启动时加载全部插件 -->
