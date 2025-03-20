@@ -65,7 +65,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 打点日志 -->
 <!-- TODO 文件加载器、分割器支持自定义向量，搜索同时搜索docs和chunks -->
 <!-- TODO 数据持久化层 -->
 <!-- TODO 添加数据持久化层，将插件安装、配置、映射信息存入 -->
