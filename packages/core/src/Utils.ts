@@ -1,15 +1,17 @@
 import { lowerCase } from "es-toolkit";
 import { extname } from "path";
+import os from "os";
 
 /** 从路径获取拓展名 */
 export const getExtFromPath = (path: string) =>
   lowerCase(extname(path).replace(".", ""));
 
-/** 转换路径分隔符 */
+/** windows 标准化路径分隔符 */
 export const slash = (path: string) => {
   const isExtendedLengthPath = path.startsWith('\\\\?\\');
+  const isNotWindows = os.platform() !== 'win32';
 
-  if (isExtendedLengthPath) {
+  if (isExtendedLengthPath || isNotWindows) {
     return path;
   }
 
