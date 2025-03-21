@@ -11,11 +11,10 @@ import {
   type DocSplitterPlugin,
 } from "./DocSplitter";
 import type { PluginWithParams } from "./Plugin";
-import { getExtFromPath } from "./Utils";
+import { getExtFromPath, slash } from "./Utils";
 import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSlayer";
-import slash from "slash";
 import { AnyZodObject } from "zod";
 
 export interface DifyKnowledgeRequest {

@@ -1,7 +1,6 @@
 import { fdir } from "fdir";
 import { DirectoryWatcher } from "filesystem-notify";
-import { getExtFromPath } from "./Utils";
-import slash from "slash";
+import { getExtFromPath, slash } from "./Utils";
 
 /**
  * 扫描器类型定义
