@@ -1,14 +1,7 @@
 # Common environment variables
-x-environment: &common-env # Vector model name
-  EMBEDDING_MODEL: Pro/BAAI/bge-m3
-  # Vector service address
-  EMBEDDING_URL: https://api.siliconflow.cn/v1/embeddings
-  # Vector service API key
-  EMBEDDING_APIKEY: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  # Vector dimensions
-  EMBEDDING_DIMENSIONS: 1024
-  # Master key
-  MEILI_MASTER_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+x-environment: &common-env
+  # key
+  MEILI_MASTER_KEY: mykey
 
 services:
   # Meilisearch search engine service
@@ -16,8 +9,6 @@ services:
     image: getmeili/meilisearch:latest
     restart: always
     environment: *common-env
-    # ports:
-    #   - "7700:7700"
     volumes:
       - meili_data:/meili_data
 

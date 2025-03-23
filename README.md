@@ -31,16 +31,17 @@
 curl -L -o docker-compose.yaml https://unpkg.com/docbase/docker-compose.yaml
 ```
 
-2. 修改`docker-compose.yaml`中以下环境变量
-
-- MEILI_MASTER_KEY 设置 DocBase 应用密钥
-- EMBEDDING_APIKEY 嵌入模型服务（默认为硅基流动）密钥
-
-3. 启动服务
+2. 启动服务
 
 ```bash
 docker-compose up -d
 ```
+
+密钥默认为：mykey
+
+生产环境请修改`docker-compose.yaml`中以下环境变量
+
+- MEILI_MASTER_KEY: DocBase 的应用密钥
 
 ### 下载安装客户端
 

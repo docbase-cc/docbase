@@ -6,7 +6,6 @@
 
 <p align="center">
   <a href="#features">Features</a> •
-  <a href="#quick-start">Quick Start</a> •
   <a href="https://docbase.cc">Documentation</a> •
   <a href="#contributing">Contributing</a> •
   <a href="#license">License</a>
@@ -23,27 +22,6 @@
 - 🔌 Ecosystem Integration: Can be used as Dify external knowledge base, unlimited possibilities
 - 🔍 Triple Search Engine: MeiliSearch powered, comprehensive full-text, fuzzy, and vector search
 - 🐳 Simple Deployment: Docker private deployment, one-click startup, secure data, hassle-free
-
-## 🚀 Quick Start
-
-### Using Docker Compose
-
-1. Download the Docker Compose file:
-
-```bash
-curl -o docker-compose.yaml https://unpkg.com/docbase/docker-compose.yaml
-```
-
-2. Modify the following environment variables in docker-compose.yaml :
-
-- MEILI_MASTER_KEY : Set the DocBase application key
-- EMBEDDING_APIKEY : Set the embedding model service key (default is Silicon-based Flow)
-
-3. Start the service:
-
-```bash
-docker-compose up -d
-```
 
 ## 🤝 Contributing
 
