@@ -134,7 +134,6 @@ export class DocManager {
    * @param chunkHash - chunk hash
    * @returns 返回关联的文档数量
    */
-  // TODO 性能优化：批量获取
   #getChunkRelatedDocsCount = async (chunkHash: string) => {
     console.debug(`Getting related docs count for chunk ${chunkHash}`);
     const docs = await this.#docIndex.getDocuments({
@@ -150,25 +149,25 @@ export class DocManager {
    * @param chunkHash - chunk hash
    * @yields 返回关联的文档
    */
-  // TODO 性能优化：一次性全部获取、批量获取
-  async *#getChunkRelatedDocs(chunkHash: string) {
+  async #getChunkRelatedDocs(chunkHash: string) {
     console.debug(`Getting related docs for chunk ${chunkHash}`);
-    const batchSize = 100; // 每次获取的文档数量
-    let offset = 0;
+    const filter = `chunkHashs IN ["${chunkHash}"]`
+    // 初始大小
+    const initSize = 1000;
+    // 获取文档
+    const docs = await this.#docIndex.getDocuments({
+      filter,
+      limit: initSize
+    });
 
-    while (true) {
-      const docs = await this.#docIndex.getDocuments({
-        filter: `chunkHashs IN ["${chunkHash}"]`,
-        limit: batchSize,
-        offset,
+    if (docs.total <= initSize) {
+      return docs.results
+    } else {
+      const allDocs = await this.#docIndex.getDocuments({
+        filter,
+        limit: docs.total
       });
-
-      yield* docs.results;
-      offset += batchSize;
-
-      if (offset >= docs.total) {
-        break;
-      }
+      return allDocs.results
     }
   }
 
@@ -578,13 +577,13 @@ export class DocManager {
     // 自动删除文档, 防止停止运行时用户偷偷删除文档
     const validHits = await Promise.all(
       hits.map(async (hit) => {
-        const docs = this.#getChunkRelatedDocs(hit.hash);
+        const docs = await this.#getChunkRelatedDocs(hit.hash);
         let validDoc = false;
         const paths: string[] = [];
 
         // 并行检查文档是否存在
         const docChecks: Promise<boolean>[] = [];
-        for await (const doc of docs) {
+        for (const doc of docs) {
           docChecks.push(
             exists(doc.path).then((exists) => {
               if (!exists) {
