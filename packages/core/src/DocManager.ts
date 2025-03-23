@@ -610,8 +610,6 @@ export class DocManager {
     );
 
     // 过滤掉无效的结果
-    const finalResults = validHits.filter(Boolean);
-    console.info(`Search results: ${finalResults.length} valid hits found`);
-    return finalResults;
+    return validHits.filter(Boolean);
   };
 }
