@@ -1,6 +1,5 @@
 /**
  * 文档类型
- * chunkHashs 换成 Set 提高性能
  */
 export interface Doc {
   /** 文档 hash */
@@ -38,8 +37,8 @@ import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
 import { compact, difference, merge, retry } from "es-toolkit";
-import type { Embedder, Embedders, Config as MeiliSearchConfig, OllamaEmbedder, SearchParams, UserProvidedEmbedder } from "meilisearch";
-import { AsyncStream, single, Stream } from "itertools-ts";
+import type { Embedders, Config, SearchParams } from "meilisearch";
+import { AsyncStream } from "itertools-ts";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
@@ -56,14 +55,6 @@ export const chunkDiff = (
     needAddChunkHashs,
   };
 };
-
-// openai 嵌入标准
-export interface EmbeddingConfig {
-  model: string;
-  url: string;
-  apiKey: string;
-  dimensions: number;
-}
 
 /**
  * 基于 MeiliSearch 实现的文档管理器
@@ -100,7 +91,7 @@ export class DocManager {
     docSplitter,
     indexPrefix = "",
   }: {
-    meiliSearchConfig: MeiliSearchConfig;
+    meiliSearchConfig: Config;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
     indexPrefix?: string;

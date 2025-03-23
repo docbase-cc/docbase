@@ -6,14 +6,13 @@ import { version, name } from "~/package.json";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
-import { pkgManager } from "./plugins";
+import { getPkgManager } from "./plugins";
 import { PackageManager } from "./plugins/pkgManager";
+import { createDocBaseBasic } from "./docbase"
 
 createConsola({
   level: import.meta.env.NODE_ENV === "production" ? 2 : 5,
 }).wrapAll();
-
-const docBase = await import("./docbase")
 
 // 路由版本
 export const routeVersion = `v${version.split(".")[0]}`;
@@ -27,14 +26,10 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
-// const pluginNames = Object.keys(await pkgManager.list())
-// const plugins: DocBasePlugin<object>[] = await Promise.all(pluginNames.map(plugin => pkgManager.import(plugin)))
-// 获取插件配置并加载插件
-
 // 启动 docbase 实例
 app.use(async (c, next) => {
-  c.set("pkgManager", pkgManager);
-  c.set("docbase", docBase.default);
+  c.set("pkgManager", await getPkgManager());
+  c.set("docbase", await createDocBaseBasic());
   await next();
 });
 

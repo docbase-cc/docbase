@@ -4,7 +4,7 @@ import {
   type DocLoader,
   type DocLoaderPlugin,
 } from "./DocLoader";
-import { DocManager, type EmbeddingConfig } from "./DocManager";
+import { DocManager } from "./DocManager";
 import {
   defaultDocSplitterPlugin,
   type DocSplitter,
@@ -31,6 +31,43 @@ export interface DifyKnowledgeResponseRecord {
   score: number;
   title: string;
   metadata?: object;
+}
+
+/**
+ * DocBase 初始化配置
+ */
+export interface DocBaseOptions {
+  /**
+   * MeiliSearch 配置
+   */
+  meiliSearchConfig: MeiliSearchConfig;
+  /**
+   * 初始化知识库目录
+   * @default []
+   */
+  initPaths?: string[];
+  /**
+   * 初始化插件列表
+   * @default
+   * [
+   *   { plugin: defaultDocLoaderPlugin, params: {} },
+   *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
+   * ]
+   */
+  initPlugins?: PluginWithParams<any>[];
+  /**
+   * 是否在初始化时扫描初始化知识库目录
+   * @default true
+   */
+  initscan?: boolean;
+  /**
+   * 索引前缀
+   */
+  indexPrefix?: string;
+  /**
+   * 文件变动时间节流时段(毫秒)，在该时段内每个文件最多执行一次嵌入更新操作
+   */
+  fileOpThrottleMs?: number;
 }
 
 export class DocBase {
@@ -170,7 +207,6 @@ export class DocBase {
   start = async ({
     meiliSearchConfig,
     indexPrefix,
-    embeddingConfig,
     initPaths = [],
     initPlugins = [
       {
@@ -186,43 +222,7 @@ export class DocBase {
     ],
     initscan = true,
     fileOpThrottleMs,
-  }: {
-    /**
-     * MeiliSearch 配置
-     */
-    meiliSearchConfig: MeiliSearchConfig;
-    /**
-     * 嵌入模型配置, OPENAI 兼容的配置
-     */
-    embeddingConfig: EmbeddingConfig;
-    /**
-     * 初始化知识库目录
-     * @default []
-     */
-    initPaths?: string[];
-    /**
-     * 初始化插件列表
-     * @default
-     * [
-     *   { plugin: defaultDocLoaderPlugin, params: {} },
-     *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
-     * ]
-     */
-    initPlugins?: PluginWithParams<any>[];
-    /**
-     * 是否在初始化时扫描初始化知识库目录
-     * @default true
-     */
-    initscan?: boolean;
-    /**
-     * 索引前缀
-     */
-    indexPrefix?: string;
-    /**
-     * 文件变动时间节流时段(毫秒)，在该时段内每个文件最多执行一次嵌入更新操作
-     */
-    fileOpThrottleMs?: number;
-  }) => {
+  }: DocBaseOptions) => {
     console.info("Starting DocBase...");
     this.fileOpThrottleMs = fileOpThrottleMs;
     // 加载所有插件
@@ -248,7 +248,6 @@ export class DocBase {
     this.#docManager = new DocManager({
       indexPrefix,
       meiliSearchConfig,
-      embeddingConfig,
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter.func(text),
     });
