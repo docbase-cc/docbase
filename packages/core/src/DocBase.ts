@@ -459,7 +459,7 @@ export class DocBase {
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
     console.info("Performing Dify search...");
-    // TODO 多知识库
+    // 等待多知识库支持
     // params.knowledge_id;
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
