@@ -578,7 +578,6 @@ export class DocManager {
     const validHits = await Promise.all(
       hits.map(async (hit) => {
         const docs = await this.#getChunkRelatedDocs(hit.hash);
-        let validDoc = false;
         const paths: string[] = [];
 
         // 并行检查文档是否存在
@@ -590,8 +589,7 @@ export class DocManager {
                 // 异步删除无效文档
                 console.info(`Deleting invalid document with hash ${doc.hash}`);
                 this.deleteDocByHash(doc.hash);
-              }
-              paths.push(doc.path);
+              } else { paths.push(doc.path) };
               return exists;
             })
           );
@@ -599,12 +597,9 @@ export class DocManager {
 
         // 等待所有检查完成
         const results = await Promise.all(docChecks);
-        validDoc = results.some((exists) => exists === true);
+        const validDoc = results.some((exists) => exists === true);
 
-        if (validDoc) {
-          return merge(hit, { paths });
-        }
-        return null;
+        return validDoc ? merge(hit, { paths }) : null;
       })
     );
 
