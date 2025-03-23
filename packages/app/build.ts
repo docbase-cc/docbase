@@ -2,6 +2,6 @@ Bun.build({
     entrypoints: ["./src/main.ts"],
     outdir: "./dist",
     target: "bun",
-    sourcemap: 'linked',
+    sourcemap: 'external',
     minify: true,
 })

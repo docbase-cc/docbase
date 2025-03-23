@@ -1,6 +1,6 @@
 import type { BasePlugin, Content } from "./Plugin";
 import { readFile } from "fs-extra";
-import { xxhash64 } from "hash-wasm";
+import { IDataType } from "hash-wasm";
 import { AsyncStream } from "itertools-ts";
 import { AnyZodObject } from "zod";
 import { version } from "~/package.json";
@@ -10,7 +10,7 @@ import { version } from "~/package.json";
  * @param path - 文档路径
  * @returns 返回加载后的文档对象的迭代器，false 表示不符合条件的文件，跳过处理
  */
-export type DocLoader = (path: string) => Promise<{
+export type DocLoader = (input: { path: string, hash: (data: IDataType) => Promise<string> }) => Promise<{
   hash: string;
   content: AsyncIterable<Content>
 } | false>;
@@ -38,15 +38,13 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
   version,
   type: "DocLoader",
   exts: ["md", "txt"],
-  init: () => async (path) => {
+  init: () => async ({ path, hash }) => {
     // 读取文件内容
     const text = await readFile(path, "utf-8")
 
-    // 计算 hash
-    const hash = await xxhash64(text);
-
     return {
-      hash,
+      // 计算 hash
+      hash: await hash(text),
       content: AsyncStream.of([text])
     }
   }

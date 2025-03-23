@@ -154,8 +154,8 @@ export class DocBase {
    * @param path - 文件路径
    * @throws 如果没有找到对应的文档加载器会抛出错误
    */
-  #hyperDocLoader: DocLoader = async (path) => {
-    const ext = getExtFromPath(path);
+  #hyperDocLoader: DocLoader = async (input) => {
+    const ext = getExtFromPath(input.path);
     const docLoaderName = this.#docExtToLoaderName.get(ext);
 
     if (!docLoaderName) {
@@ -172,7 +172,7 @@ export class DocBase {
       throw new Error(errorMsg);
     }
 
-    return await dockLoader.func(path);
+    return await dockLoader.func(input);
   };
 
   /**

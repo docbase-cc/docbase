@@ -417,7 +417,7 @@ export class DocManager {
     }
 
     // 加载内容 Promise
-    const doc = await this.#docLoader(path);
+    const doc = await this.#docLoader({ path, hash: xxhash64 });
 
     if (doc) {
       const { hash, content } = doc

@@ -8,7 +8,7 @@ import { JsonLoader } from '@llm-tools/embedjs';
 import { readJSON } from "fs-extra"
 import { BaseLoader } from "@llm-tools/embedjs-interfaces";
 import { basename } from "path";
-import { single, transform } from "itertools-ts"
+import { AsyncStream, single, transform } from "itertools-ts"
 import { z } from "zod"
 
 export const schema = z.object({})
@@ -25,7 +25,7 @@ const plugin: DocBasePlugin<typeof schema> = {
     homepage,
     icon,
     init: async () => {
-        return async (path) => {
+        return async ({ path, hash }) => {
             if (basename(path).startsWith("~$")) {
                 return false as false;
             }
@@ -60,7 +60,8 @@ const plugin: DocBasePlugin<typeof schema> = {
                 const texts = await transform.toArrayAsync(single.mapAsync(loader.getChunks(), async (chunk) => chunk.pageContent))
 
                 return {
-                    text: texts.join(),
+                    hash: await hash(texts.join()),
+                    content: AsyncStream.of(texts)
                 }
             } else {
                 return false

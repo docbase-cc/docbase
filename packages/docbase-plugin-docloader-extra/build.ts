@@ -8,6 +8,7 @@ Promise.all(
             entrypoints: ["./index.ts"],
             outdir: "./dist",
             minify: true,
+            sourcemap: "external",
             target: "bun",
         }),
         write("dist/schema.json", JSON.stringify(zodToJsonSchema(schema), null, 2))
