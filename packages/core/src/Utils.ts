@@ -29,3 +29,21 @@ export const slash = (path: string) => {
   }
   return result;
 }
+
+export const createOpenaiEmbedder = ({ url, apiKey, dimensions, model }: { url: string; apiKey: string; dimensions: string, model: string }) => ({
+  source: "rest",
+  url: url,
+  apiKey: apiKey,
+  dimensions: dimensions,
+  request: {
+    input: "{{text}}",
+    model: model,
+  },
+  response: {
+    data: [
+      {
+        embedding: "{{embedding}}",
+      },
+    ],
+  }
+})

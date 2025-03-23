@@ -9,7 +9,12 @@ import { version } from "~/package.json";
  * @param text - 输入的文本内容
  * @returns 返回分割后的文本块数组或Promise
  */
-export type DocSplitter = (text: string) => Content[] | Promise<Content[]>;
+export type DocSplitter = (text: AsyncIterable<Content>) => AsyncIterable<{
+  // 文档内容文本
+  text: string;
+  // 多模态矢量
+  _vectors?: { [key: string]: number[] };
+}>;
 
 /**
  * 文档分割器插件接口
@@ -26,6 +31,15 @@ const DocSplitterPluginParams = z.object({
 })
 
 // 默认实现 ============
+import { AsyncStream } from "itertools-ts"
+
+const cutToLen = (text: string, len: number) => {
+  const result: string[] = [];
+  for (let i = 0; i < text.length; i += len) {
+    result.push(text.substring(i, i + len));
+  }
+  return result.map((text) => ({ text }));
+}
 
 // 默认文档分割器插件
 /**
@@ -38,11 +52,5 @@ export const defaultDocSplitterPlugin: DocSplitterPlugin<typeof DocSplitterPlugi
   type: "DocSplitter",
   init:
     ({ len }) =>
-      (text: string) => {
-        const result: string[] = [];
-        for (let i = 0; i < text.length; i += len) {
-          result.push(text.substring(i, i + len));
-        }
-        return result.map((text) => ({ text }));
-      },
+      (text) => AsyncStream.of(text).map((text) => cutToLen(text, len)).flatten() as AsyncStream<{ text: string; }>,
 };

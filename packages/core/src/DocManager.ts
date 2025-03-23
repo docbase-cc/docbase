@@ -26,6 +26,10 @@ export interface DocChunkDocument {
   hash: string;
   /** 内容 */
   text: string;
+  /** 自定义向量 */
+  _vectors?: {
+    [key: string]: number[];
+  }
 }
 
 import { Index, MeiliSearch } from "meilisearch";
@@ -34,7 +38,8 @@ import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
 import { compact, difference, merge, retry } from "es-toolkit";
-import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
+import type { Embedder, Embedders, Config as MeiliSearchConfig, OllamaEmbedder, SearchParams, UserProvidedEmbedder } from "meilisearch";
+import { AsyncStream, single, Stream } from "itertools-ts";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
@@ -80,7 +85,6 @@ export class DocManager {
   #docLoader: DocLoader;
   /** 文档分割器 */
   #docSplitter: DocSplitter;
-  #embeddingConfig: EmbeddingConfig;
 
   /**
    * 构造函数
@@ -92,13 +96,11 @@ export class DocManager {
    */
   constructor({
     meiliSearchConfig,
-    embeddingConfig,
     docLoader,
     docSplitter,
     indexPrefix = "",
   }: {
     meiliSearchConfig: MeiliSearchConfig;
-    embeddingConfig: EmbeddingConfig;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
     indexPrefix?: string;
@@ -108,7 +110,6 @@ export class DocManager {
     this.#docSplitter = docSplitter;
     const prefix = compact([indexPrefix, this.#indexVersion]).join("_");
     this.#indexPrefix = `${prefix}-`;
-    this.#embeddingConfig = embeddingConfig;
     console.info(`DocManager initialized with index prefix: ${this.#indexPrefix}`);
   }
 
@@ -255,43 +256,27 @@ export class DocManager {
       `${this.#indexPrefix}chunks`
     );
 
-    // 重置索引
-    // await this.#docChunkIndex.deleteAllDocuments();
-    // await this.#docIndex.deleteAllDocuments();
-
-    const embedders = await this.#docChunkIndex.getEmbedders();
-    console.debug(`DocChunkIndex embedders: ${JSON.stringify(Object.keys(embedders), null, 2)}`);
-
-    // 无该 embedders 新增
-    if (
-      !(
-        embedders &&
-        Object.keys(embedders).includes(this.#embeddingConfig.model)
-      )
-    ) {
-      console.info(`Adding embedder: ${this.#embeddingConfig.model}`);
-      await this.#docChunkIndex.updateEmbedders({
-        [this.#embeddingConfig.model]: {
-          source: "rest",
-          url: this.#embeddingConfig.url,
-          apiKey: this.#embeddingConfig.apiKey,
-          dimensions: this.#embeddingConfig.dimensions,
-          request: {
-            input: "{{text}}",
-            model: this.#embeddingConfig.model,
-          },
-          response: {
-            data: [
-              {
-                embedding: "{{embedding}}",
-              },
-            ],
-          },
-        },
-      });
-    }
     console.info("DocManager initialized successfully");
   };
+
+  /** 获取已有 embedders */
+  getEmbedders = async () => await this.#docChunkIndex.getEmbedders()
+
+  /** 重置已有 embedders */
+  resetEmbedders = async (wait = false) => {
+    const task = await this.#docChunkIndex.resetEmbedders()
+    if (wait) {
+      await this.#docChunkIndex.waitForTask(task.taskUid)
+    }
+  }
+
+  /** 增删改 embedders */
+  updateEmbedders = async (embedders: Embedders, wait = false) => {
+    const task = await this.#docChunkIndex.updateEmbedders(embedders)
+    if (wait) {
+      await this.#docChunkIndex.waitForTask(task.taskUid)
+    }
+  }
 
   /**
    * 安全获取文档，如果不存在返回 false
@@ -428,79 +413,70 @@ export class DocManager {
 
   upsertDoc = async (path: string) => {
     console.info(`Upserting document at path: ${path}`);
+
+    // 查询该路径有无文档
+    const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
+      stat(path),
+      this.#getDocByPathIfExist(path),
+    ]);
+
+    // 如果有且修改时间相等则为已上传过，直接跳过
+    if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
+      console.debug(`Document at path ${path} is already up-to-date, skipping...`);
+      return;
+    }
+
     // 加载内容 Promise
-    const docToLoad = this.#docLoader(path);
+    const doc = await this.#docLoader(path);
 
-    if (docToLoad !== false) {
-      // 修改时间
-      // 查询该路径有无文档
-      const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
-        stat(path),
-        this.#getDocByPathIfExist(path),
-      ]);
+    if (doc) {
+      const { hash, content } = doc
 
-      // 如果有且修改时间相等则为已上传过，直接跳过
-      if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
-        console.debug(`Document at path ${path} is already up-to-date, skipping...`);
-        return;
-      }
+      // 分割内容
+      const chunks = this.#docSplitter(content);
 
-      // 实际加载文档
-      const doc = await docToLoad;
+      // 并行构造所有 chunks
+      const docChunks: DocChunkDocument[] = await AsyncStream.of(chunks)
+        .map(async (chunk) => {
+          const chunkHash = await xxhash64(chunk.text);
+          return {
+            hash: chunkHash,
+            ...chunk
+          }
+        })
+        .toArray();
 
-      if (doc !== false) {
-        const { text } = doc;
+      // 收集所有 chunk hash
+      const chunkHashs = new Set<string>(docChunks.map((chunk) => chunk.hash));
 
-        // 分割内容
-        const chunks = await this.#docSplitter(text);
+      // 构造文档同步请求
+      const localDoc: Doc = {
+        path,
+        hash,
+        chunkHashs,
+        updateAt: mtimeMs,
+      };
 
-        const docChunks: DocChunkDocument[] = new Array(chunks.length);
-        const chunkHashs = new Set<string>();
+      // 获取需要上传的 chunks
+      const getDocSyncContent = async (
+        needAddChunkHashs: Set<string>
+      ): Promise<DocChunkDocument[]> =>
+        docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
 
-        // 并行构造所有 chunks
-        await Promise.all(
-          chunks.map(async (chunk, index) => {
-            const chunkHash = await xxhash64(chunk.text);
-            chunkHashs.add(chunkHash);
-            docChunks[index] = {
-              hash: chunkHash,
-              text: chunk.text,
-            };
-          })
-        );
+      // 获取远程文档
+      const remoteDocByHash = await this.#getDocIfExist(hash);
 
-        // 计算文档总 hash
-        const hash = await xxhash64(docChunks.map((i) => i.hash).join(""));
-
-        // 构造文档同步请求
-        const localDoc: Doc = {
-          path,
-          hash,
-          chunkHashs,
-          updateAt: mtimeMs,
-        };
-
-        // 获取需要上传的 chunks
-        const getDocSyncContent = async (
-          needAddChunkHashs: Set<string>
-        ): Promise<DocChunkDocument[]> =>
-          docChunks.filter((chunk) => needAddChunkHashs.has(chunk.hash));
-
-        // 获取远程文档
-        const remoteDocByHash = await this.#getDocIfExist(hash);
-
-        // 上传知识库
-        await this.#upload({
-          remoteDocByHash: remoteDocByHash
-            ? this.#convertDocDocument2Doc(remoteDocByHash)
-            : false,
-          remoteDocByPath: remoteDocByPath
-            ? this.#convertDocDocument2Doc(remoteDocByPath)
-            : false,
-          localDoc,
-          getDocSyncContent,
-        });
-      }
+      // 上传知识库
+      await this.#upload({
+        remoteDocByHash: remoteDocByHash
+          ? this.#convertDocDocument2Doc(remoteDocByHash)
+          : false,
+        remoteDocByPath: remoteDocByPath
+          ? this.#convertDocDocument2Doc(remoteDocByPath)
+          : false,
+        localDoc,
+        getDocSyncContent,
+      });
     }
   };
 
@@ -603,15 +579,9 @@ export class DocManager {
    * @param hybrid - 启用向量搜索
    * @returns 返回搜索结果
    */
-  search = async (query: string, opts?: Omit<SearchParams, "hybrid">) => {
-    console.info(`Searching for query: ${query}`);
-    const result = await this.#docChunkIndex.search(query, {
-      ...opts,
-      hybrid: {
-        // 使用指定嵌入模型
-        embedder: this.#embeddingConfig.model,
-      },
-    });
+  search = async (query: string, opts?: SearchParams) => {
+    console.debug(`Searching for query: ${query}`);
+    const result = await this.#docChunkIndex.search(query, opts);
     const hits = result.hits;
 
     // 查询后校验结果中引用到的本地文档是否存在，不存在则删除知识库内文档

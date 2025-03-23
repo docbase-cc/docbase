@@ -443,7 +443,7 @@ export class DocBase {
    * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (query: string, opt?: Omit<SearchParams, "hybrid">) => {
+  search = async (query: string, opt?: SearchParams) => {
     console.info(`Searching for documents with query: ${query}`);
     const results = await this.#docManager.search(query, opt);
     console.info(`Search completed. Found ${results.length} documents.`);

@@ -3,14 +3,9 @@ import type { DocSplitterPlugin } from "./DocSplitter";
 import { AnyZodObject, z } from "zod"
 
 /**
- * 文档内容
+ * 文档内容类型
  */
-export interface Content {
-  // 文档内容文本
-  text: string;
-  // 多模态矢量
-  vector?: number[];
-}
+export type Content = string
 
 /**
  * 基础插件接口
