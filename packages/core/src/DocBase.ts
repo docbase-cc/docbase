@@ -97,21 +97,21 @@ export class DocBase {
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
     async () => {
-      console.info("Starting to execute watcher tasks...");
+      console.debug("Starting to execute watcher tasks...");
       const results = await Promise.allSettled(
         this.#watcherTaskCache.entries().map(async ([path, type]) => {
           if (type === "upsert") {
-            console.info(`Upserting document: ${path}`);
+            console.debug(`Upserting document: ${path}`);
             await this.#docManager.upsertDoc(path);
-            console.info(`Document upserted: ${path}`);
+            console.debug(`Document upserted: ${path}`);
           } else if (type === "remove") {
-            console.info(`Deleting document: ${path}`);
+            console.debug(`Deleting document: ${path}`);
             await this.#docManager.deleteDocByPath(path);
-            console.info(`Document deleted: ${path}`);
+            console.debug(`Document deleted: ${path}`);
           }
         })
       );
-      console.info("Watcher tasks execution completed.");
+      console.debug("Watcher tasks execution completed.");
       return results;
     },
     this.fileOpThrottleMs,
@@ -155,7 +155,6 @@ export class DocBase {
    * @throws 如果没有找到对应的文档加载器会抛出错误
    */
   #hyperDocLoader: DocLoader = async (path) => {
-    console.info(`Attempting to load document: ${path}`);
     const ext = getExtFromPath(path);
     const docLoaderName = this.#docExtToLoaderName.get(ext);
 
@@ -173,9 +172,7 @@ export class DocBase {
       throw new Error(errorMsg);
     }
 
-    const document = await dockLoader.func(path);
-    console.info(`Document loaded successfully: ${path}`);
-    return document;
+    return await dockLoader.func(path);
   };
 
   /**

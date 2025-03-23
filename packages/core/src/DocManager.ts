@@ -303,6 +303,7 @@ export class DocManager {
     });
 
     if (docs.total > 0) {
+      console.debug(`Document at path ${path} found`);
       return docs.results[0];
     } else {
       console.debug(`Document at path ${path} not found`);
@@ -386,7 +387,7 @@ export class DocManager {
 
       console.info(`[Embedded ${docSyncContent.length} chunks] ${localDoc.path}`);
     } else {
-      console.debug(`[Skipped] ${localDoc.path}`);
+      console.info(`[Skipped] ${localDoc.path}`);
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {
         // path 错误
@@ -403,8 +404,6 @@ export class DocManager {
   };
 
   upsertDoc = async (path: string) => {
-    console.info(`Upserting document at path: ${path}`);
-
     // 查询该路径有无文档
     const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
       stat(path),

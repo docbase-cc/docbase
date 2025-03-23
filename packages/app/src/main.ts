@@ -8,7 +8,7 @@ import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
 import { getPkgManager } from "./plugins";
 import { PackageManager } from "./plugins/pkgManager";
-import { createDocBaseBasic } from "./docbase"
+import { createDocBase } from "./docbase"
 
 createConsola({
   level: import.meta.env.NODE_ENV === "production" ? 2 : 5,
@@ -26,10 +26,15 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
+// const pluginNames = Object.keys(await pkgManager.list())
+// const plugins: DocBasePlugin<object>[] = await Promise.all(pluginNames.map(plugin => pkgManager.import(plugin)))
+// 获取插件配置并加载插件
+const docbase = await createDocBase()
+
 // 启动 docbase 实例
 app.use(async (c, next) => {
   c.set("pkgManager", await getPkgManager());
-  c.set("docbase", await createDocBaseBasic());
+  c.set("docbase", docbase);
   await next();
 });
 

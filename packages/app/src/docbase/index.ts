@@ -1,11 +1,7 @@
 import { DocBase, DocBaseOptions } from "core/src";
 import { env } from "process";
 
-// const pluginNames = Object.keys(await pkgManager.list())
-// const plugins: DocBasePlugin<object>[] = await Promise.all(pluginNames.map(plugin => pkgManager.import(plugin)))
-// 获取插件配置并加载插件
-
-const createDocBaseBasic = async (opt: DocBaseOptions = getDocBaseBasicConfigFromEnv()) => {
+const createDocBase = async (opt: DocBaseOptions = getDocBaseConfigFromEnv()) => {
   const docBase = new DocBase();
 
   // 启动 docBase
@@ -14,7 +10,7 @@ const createDocBaseBasic = async (opt: DocBaseOptions = getDocBaseBasicConfigFro
   return docBase;
 };
 
-const getDocBaseBasicConfigFromEnv = (): DocBaseOptions => {
+const getDocBaseConfigFromEnv = (): DocBaseOptions => {
   const {
     // 知识库路径
     INIT_PATH,
@@ -47,4 +43,4 @@ const getDocBaseBasicConfigFromEnv = (): DocBaseOptions => {
   }
 }
 
-export { createDocBaseBasic };
+export { createDocBase };
