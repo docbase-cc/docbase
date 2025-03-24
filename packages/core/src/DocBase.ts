@@ -180,12 +180,10 @@ export class DocBase {
    * @param dirs - 要扫描的目录数组
    */
   #scan = async (dirs: string[]) => {
-    console.info(`Starting to scan directories: ${dirs.join(', ')}`);
     await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
       load: async (paths) => {
-        console.info(`Loading documents from paths: ${paths.join(', ')}`);
         // 使用 Promise.all 并行处理多个文档插入
         await Promise.all(
           paths.map(async (path) => {
@@ -247,6 +245,7 @@ export class DocBase {
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter.func(text),
     });
+    await this.#docManager.init();
 
     // 初始化监视器扫描器
     console.info("Initializing watcher and scanner...");

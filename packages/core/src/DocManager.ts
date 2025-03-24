@@ -60,7 +60,6 @@ export const chunkDiff = (
  * 基于 MeiliSearch 实现的文档管理器
  */
 export class DocManager {
-  #alreadyInit = false
   /** MeiliSearch 客户端实例 */
   #client: MeiliSearch;
 
@@ -212,19 +211,9 @@ export class DocManager {
   };
 
   /**
-   * 操作前确保初始化完成
-   */
-  #ensureInit = async () => {
-    if (!this.#alreadyInit) {
-      await this.#init()
-      this.#alreadyInit = true
-    }
-  }
-
-  /**
    * 初始化文档管理器
    */
-  #init = async () => {
+  init = async () => {
     await Promise.all([
       // 确保 ContainsFilter 功能开启
       (async () => {
@@ -271,13 +260,11 @@ export class DocManager {
 
   /** 获取已有 embedders */
   getEmbedders = async () => {
-    await this.#ensureInit()
     await this.#docChunkIndex.getEmbedders()
   }
 
   /** 重置已有 embedders */
   resetEmbedders = async (wait = false) => {
-    await this.#ensureInit()
     const task = await this.#docChunkIndex.resetEmbedders()
     if (wait) {
       await this.#docChunkIndex.waitForTask(task.taskUid)
@@ -286,7 +273,6 @@ export class DocManager {
 
   /** 增删改 embedders */
   updateEmbedders = async (embedders: Embedders, wait = false) => {
-    await this.#ensureInit()
     const task = await this.#docChunkIndex.updateEmbedders(embedders)
     if (wait) {
       await this.#docChunkIndex.waitForTask(task.taskUid)
@@ -428,7 +414,6 @@ export class DocManager {
   };
 
   upsertDoc = async (path: string) => {
-    await this.#ensureInit()
     // 查询该路径有无文档
     const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
       stat(path),
@@ -535,7 +520,6 @@ export class DocManager {
    * @param path - 文档路径
    */
   deleteDocByPath = async (path: string) => {
-    await this.#ensureInit()
     console.info(`Deleting document at path: ${path}`);
     const doc = await this.#getDocByPathIfExist(path);
 
@@ -551,7 +535,6 @@ export class DocManager {
    * @param path - 目录路径
    */
   deleteDocByPathPrefix = async (path: string) => {
-    await this.#ensureInit()
     console.info(`Deleting all documents under path prefix: ${path}`);
     const getDocs = async () =>
       await this.#docIndex.getDocuments({
@@ -580,7 +563,6 @@ export class DocManager {
    * @param hash - 文档 hash
    */
   deleteDocByHash = async (hash: string) => {
-    await this.#ensureInit()
     console.info(`Deleting document with hash: ${hash}`);
     const doc = await this.#getDocIfExist(hash);
 
@@ -598,7 +580,6 @@ export class DocManager {
    * @returns 返回搜索结果
    */
   search = async (query: string, opts?: SearchParams) => {
-    await this.#ensureInit()
     console.debug(`Searching for query: ${query}`);
     const result = await this.#docChunkIndex.search(query, opts);
     const hits = result.hits;
