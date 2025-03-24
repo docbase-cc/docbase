@@ -7,7 +7,7 @@ import { DocManager } from "./DocManager";
 import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
-import type { PluginWithParams } from "./Plugin";
+import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
 import { type Config as MeiliSearchConfig, type SearchParams } from "meilisearch";
 import { basename } from "path";
@@ -51,7 +51,7 @@ export interface DocBaseOptions {
    *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
    * ]
    */
-  initPlugins?: PluginWithParams<any>[];
+  initPlugins?: PluginWithConfig<any>[];
   /**
    * 是否在初始化时扫描初始化知识库目录
    * @default false
@@ -198,7 +198,9 @@ export class DocBase {
   /** 启动 docbase */
   start = async ({
     meiliSearchConfig,
+    // TODO 为区分多知识库的参数
     indexPrefix,
+    // TODO 改成后期增删查改
     initPaths = [],
     initPlugins = [
       {
@@ -352,14 +354,14 @@ export class DocBase {
   /**
    * 加载或更新插件
    * @template T - 插件参数类型
-   * @param pluginWithParams - 包含插件和参数的配置对象
+   * @param pluginWithConfig - 包含插件和参数的配置对象
    * @throws 如果插件类型错误会抛出错误
    */
   loadPlugin = async <T extends AnyZodObject>(
-    pluginWithParams: PluginWithParams<T>
+    pluginWithConfig: PluginWithConfig<T>
   ) => {
-    console.info(`Loading ${pluginWithParams.plugin.pluginType} plugin ${pluginWithParams.plugin.name}`);
-    const { plugin, params } = pluginWithParams;
+    console.info(`Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`);
+    const { plugin, params } = pluginWithConfig;
 
     plugin.init && await plugin.init(params)
 

@@ -64,7 +64,7 @@ export type DocBasePlugin<T extends AnyZodObject = AnyZodObject> =
  * 带启动参数的插件接口
  * @template T - 插件参数类型
  */
-export interface PluginWithParams<T extends AnyZodObject = AnyZodObject> {
+export interface PluginWithConfig<T extends AnyZodObject = AnyZodObject> {
   /** 插件实例 */
   plugin: DocBasePlugin<T>;
   /** 插件参数 */
