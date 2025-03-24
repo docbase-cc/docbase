@@ -91,46 +91,18 @@ const listPlugin = createRoute({
         "application/json": {
           schema: z.object({
             docLoaders: z.array(z.object({
+              /** Plugin name */
+              name: z.string(),
               /** Plugin type, fixed as "DocLoader" */
-              type: z.literal("DocLoader"),
+              pluginType: z.literal("DocLoader"),
               /** List of supported file extensions */
               exts: z.array(z.string()),
-              /** Plugin name */
-              name: z.string(),
-              /** Plugin version */
-              version: z.string(),
-              /** Plugin display name */
-              displayName: z.string().optional(),
-              /** Plugin author */
-              author: z.string().optional(),
-              /** Plugin description */
-              description: z.string().optional(),
-              /** Plugin repository URL */
-              repository: z.string().optional(),
-              /** Plugin website URL */
-              homepage: z.string().optional(),
-              /** Plugin icon */
-              icon: z.string().optional(),
             })),
             docSplitter: z.object({
-              /** Plugin type, fixed as "DocLoader" */
-              type: z.literal("DocSplitter"),
               /** Plugin name */
               name: z.string(),
-              /** Plugin version */
-              version: z.string(),
-              /** Plugin display name */
-              displayName: z.string().optional(),
-              /** Plugin author */
-              author: z.string().optional(),
-              /** Plugin description */
-              description: z.string().optional(),
-              /** Plugin repository URL */
-              repository: z.string().optional(),
-              /** Plugin website URL */
-              homepage: z.string().optional(),
-              /** Plugin icon */
-              icon: z.string().optional(),
+              /** Plugin type, fixed as "DocLoader" */
+              pluginType: z.literal("DocSplitter"),
             }),
           }),
         },
@@ -210,7 +182,7 @@ app.openapi(addPlugin, async (c) => {
     // Import the npm package plugin
     const plugin: DocBasePlugin = await pkgManager.import(name)
     console.info('Successfully imported plugin:', name);
-    if (plugin.type === "DocSplitter") {
+    if (plugin.pluginType === "DocSplitter") {
       const oldPlugin = docBase.docSplitter.name
       // Load the plugin
       const installed = await docBase.loadPlugin({

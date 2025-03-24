@@ -225,27 +225,13 @@ export type GetPluginResponses = {
      */
     200: {
         docLoaders: Array<{
-            type: 'DocLoader';
-            exts: Array<string>;
             name: string;
-            version: string;
-            displayName?: string;
-            author?: string;
-            description?: string;
-            repository?: string;
-            homepage?: string;
-            icon?: string;
+            pluginType: 'DocLoader';
+            exts: Array<string>;
         }>;
         docSplitter: {
-            type: 'DocSplitter';
             name: string;
-            version: string;
-            displayName?: string;
-            author?: string;
-            description?: string;
-            repository?: string;
-            homepage?: string;
-            icon?: string;
+            pluginType: 'DocSplitter';
         };
     };
 };

@@ -1,6 +1,5 @@
 import { AnyZodObject, z } from "zod";
 import type { BasePlugin, Content } from "./Plugin";
-import { version } from "~/package.json";
 
 // 文档分割器
 // 将输入的文本分割成多个文本块
@@ -23,7 +22,7 @@ export type DocSplitter = (text: AsyncIterable<Content>) => AsyncIterable<{
 export interface DocSplitterPlugin<T extends AnyZodObject = AnyZodObject>
   extends BasePlugin<DocSplitter, T> {
   /** 插件类型，固定为"DocSplitter" */
-  type: "DocSplitter";
+  pluginType: "DocSplitter";
 }
 
 const DocSplitterPluginParams = z.object({
@@ -46,11 +45,14 @@ const cutToLen = (text: string, len: number) => {
  * 默认文档分割器插件实现
  * 按固定长度分割文本
  */
-export const defaultDocSplitterPlugin: DocSplitterPlugin<typeof DocSplitterPluginParams> = {
-  name: "default",
-  version,
-  type: "DocSplitter",
-  init:
-    ({ len }) =>
-      (text) => AsyncStream.of(text).map((text) => cutToLen(text, len)).flatten() as AsyncStream<{ text: string; }>,
-};
+class defaultDocSplitterPlugin implements DocSplitterPlugin<typeof DocSplitterPluginParams> {
+  name = "default"
+  pluginType: "DocSplitter" = "DocSplitter"
+  #len: number;
+  init = async ({ len }: { len: number; }) => {
+    this.#len = len;
+  };
+  func: DocSplitter = (text) => AsyncStream.of(text).map((text) => cutToLen(text, this.#len)).flatten() as AsyncStream<{ text: string; }>
+}
+
+export default new defaultDocSplitterPlugin()

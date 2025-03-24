@@ -3,7 +3,6 @@ import { readFile } from "fs-extra";
 import { IDataType } from "hash-wasm";
 import { AsyncStream } from "itertools-ts";
 import { AnyZodObject } from "zod";
-import { version } from "~/package.json";
 
 /**
  * 文档加载器类型定义
@@ -22,7 +21,7 @@ export type DocLoader = (input: { path: string, hash: (data: IDataType) => Promi
 export interface DocLoaderPlugin<T extends AnyZodObject = AnyZodObject>
   extends BasePlugin<DocLoader, T> {
   /** 插件类型，固定为"DocLoader" */
-  type: "DocLoader";
+  pluginType: "DocLoader";
   /** 支持的文件扩展名列表 */
   exts: string[];
 }
@@ -33,12 +32,11 @@ export interface DocLoaderPlugin<T extends AnyZodObject = AnyZodObject>
  * 默认文档加载器插件实现
  * 支持的文件类型包括：md, txt
  */
-export const defaultDocLoaderPlugin: DocLoaderPlugin = {
+const defaultDocLoaderPlugin: DocLoaderPlugin = {
   name: "default",
-  version,
-  type: "DocLoader",
+  pluginType: "DocLoader",
   exts: ["md", "txt"],
-  init: () => async ({ path, hash }) => {
+  func: async ({ path, hash }) => {
     // 读取文件内容
     const text = await readFile(path, "utf-8")
 
@@ -49,3 +47,5 @@ export const defaultDocLoaderPlugin: DocLoaderPlugin = {
     }
   }
 };
+
+export default defaultDocLoaderPlugin;

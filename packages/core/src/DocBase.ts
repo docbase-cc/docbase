@@ -1,13 +1,10 @@
 import { omit, throttle } from "es-toolkit";
-import {
-  defaultDocLoaderPlugin,
+import defaultDocLoaderPlugin, {
   type DocLoader,
   type DocLoaderPlugin,
 } from "./DocLoader";
 import { DocManager } from "./DocManager";
-import {
-  defaultDocSplitterPlugin,
-  type DocSplitter,
+import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
 import type { PluginWithParams } from "./Plugin";
@@ -78,10 +75,10 @@ export class DocBase {
   #docExtToLoaderName: Map<string, string> = new Map();
 
   /** 文档加载器，映射文档加载器名称到加载器实例 */
-  #docLoaders: Map<string, DocLoaderPlugin & { func: DocLoader }> = new Map();
+  #docLoaders: Map<string, DocLoaderPlugin> = new Map();
 
   /** 文档分割器 */
-  #docSplitter!: DocSplitterPlugin & { func: DocSplitter };
+  #docSplitter!: DocSplitterPlugin;
 
   /** 文档扫描器 */
   #docScanner!: Scanner;
@@ -361,31 +358,28 @@ export class DocBase {
   loadPlugin = async <T extends AnyZodObject>(
     pluginWithParams: PluginWithParams<T>
   ) => {
-    console.info(`Loading ${pluginWithParams.plugin.type} plugin ${pluginWithParams.plugin.name}`);
+    console.info(`Loading ${pluginWithParams.plugin.pluginType} plugin ${pluginWithParams.plugin.name}`);
     const { plugin, params } = pluginWithParams;
 
-    const pluginToLoad = {
-      ...plugin,
-      func: await plugin.init(params),
-    };
+    plugin.init && await plugin.init(params)
 
-    switch (pluginToLoad.type) {
+    switch (plugin.pluginType) {
       case "DocLoader":
-        this.#docLoaders.set(pluginToLoad.name, pluginToLoad as any);
+        this.#docLoaders.set(plugin.name, plugin);
 
         // 将文档加载器注册到文档加载指向器
-        for (const ext of pluginToLoad.exts) {
+        for (const ext of plugin.exts) {
           // 该拓展已经存在文档加载器，不覆盖
           if (!this.#docExtToLoaderName.has(ext)) {
-            this.#docExtToLoaderName.set(ext, pluginToLoad.name);
+            this.#docExtToLoaderName.set(ext, plugin.name);
           }
         }
-        console.info(`Document loader plugin loaded: ${pluginToLoad.name}`);
+        console.info(`Document loader plugin loaded: ${plugin.name}`);
         break;
 
       case "DocSplitter":
-        this.#docSplitter = pluginToLoad as any;
-        console.info(`Document splitter plugin loaded: ${pluginToLoad.name}`);
+        this.#docSplitter = plugin;
+        console.info(`Document splitter plugin loaded: ${plugin.name}`);
         break;
 
       default:

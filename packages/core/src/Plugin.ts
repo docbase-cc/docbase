@@ -19,7 +19,24 @@ export interface BasePlugin<
   /** 插件名称 */
   name: string;
   /** 插件类型 */
-  type: string;
+  pluginType: string;
+  /**
+   * 插件初始化函数
+   * @param params - 插件初始化参数
+   */
+  init?: (params: z.infer<PluginParams>) => Promise<void>;
+  /** 插件函数 */
+  func: PluginFunc;
+}
+
+/**
+ * 插件package.json类型
+ */
+export interface PluginPakageJSON {
+  /** 插件名称 */
+  name: string;
+  /** 插件类型 */
+  pluginType: string;
   /** 插件版本 */
   version: string;
   /** 插件显示名称 */
@@ -34,12 +51,6 @@ export interface BasePlugin<
   homepage?: string;
   /** 插件图标 */
   icon?: string;
-  /**
-   * 插件初始化函数
-   * @param params - 插件初始化参数
-   * @returns 返回插件函数
-   */
-  init: (params: z.infer<PluginParams>) => Promise<PluginFunc> | PluginFunc;
 }
 
 // docbase 插件接口
