@@ -1,5 +1,6 @@
 import { omit, throttle } from "es-toolkit";
 import defaultDocLoaderPlugin, {
+  DocLoaderInput,
   type DocLoader,
   type DocLoaderPlugin,
 } from "./DocLoader";
@@ -7,12 +8,13 @@ import { DocManager } from "./DocManager";
 import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
-import type { PluginWithConfig } from "./Plugin";
+import type { Content, PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
-import { type Config as MeiliSearchConfig, type SearchParams } from "meilisearch";
+import { MeiliSearch, type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { AnyZodObject } from "zod";
+import { DBLayer } from "./DBLayer";
 
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
@@ -34,15 +36,16 @@ export interface DifyKnowledgeResponseRecord {
  * DocBase 初始化配置
  */
 export interface DocBaseOptions {
+  db: DBLayer
   /**
    * MeiliSearch 配置
    */
-  meiliSearchConfig: MeiliSearchConfig;
+  // meiliSearchConfig: MeiliSearchConfig;
   /**
    * 初始化知识库目录
    * @default []
    */
-  initPaths?: string[];
+  // initPaths?: string[];
   /**
    * 初始化插件列表
    * @default
@@ -51,25 +54,27 @@ export interface DocBaseOptions {
    *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
    * ]
    */
-  initPlugins?: PluginWithConfig<any>[];
+  // initPlugins?: PluginWithConfig<any>[];
   /**
    * 是否在初始化时扫描初始化知识库目录
    * @default false
    */
-  initscan?: boolean;
+  // initscan?: boolean;
   /**
    * 索引前缀
    */
-  indexPrefix?: string;
+  // indexPrefix?: string;
   /**
    * 文件变动时间节流时段(毫秒)，在该时段内每个文件最多执行一次嵌入更新操作
    */
-  fileOpThrottleMs?: number;
+  // fileOpThrottleMs?: number;
 }
 
 export class DocBase {
+  #meiliSearch: MeiliSearch;
+
   /** 文档管理器 */
-  #docManager!: DocManager;
+  #docManagers: Map<string, DocManager> = new Map();
 
   /** 文档加载指向器，映射文件扩展名到文档加载器名称 */
   #docExtToLoaderName: Map<string, string> = new Map();
@@ -87,23 +92,25 @@ export class DocBase {
   #docWatcher!: Watcher;
 
   /** 任务缓存器 */
-  #watcherTaskCache = new Map<string, "remove" | "upsert">();
-  // 节流器默认 500 毫秒
-  fileOpThrottleMs: number = 500;
+  #watcherTaskCache = new Map<string, {
+    docManagerId: string
+    type: "remove" | "upsert"
+  }>();
 
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
     async () => {
       console.debug("Starting to execute watcher tasks...");
       const results = await Promise.allSettled(
-        this.#watcherTaskCache.entries().map(async ([path, type]) => {
+        this.#watcherTaskCache.entries().map(async ([path, { docManagerId, type }]) => {
+          const docManager = this.#docManagers.get(docManagerId);
           if (type === "upsert") {
             console.debug(`Upserting document: ${path}`);
-            await this.#docManager.upsertDoc(path);
+            await docManager.upsertDoc(path);
             console.debug(`Document upserted: ${path}`);
           } else if (type === "remove") {
             console.debug(`Deleting document: ${path}`);
-            await this.#docManager.deleteDocByPath(path);
+            await docManager.deleteDocByPath(path);
             console.debug(`Document deleted: ${path}`);
           }
         })
@@ -111,17 +118,18 @@ export class DocBase {
       console.debug("Watcher tasks execution completed.");
       return results;
     },
-    this.fileOpThrottleMs,
+    // 最小执行间隔为半秒
+    500,
     { edges: ["trailing"] }
   );
 
   /**  获取挂载的知识库目录 */
-  get dirs() {
-    console.info("Fetching watched directories...");
-    const watchedPaths = this.#docWatcher.getWatchedPaths();
-    console.info("Watched directories fetched successfully.");
-    return watchedPaths;
-  }
+  // get dirs() {
+  //   console.info("Fetching watched directories...");
+  //   const watchedPaths = this.#docWatcher.getWatchedPaths();
+  //   console.info("Watched directories fetched successfully.");
+  //   return watchedPaths;
+  // }
 
   /** 获取支持的文档类型 */
   get exts() {
@@ -176,7 +184,8 @@ export class DocBase {
    * 扫描指定目录中的文档
    * @param dirs - 要扫描的目录数组
    */
-  #scan = async (dirs: string[]) => {
+  #scan = async (id: string, dirs: string[]) => {
+    const docManager = this.#docManagers.get(id)
     await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
@@ -185,7 +194,7 @@ export class DocBase {
         await Promise.all(
           paths.map(async (path) => {
             console.info(`Upserting document during scan: ${path}`);
-            await this.#docManager.upsertDoc(path);
+            await docManager.upsertDoc(path);
             console.info(`Document upserted during scan: ${path}`);
           })
         );
@@ -197,34 +206,42 @@ export class DocBase {
 
   /** 启动 docbase */
   start = async ({
-    meiliSearchConfig,
+    // meiliSearchConfig,
     // TODO 为区分多知识库的参数
-    indexPrefix,
+    // indexPrefix,
     // TODO 改成后期增删查改
-    initPaths = [],
-    initPlugins = [
+    // initPaths = [],
+
+    db,
+    // fileOpThrottleMs,
+  }: DocBaseOptions) => {
+    console.info("Starting DocBase...");
+    // TODO 初始化配置？
+    const { meiliSearchConfig } = await db.config.get();
+    // TODO
+    // @ts-ignore
+    this.#meiliSearch = await createMeilisearchClient(meiliSearchConfig)
+
+    // 初始化插件
+    console.info("Loading all plugins...");
+    const plugins = await db.plugin.get()
+    const initPlugins: PluginWithConfig[] = [
       {
         plugin: defaultDocLoaderPlugin,
-        params: {},
+        config: {},
       },
       {
         plugin: defaultDocSplitterPlugin,
-        params: {
+        config: {
           len: 1000,
         },
       },
-    ],
-    initscan = false,
-    fileOpThrottleMs,
-  }: DocBaseOptions) => {
-    console.info("Starting DocBase...");
-    this.fileOpThrottleMs = fileOpThrottleMs;
-    console.info("Loading all plugins...");
+      ...plugins
+    ]
     // 加载所有插件
     await Promise.all(
       initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
     );
-    console.info("All plugins loaded successfully.");
 
     const docSplitterExist = typeof this.#docSplitter.func === "function";
     const docLoadersExist = this.#docLoaders.size > 0;
@@ -235,16 +252,7 @@ export class DocBase {
       console.error("Loaded components: \n" + msg);
       throw new Error("Loaded components: \n" + msg);
     }
-
-    // 初始化文档管理器
-    console.info("Initializing document manager...");
-    this.#docManager = new DocManager({
-      indexPrefix,
-      meiliSearch: await createMeilisearchClient(meiliSearchConfig),
-      docLoader: (path) => this.#hyperDocLoader(path),
-      docSplitter: (text) => this.#docSplitter.func(text),
-    });
-    await this.#docManager.init();
+    console.info("All plugins loaded successfully.");
 
     // 初始化监视器扫描器
     console.info("Initializing watcher and scanner...");
@@ -266,24 +274,43 @@ export class DocBase {
     this.#docScanner = scanner;
     console.info("Watcher and scanner initialized successfully.");
 
+    // 初始化文档管理器
+    console.info("Initializing DocManager...");
+    const docLoader = (input: DocLoaderInput) => this.#hyperDocLoader(input)
+    const docSplitter = (content: AsyncIterable<Content>) => this.#docSplitter.func(content)
+    const base = await db.base.get()
+
+    base.map(async ({ path, id }) => {
+      const docm = new DocManager({
+        indexPrefix: id,
+        meiliSearch: this.#meiliSearch,
+        docLoader,
+        docSplitter,
+      });
+      await docm.init()
+      // 扫描目录
+      await this.#scan([path]);
+      // 监视目录
+      this.#docWatcher.watch(path)
+      return docm
+    })
+    console.info("DocManager initialized successfully.");
+
     // 扫描加载默认目录下文档
-    if (initscan) {
-      console.info("Scanning initial directories...");
-      await this.#scan(initPaths);
-      console.info("Initial directories scanned successfully.");
-    }
+    // console.info("Scanning initial directories...");
+    // console.info("Initial directories scanned successfully.");
 
     // 开启监视，同步变动文档
-    console.info("Starting to watch directories...");
-    initPaths.map((initPath) => this.#docWatcher.watch(initPath));
-    console.info("Directories are being watched.");
+    // console.info("Starting to watch directories...");
+    // initPaths.map((initPath) => this.#docWatcher.watch(initPath));
+    // console.info("Directories are being watched.");
     console.info("DocBase started successfully.");
   };
 
   /**
    * 立即扫描所有目录
    */
-  scanAllNow = async () => {
+  scanAllNow = async (id: string) => {
     console.info("Starting to scan all directories immediately...");
     await this.#scan(this.dirs);
     console.info("All directories scanned immediately.");
@@ -361,9 +388,9 @@ export class DocBase {
     pluginWithConfig: PluginWithConfig<T>
   ) => {
     console.info(`Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`);
-    const { plugin, params } = pluginWithConfig;
+    const { plugin, config } = pluginWithConfig;
 
-    plugin.init && await plugin.init(params)
+    plugin.init && await plugin.init(config)
 
     switch (plugin.pluginType) {
       case "DocLoader":
@@ -432,8 +459,10 @@ export class DocBase {
    * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (query: string, opt?: SearchParams) => {
-    console.info(`Searching for documents with query: ${query}`);
+  search = async (params?: SearchParams & {
+    knowledgeId: string;
+  }) => {
+    console.info(`Searching for documents with query: ${params.q}`);
     const results = await this.#docManager.search(query, opt);
     console.info(`Search completed. Found ${results.length} documents.`);
     return results;
@@ -442,22 +471,18 @@ export class DocBase {
   /**
    * 作为 Dify 外部知识库搜索
    * @param params - Dify 知识库搜索请求参数
-   * @param params.query - 搜索查询字符串
-   * @param params.retrieval_setting - 检索设置
-   * @param params.retrieval_setting.top_k - 返回结果的最大数量
-   * @param params.retrieval_setting.score_threshold - 相关性得分阈值
    * @returns 返回符合 Dify 格式的搜索结果数组
    */
   difySearch = async (
     params: DifyKnowledgeRequest
   ): Promise<DifyKnowledgeResponseRecord[]> => {
     console.info("Performing Dify search...");
-    // 等待多知识库支持
-    // params.knowledge_id;
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
 
-    const results = await this.search(q, {
+    const results = await this.search({
+      q,
+      knowledgeId: params.knowledge_id,
       limit: top_k,
       rankingScoreThreshold: score_threshold,
       showRankingScore: true,

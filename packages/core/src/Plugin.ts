@@ -68,5 +68,5 @@ export interface PluginWithConfig<T extends AnyZodObject = AnyZodObject> {
   /** 插件实例 */
   plugin: DocBasePlugin<T>;
   /** 插件参数 */
-  params: z.infer<T>;
+  config: z.infer<T>;
 }

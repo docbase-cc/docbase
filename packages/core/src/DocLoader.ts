@@ -4,12 +4,17 @@ import { IDataType } from "hash-wasm";
 import { AsyncStream } from "itertools-ts";
 import { AnyZodObject } from "zod";
 
+export interface DocLoaderInput {
+  path: string;
+  hash: (data: IDataType) => Promise<string>;
+}
+
 /**
  * 文档加载器类型定义
  * @param path - 文档路径
  * @returns 返回加载后的文档对象的迭代器，false 表示不符合条件的文件，跳过处理
  */
-export type DocLoader = (input: { path: string, hash: (data: IDataType) => Promise<string> }) => Promise<{
+export type DocLoader = (input: DocLoaderInput) => Promise<{
   hash: string;
   content: AsyncIterable<Content>
 } | false>;

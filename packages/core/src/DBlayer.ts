@@ -1,8 +1,8 @@
 import { z } from "zod";
+import { PluginWithConfig } from "./Plugin";
 
 const pluginSchema = z.object({
     name: z.string(),
-    pluginType: z.enum(["DocLoader", "DocSplitter"]),
     config: z.any()
 })
 
@@ -13,7 +13,6 @@ const baseSchema = z.object({
 
 const configSchema = z.object({
     meiliSearchConfig: z.object({}),
-    fileOpThrottleMs: z.number(),
 })
 
 export interface DBLayer {
@@ -29,7 +28,7 @@ export interface DBLayer {
         // 删除
         delete: (name: string) => Promise<void>
         // 获取
-        get: () => Promise<z.infer<typeof pluginSchema>[]>;
+        get: () => Promise<PluginWithConfig[]>;
     },
     // 知识库表
     base: {
