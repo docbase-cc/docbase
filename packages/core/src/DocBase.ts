@@ -57,7 +57,7 @@ export interface DocBaseOptions {
   initPlugins?: PluginWithParams<any>[];
   /**
    * 是否在初始化时扫描初始化知识库目录
-   * @default true
+   * @default false
    */
   initscan?: boolean;
   /**
@@ -217,14 +217,13 @@ export class DocBase {
         },
       },
     ],
-    initscan = true,
+    initscan = false,
     fileOpThrottleMs,
   }: DocBaseOptions) => {
     console.info("Starting DocBase...");
     this.fileOpThrottleMs = fileOpThrottleMs;
-    // 加载所有插件
-    // 并行加载所有插件以提高效率
     console.info("Loading all plugins...");
+    // 加载所有插件
     await Promise.all(
       initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
     );
@@ -248,7 +247,6 @@ export class DocBase {
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter.func(text),
     });
-    await this.#docManager.init();
 
     // 初始化监视器扫描器
     console.info("Initializing watcher and scanner...");

@@ -39,7 +39,8 @@ const getDocBaseConfigFromEnv = (): DocBaseOptions => {
       host: MEILI_URL,
       apiKey: MEILI_MASTER_KEY
     },
-    initPaths: [INIT_PATH]
+    initPaths: [INIT_PATH],
+    initscan: true
   }
 }
 
