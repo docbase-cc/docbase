@@ -8,8 +8,8 @@ import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
 import type { PluginWithParams } from "./Plugin";
-import { getExtFromPath, slash } from "./Utils";
-import type { Config as MeiliSearchConfig, SearchParams } from "meilisearch";
+import { createMeilisearchClient, getExtFromPath } from "./Utils";
+import { type Config as MeiliSearchConfig, type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSlayer";
 import { AnyZodObject } from "zod";
@@ -238,7 +238,7 @@ export class DocBase {
     console.info("Initializing document manager...");
     this.#docManager = new DocManager({
       indexPrefix,
-      meiliSearchConfig,
+      meiliSearch: await createMeilisearchClient(meiliSearchConfig),
       docLoader: (path) => this.#hyperDocLoader(path),
       docSplitter: (text) => this.#docSplitter.func(text),
     });
@@ -393,36 +393,36 @@ export class DocBase {
    * 动态添加知识库目录
    * @param dir - 要添加的目录路径
    */
-  addDir = async (dir: string) => {
-    console.info(`Adding knowledge base directory: ${dir}`);
-    // 扫描并监视
-    await this.#scan([dir]);
-    this.#docWatcher.watch(dir);
-    console.info(`Knowledge base directory added successfully: ${dir}`);
-  };
+  // addDir = async (dir: string) => {
+  //   console.info(`Adding knowledge base directory: ${dir}`);
+  //   // 扫描并监视
+  //   await this.#scan([dir]);
+  //   this.#docWatcher.watch(dir);
+  //   console.info(`Knowledge base directory added successfully: ${dir}`);
+  // };
 
   /**
    * 动态删除知识库目录
    * @param dir - 要删除的目录路径
    * @returns 是否存在 dir
    */
-  delDir = async (dir: string) => {
-    console.info(`Attempting to delete knowledge base directory: ${dir}`);
-    dir = slash(dir);
+  // delDir = async (dir: string) => {
+  //   console.info(`Attempting to delete knowledge base directory: ${dir}`);
+  //   dir = slash(dir);
 
-    // 取消监视
-    const hasDir = this.#docWatcher.unwatch(dir);
+  //   // 取消监视
+  //   const hasDir = this.#docWatcher.unwatch(dir);
 
-    // 删除知识库中目录下所有文档
-    if (hasDir) {
-      console.info(`Deleting documents in directory: ${dir}`);
-      await this.#docManager.deleteDocByPathPrefix(dir);
-      console.info(`Documents in directory deleted: ${dir}`);
-    }
+  //   // 删除知识库中目录下所有文档
+  //   if (hasDir) {
+  //     console.info(`Deleting documents in directory: ${dir}`);
+  //     await this.#docManager.deleteDocByPathPrefix(dir);
+  //     console.info(`Documents in directory deleted: ${dir}`);
+  //   }
 
-    console.info(`Knowledge base directory deletion result: ${hasDir ? 'Directory deleted.' : 'Directory not found.'}`);
-    return hasDir;
-  };
+  //   console.info(`Knowledge base directory deletion result: ${hasDir ? 'Directory deleted.' : 'Directory not found.'}`);
+  //   return hasDir;
+  // };
 
   /**
    * 搜索文档

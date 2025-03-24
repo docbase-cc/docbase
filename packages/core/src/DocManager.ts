@@ -36,8 +36,8 @@ import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
-import { compact, difference, merge, retry } from "es-toolkit";
-import type { Embedders, Config, SearchParams } from "meilisearch";
+import { compact, difference, merge } from "es-toolkit";
+import type { Embedders, SearchParams } from "meilisearch";
 import { AsyncStream } from "itertools-ts";
 
 // 从新旧 chunks 计算需要执行的操作
@@ -80,23 +80,23 @@ export class DocManager {
   /**
    * 构造函数
    * @param options - 配置选项
-   * @param options.meiliSearchConfig - MeiliSearch 配置
+   * @param options.meiliSearch - MeiliSearch 配置
    * @param options.docLoader - 文档加载器
    * @param options.docSplitter - 文档分割器
    * @param options.indexPrefix - 索引前缀，默认为空字符串
    */
   constructor({
-    meiliSearchConfig,
+    meiliSearch,
     docLoader,
     docSplitter,
     indexPrefix = "",
   }: {
-    meiliSearchConfig: Config;
+    meiliSearch: MeiliSearch;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
     indexPrefix?: string;
   }) {
-    this.#client = new MeiliSearch(meiliSearchConfig);
+    this.#client = meiliSearch;
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
     const prefix = compact([indexPrefix, this.#indexVersion]).join("_");
@@ -172,54 +172,10 @@ export class DocManager {
   }
 
   /**
-   * 确保 ContainsFilter 功能开启
-   */
-  // https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
-  #ensureContainsFilterFeatureOn = async () => {
-    const host = this.#client.config.host;
-    const key = this.#client.config.apiKey;
-
-    // 尝试并等待 meilisearch 启动
-    await retry(
-      async () => {
-        console.debug("Trying to ensure ContainsFilter feature is on");
-        const res = await fetch(`${host}/experimental-features`, {
-          headers: {
-            Authorization: `Bearer ${key}`,
-          },
-        });
-
-        const { containsFilter } = await res.json();
-
-        if (!containsFilter) {
-          console.warn("ContainsFilter feature is off, turning it on...");
-          await fetch(`${host}/experimental-features`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${key}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ containsFilter: true }),
-          });
-          console.info("ContainsFilter feature turned on successfully");
-        } else {
-          console.debug("ContainsFilter feature is on");
-        }
-      },
-      { retries: 3, delay: 3000 }
-    );
-  };
-
-  /**
    * 初始化文档管理器
    */
   init = async () => {
     await Promise.all([
-      // 确保 ContainsFilter 功能开启
-      (async () => {
-        console.info("Initializing DocManager...");
-        await this.#ensureContainsFilterFeatureOn();
-      })(),
       // 确保 docIndex 存在
       (async () => {
         this.#docIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}docs`);
@@ -571,6 +527,21 @@ export class DocManager {
     } else {
       console.debug(`Document with hash ${hash} not found, skipping deletion...`);
     }
+  };
+
+  /** 删除该 DocManager */
+  delete = async () => {
+    console.info(`Deleting all Indexes with Prefix ${this.#indexPrefix} ...`);
+    await Promise.all([
+      (async () => {
+        const task = await this.#docIndex.delete();
+        await this.#client.waitForTask(task.taskUid);
+      })(),
+      (async () => {
+        const task = await this.#docChunkIndex.delete();
+        await this.#client.waitForTask(task.taskUid);
+      })()
+    ])
   };
 
   /**
