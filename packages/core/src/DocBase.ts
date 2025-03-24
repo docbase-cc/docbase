@@ -11,7 +11,7 @@ import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
 import { type Config as MeiliSearchConfig, type SearchParams } from "meilisearch";
 import { basename } from "path";
-import { FSLayer, Scanner, Watcher } from "./FSlayer";
+import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { AnyZodObject } from "zod";
 
 export interface DifyKnowledgeRequest {
