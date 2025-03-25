@@ -6,8 +6,7 @@ import { version, name } from "~/package.json";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
-import { getPkgManager } from "./plugins";
-import { PackageManager } from "./plugins/pkgManager";
+import { getPkgManager, PackageManager } from "./pkgManager";
 import { createDocBase } from "./docbase";
 
 createConsola({

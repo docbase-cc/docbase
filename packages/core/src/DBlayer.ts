@@ -1,7 +1,7 @@
 import { PluginWithConfig } from "./Plugin";
 
 // MeiliSearch 配置接口
-interface MeiliSearchConfig {
+export interface MeiliSearchConfig {
   host: string; // 必须是有效的 URL
   apiKey?: string;
   clientAgents?: string[];
@@ -16,7 +16,7 @@ export interface Base {
 }
 
 // 配置接口
-interface Config {
+export interface DocBaseConfig {
   meiliSearchConfig: MeiliSearchConfig;
 }
 
@@ -25,7 +25,7 @@ export interface DBLayer {
   // 插件表
   plugins: () => AsyncIterable<PluginWithConfig>;
   // 配置表
-  getConfig: () => Promise<Config>;
+  getConfig: () => Promise<DocBaseConfig>;
   // 知识库表
   knowledgeBase: {
     // 增加
