@@ -550,9 +550,9 @@ export class DocManager {
    * @param hybrid - 启用向量搜索
    * @returns 返回搜索结果
    */
-  search = async (query: string, opts?: SearchParams) => {
-    console.debug(`Searching for query: ${query}`);
-    const result = await this.#docChunkIndex.search(query, opts);
+  search = async (opts: SearchParams) => {
+    console.debug(`Searching for query: ${opts.q}`);
+    const result = await this.#docChunkIndex.search(opts.q, opts);
     const hits = result.hits;
 
     // 查询后校验结果中引用到的本地文档是否存在，不存在则删除知识库内文档

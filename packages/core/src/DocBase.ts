@@ -256,20 +256,7 @@ export class DocBase {
 
     // 初始化监视器扫描器
     console.info("Initializing watcher and scanner...");
-    const { watcher, scanner } = FSLayer({
-      filter: (path: string) => {
-        const ext = getExtFromPath(path);
-        return this.#docExtToLoaderName.has(ext);
-      },
-      upsert: (path: string) => {
-        this.#watcherTaskCache.set(path, "upsert");
-        this.#doWatcherTask();
-      },
-      remove: (path: string) => {
-        this.#watcherTaskCache.set(path, "remove");
-        this.#doWatcherTask();
-      },
-    });
+    const { watcher, scanner } = FSLayer();
     this.#docWatcher = watcher;
     this.#docScanner = scanner;
     console.info("Watcher and scanner initialized successfully.");
@@ -278,43 +265,63 @@ export class DocBase {
     console.info("Initializing DocManager...");
     const docLoader = (input: DocLoaderInput) => this.#hyperDocLoader(input)
     const docSplitter = (content: AsyncIterable<Content>) => this.#docSplitter.func(content)
+    const filter = (path: string) => {
+      const ext = getExtFromPath(path);
+      return this.#docExtToLoaderName.has(ext);
+    }
     const base = await db.base.get()
 
-    base.map(async ({ path, id }) => {
-      const docm = new DocManager({
-        indexPrefix: id,
-        meiliSearch: this.#meiliSearch,
-        docLoader,
-        docSplitter,
-      });
-      await docm.init()
-      // 扫描目录
-      await this.#scan([path]);
-      // 监视目录
-      this.#docWatcher.watch(path)
-      return docm
-    })
-    console.info("DocManager initialized successfully.");
+    const result = await Promise.allSettled(
+      base.map(async ({ path, id }) => {
+        console.info(`Init base ${id}...`);
+        const docm = new DocManager({
+          indexPrefix: id,
+          meiliSearch: this.#meiliSearch,
+          docLoader,
+          docSplitter,
+        });
+        await docm.init()
+        this.#docManagers.set(id, docm)
+        console.info(`Base ${id} init successfully.`);
 
-    // 扫描加载默认目录下文档
-    // console.info("Scanning initial directories...");
-    // console.info("Initial directories scanned successfully.");
+        // 扫描目录
+        console.info(`Scanning base ${id}...`);
+        await this.#scan(id, [path]);
+        console.info(`Base ${id} scanned successfully.`);
 
-    // 开启监视，同步变动文档
-    // console.info("Starting to watch directories...");
-    // initPaths.map((initPath) => this.#docWatcher.watch(initPath));
-    // console.info("Directories are being watched.");
+        // 监视目录
+        this.#docWatcher.watch(path, {
+          filter,
+          upsert: (path: string) => {
+            this.#watcherTaskCache.set(path, { docManagerId: id, type: "upsert" });
+            this.#doWatcherTask();
+          },
+          remove: (path: string) => {
+            this.#watcherTaskCache.set(path, { docManagerId: id, type: "remove" });
+            this.#doWatcherTask();
+          },
+        })
+        console.info(`Base ${id} directories are being watched.`);
+      })
+    )
+
+    // TODO 打印表格
+    console.info("DocManager initialized successfully.", result);
+
     console.info("DocBase started successfully.");
   };
 
+  // TODO 新安装插件立即扫描所有目录
   /**
    * 立即扫描所有目录
    */
-  scanAllNow = async (id: string) => {
-    console.info("Starting to scan all directories immediately...");
-    await this.#scan(this.dirs);
-    console.info("All directories scanned immediately.");
-  };
+  // scanAllNow = async (id: string) => {
+  //   console.info("Starting to scan all directories immediately...");
+  //   await this.#scan(id, this.dirs);
+  //   console.info("All directories scanned immediately.");
+  // };
+
+  // TODO 增加、删除、查询 知识库
 
   /**
    * 卸载文档加载器插件
@@ -463,7 +470,8 @@ export class DocBase {
     knowledgeId: string;
   }) => {
     console.info(`Searching for documents with query: ${params.q}`);
-    const results = await this.#docManager.search(query, opt);
+    const docManager = this.#docManagers.get(params.knowledgeId)
+    const results = await docManager.search(params);
     console.info(`Search completed. Found ${results.length} documents.`);
     return results;
   };

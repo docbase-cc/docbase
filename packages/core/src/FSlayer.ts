@@ -15,22 +15,48 @@ export type Scanner = (params: {
   load: (paths: string[]) => Promise<void>;
 }) => Promise<void>;
 
-// 监视器
-export type Watcher = Pick<
-  DirectoryWatcher,
-  "getWatchedPaths" | "unwatch" | "watch"
->;
-
-export const FSLayer = ({
-  filter,
-  upsert,
-  remove,
-}: {
+interface WatchAction {
   filter: (path: string) => boolean;
   upsert: (path: string) => void;
   remove: (path: string) => void;
-}) => {
+}
+
+// 监视器
+export type Watcher = {
+  getWatchedPaths: () => string[];
+  unwatch: (path: string) => boolean;
+  watch: (path: string, actions: WatchAction) => void;
+}
+
+/**
+ * 文件系统监视勾子
+ * @param event 
+ * @param actions 
+ */
+const eventHook = (event: string, actions: WatchAction) => {
+  const { filter, upsert, remove } = actions
+  try {
+    const e = JSON.parse(event);
+    const type = e.event.type;
+    const path = e.event.paths[0];
+
+    // 过滤需要的路径
+    if (filter(path)) {
+      console.info(`[${type}] ${path}`);
+      if (type === "create" || type === "modify") {
+        upsert(slash(path));
+      } else if (type === "remove") {
+        remove(slash(path));
+      }
+    }
+  } catch (parseError) {
+    console.error(`Error parsing event data: ${parseError}`);
+  }
+}
+
+export const FSLayer = () => {
   const fd = new fdir().withBasePath();
+  const watchers = new Map<string, Watcher>();
 
   // 扫描器
   const scanner: Scanner = async ({ dirs, exts, load }) => {
@@ -48,26 +74,18 @@ export const FSLayer = ({
     }
   };
 
-  // 监视器
-  const watcher: DirectoryWatcher = DirectoryWatcher.new((_err, event) => {
-    try {
-      const e = JSON.parse(event);
-      const type = e.event.type;
-      const path = e.event.paths[0];
-
-      // 过滤需要的路径
-      if (filter(path)) {
-        console.info(`[${type}] ${path}`);
-        if (type === "create" || type === "modify") {
-          upsert(slash(path));
-        } else if (type === "remove") {
-          remove(slash(path));
-        }
-      }
-    } catch (parseError) {
-      console.error(`Error parsing event data: ${parseError}`);
+  const watcher = {
+    getWatchedPaths: () => watchers.keys().toArray(),
+    unwatch: (path: string) => {
+      watchers.get(path)?.unwatch(path)
+      return watchers.delete(path)
+    },
+    watch: (path: string, actions: WatchAction) => {
+      const watcher = DirectoryWatcher.new((_err, event) => eventHook(event, actions));
+      watcher.watch(path);
+      watchers.set(path, watcher)
     }
-  });
+  }
 
   return { watcher, scanner };
 };
