@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "bun run --hot src/main.ts",
     "gen": "bun ./gen.ts",
+    "dbpush": "prisma db push",
     "build": "bun ./build.ts"
   },
   "devDependencies": {
@@ -15,10 +16,12 @@
     "es-toolkit": "^1.33.0",
     "hono": "^4.7.5",
     "nypm": "^0.6.0",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "@prisma/client": "^6.5.0",
+    "@types/fs-extra": "^11.0.4",
+    "fs-extra": "^11.3.0"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.8.3",
-    "@prisma/client": "^6.5.0"
+    "@hey-api/client-fetch": "^0.8.3"
   }
 }

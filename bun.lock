@@ -15,15 +15,17 @@
       "name": "app",
       "dependencies": {
         "@hey-api/client-fetch": "^0.8.3",
-        "@prisma/client": "^6.5.0",
       },
       "devDependencies": {
         "@hey-api/openapi-ts": "^0.64.13",
         "@hono/swagger-ui": "^0.5.1",
         "@hono/zod-openapi": "^0.19.2",
+        "@prisma/client": "^6.5.0",
+        "@types/fs-extra": "^11.0.4",
         "consola": "^3.4.2",
         "core": "workspace:*",
         "es-toolkit": "^1.33.0",
+        "fs-extra": "^11.3.0",
         "hono": "^4.7.5",
         "nypm": "^0.6.0",
         "prisma": "^6.5.0",

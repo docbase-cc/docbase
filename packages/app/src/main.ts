@@ -6,7 +6,7 @@ import { version, name } from "~/package.json";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import webdav from "./webdav";
-import { getPkgManager, PackageManager } from "./pkgManager";
+import { getDB, getPkgManager, PackageManager } from "./pkgManager";
 import { createDocBase } from "./docbase";
 
 createConsola({
@@ -25,7 +25,7 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
-const docbase = await createDocBase();
+const docbase = await createDocBase({ db: await getDB() });
 
 // 启动 docbase 实例
 app.use(async (c, next) => {

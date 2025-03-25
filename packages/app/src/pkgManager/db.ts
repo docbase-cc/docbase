@@ -1,39 +1,85 @@
-import { Base, DBLayer, DocBaseConfig, PluginWithConfig } from "core/src";
+import { DBLayer } from "core/src";
 import { PackageManager } from "./pkgManager";
+import { join } from "path";
+import { readJSON, rm } from "fs-extra";
+import { PrismaClient } from "@prisma/client";
+import { mkdir } from "fs/promises";
 
-class DB implements DBLayer {
-  #dataPath: string;
+export class DB implements DBLayer {
+  #dataDir: string;
   #pkgManager: PackageManager;
+  #configPath: string;
+  #prisma: PrismaClient;
+
   constructor({
-    dataPath,
+    dataDir,
     pkgManager,
   }: {
-    dataPath: string;
+    dataDir: string;
     pkgManager: PackageManager;
   }) {
-    this.#dataPath = dataPath;
+    this.#dataDir = dataDir;
+    this.#configPath = join(dataDir, "config.json");
     this.#pkgManager = pkgManager;
+    const dbFile = join(dataDir, "db.sqlite");
+    this.#prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: `file:${dbFile}`,
+        },
+      },
+    });
   }
 
   plugins = () => {
+    const self = this;
     return (async function* () {
-      for (const name of Object.keys(await this.#pkgManager.list())) {
-        const plugin = await this.#pkgManager.import(name);
-        // TODO: 从配置文件中读取配置
+      const plugins = await self.#prisma.plugin.findMany();
+      for (const { name, config } of plugins) {
+        const plugin = await self.#pkgManager.import(name);
         yield {
           plugin,
-          config: {},
+          config: config as object,
         };
       }
     })();
   };
-  getConfig = async () => {
-    // TODO: 从配置文件中读取配置
-    return { meiliSearchConfig: { host: "" } };
-  };
-  knowledgeBase: {
-    add: (name: string) => Promise<Base>;
-    del: (id: string) => Promise<Base>;
-    all: () => AsyncIterable<Base>;
+
+  getConfig = async () => await readJSON(this.#configPath);
+
+  knowledgeBase = {
+    add: async (name: string) => {
+      const res = await this.#prisma.knowledgeBase.create({
+        data: {
+          name,
+        },
+      });
+      const path = join(this.#dataDir, res.id);
+      await mkdir(path);
+      return { path, ...res };
+    },
+    del: async (id: string) => {
+      const res = await this.#prisma.knowledgeBase.delete({
+        where: {
+          id,
+        },
+      });
+      const path = join(this.#dataDir, res.id);
+      await rm(path, { force: true });
+      return { path, ...res };
+    },
+    all: () => {
+      const self = this;
+      return (async function* () {
+        const plugins = await self.#prisma.knowledgeBase.findMany();
+        for (const { name, id } of plugins) {
+          yield {
+            name,
+            id,
+            path: join(self.#dataDir, id),
+          };
+        }
+      })();
+    },
   };
 }
