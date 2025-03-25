@@ -9,7 +9,7 @@ import defaultDocSplitterPlugin, {
 } from "./DocSplitter";
 import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath, printAllSettedResult } from "./Utils";
-import { MeiliSearch, type SearchParams } from "meilisearch";
+import { type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { Base, DBLayer } from "./DBLayer";
@@ -41,8 +41,6 @@ export interface DocBaseOptions {
 }
 
 export class DocBase {
-  #meiliSearch: MeiliSearch;
-
   /** 文档管理器 */
   #docManagers: Map<string, DocManager> = new Map();
 
@@ -175,17 +173,16 @@ export class DocBase {
     console.info(`Directories scanned successfully: ${dirs.join(', ')}`);
   };
 
-  /** 启动 docbase */
-  start = async ({ db }: DocBaseOptions) => {
-    console.info("Starting DocBase...");
-    this.#db = db
-    // TODO 初始化配置？
-    const { meiliSearchConfig } = await db.config.get();
-    this.#meiliSearch = await createMeilisearchClient(meiliSearchConfig)
+  constructor(options: DocBaseOptions) {
+    this.#db = options.db
+  }
 
+  /** 启动 docbase */
+  start = async () => {
+    console.info("Starting DocBase...");
     // 初始化插件
     console.info("Loading all plugins...");
-    const plugins = await db.plugin.get()
+    const plugins = await this.#db.plugin.get()
     const initPlugins: PluginWithConfig[] = [
       {
         plugin: defaultDocLoaderPlugin,
@@ -224,7 +221,7 @@ export class DocBase {
 
     // 初始化文档管理器
     console.info("Initializing DocManager...");
-    const base = await db.base.get()
+    const base = await this.#db.base.get()
 
     const result = await Promise.allSettled(
       base.map(async ({ path, id, name }) => {
@@ -256,10 +253,11 @@ export class DocBase {
 
   /** 启动 base */
   #startBase = async ({ name, id, path }: Base) => {
+    const { meiliSearchConfig } = await this.#db.config.get()
     console.info(`Init base ${name}...`);
     const docm = new DocManager({
       indexPrefix: id,
-      meiliSearch: this.#meiliSearch,
+      meiliSearch: await createMeilisearchClient(meiliSearchConfig),
       docLoader: this.#hyperDocLoader,
       docSplitter: this.#docSplitter.func,
     });
@@ -309,7 +307,7 @@ export class DocBase {
    * @param docLoaderName - 要卸载的文档加载器名称
    * @throws 如果文档加载器正在使用中会抛出错误
    */
-  delDocLoader = async (docLoaderName: string) => {
+  unLoadDocLoader = async (docLoaderName: string) => {
     console.info(`Attempting to delete document loader: ${docLoaderName}`);
     const using = this.#docExtToLoaderName
       .values()

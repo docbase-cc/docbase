@@ -8,12 +8,6 @@ interface MeiliSearchConfig {
     timeout?: number;
 }
 
-// 插件接口
-interface Plugin {
-    name: string;
-    config: any;
-}
-
 // 知识库基础信息接口
 export interface Base {
     name: string; // 最大长度为 255
@@ -31,14 +25,9 @@ export interface DBLayer {
     // 配置表
     config: {
         get: () => Promise<Config>;
-        set: (config: Config) => Promise<void>;
     }
     // 插件表
     plugin: {
-        // 增加
-        add: (plugin: Plugin) => Promise<void>;
-        // 删除
-        delete: (name: string) => Promise<void>;
         // 获取
         get: () => Promise<PluginWithConfig[]>;
     },
