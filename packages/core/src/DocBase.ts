@@ -8,11 +8,14 @@ import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
 import type { PluginWithConfig } from "./Plugin";
-import { createMeilisearchClient, getExtFromPath, printAllSettedResult } from "./Utils";
+import { createMeilisearchClient, getExtFromPath } from "./Utils";
 import { type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { Base, DBLayer } from "./DBLayer";
+import { chainAsync } from "itertools-ts/lib/multi";
+import { AsyncStream } from "itertools-ts";
+import { printTable } from "console-table-printer";
 
 /** 任务执行节流时间 */
 const throttleMs = 500;
@@ -37,7 +40,7 @@ export interface DifyKnowledgeResponseRecord {
  * DocBase 初始化配置
  */
 export interface DocBaseOptions {
-  db: DBLayer
+  db: DBLayer;
 }
 
 export class DocBase {
@@ -60,10 +63,13 @@ export class DocBase {
   #docWatcher!: Watcher;
 
   /** 任务缓存器 */
-  #watcherTaskCache = new Map<string, {
-    docManagerId: string
-    type: "remove" | "upsert"
-  }>();
+  #watcherTaskCache = new Map<
+    string,
+    {
+      docManagerId: string;
+      type: "remove" | "upsert";
+    }
+  >();
 
   /** 数据持久层 */
   #db: DBLayer;
@@ -73,18 +79,20 @@ export class DocBase {
     async () => {
       console.debug("Starting to execute watcher tasks...");
       const results = await Promise.allSettled(
-        this.#watcherTaskCache.entries().map(async ([path, { docManagerId, type }]) => {
-          const docManager = this.#docManagers.get(docManagerId);
-          if (type === "upsert") {
-            console.debug(`Upserting document: ${path}`);
-            await docManager.upsertDoc(path);
-            console.debug(`Document upserted: ${path}`);
-          } else if (type === "remove") {
-            console.debug(`Deleting document: ${path}`);
-            await docManager.deleteDocByPath(path);
-            console.debug(`Document deleted: ${path}`);
-          }
-        })
+        this.#watcherTaskCache
+          .entries()
+          .map(async ([path, { docManagerId, type }]) => {
+            const docManager = this.#docManagers.get(docManagerId);
+            if (type === "upsert") {
+              console.debug(`Upserting document: ${path}`);
+              await docManager.upsertDoc(path);
+              console.debug(`Document upserted: ${path}`);
+            } else if (type === "remove") {
+              console.debug(`Deleting document: ${path}`);
+              await docManager.deleteDocByPath(path);
+              console.debug(`Document deleted: ${path}`);
+            }
+          })
       );
       console.debug("Watcher tasks execution completed.");
       return results;
@@ -105,7 +113,9 @@ export class DocBase {
   /** 获取所有可用文档加载器 */
   get docLoaders() {
     console.info("Fetching all available document loaders...");
-    const loaders = this.#docLoaders.values().map((v) => omit(v, ["func", "init"]));
+    const loaders = this.#docLoaders
+      .values()
+      .map((v) => omit(v, ["func", "init"]));
     console.info("All available document loaders fetched successfully.");
     return loaders;
   }
@@ -147,14 +157,14 @@ export class DocBase {
   #pathFilterToLoader = (path: string) => {
     const ext = getExtFromPath(path);
     return this.#docExtToLoaderName.has(ext);
-  }
+  };
 
   /**
    * 扫描指定目录中的文档
    * @param dirs - 要扫描的目录数组
    */
   #scan = async (id: string, dirs: string[]) => {
-    const docManager = this.#docManagers.get(id)
+    const docManager = this.#docManagers.get(id);
     await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
@@ -167,14 +177,14 @@ export class DocBase {
             console.info(`Document upserted during scan: ${path}`);
           })
         );
-        console.info(`Documents loaded from paths: ${paths.join(', ')}`);
+        console.info(`Documents loaded from paths: ${paths.join(", ")}`);
       },
     });
-    console.info(`Directories scanned successfully: ${dirs.join(', ')}`);
+    console.info(`Directories scanned successfully: ${dirs.join(", ")}`);
   };
 
   constructor(options: DocBaseOptions) {
-    this.#db = options.db
+    this.#db = options.db;
   }
 
   /** 启动 docbase */
@@ -182,24 +192,27 @@ export class DocBase {
     console.info("Starting DocBase...");
     // 初始化插件
     console.info("Loading all plugins...");
-    const plugins = await this.#db.plugin.get()
-    const initPlugins: PluginWithConfig[] = [
-      {
-        plugin: defaultDocLoaderPlugin,
-        config: {},
-      },
-      {
-        plugin: defaultDocSplitterPlugin,
-        config: {
-          len: 1000,
-        },
-      },
-      ...plugins
-    ]
+
     // 加载所有插件
-    await Promise.all(
-      initPlugins.map((initPlugin) => this.loadPlugin(initPlugin, false))
-    );
+    await AsyncStream.of(
+      chainAsync(
+        [
+          {
+            plugin: defaultDocLoaderPlugin,
+            config: {},
+          },
+          {
+            plugin: defaultDocSplitterPlugin,
+            config: {
+              len: 1000,
+            },
+          },
+        ],
+        this.#db.plugins()
+      )
+    )
+      .map((initPlugin) => this.loadPlugin(initPlugin, false))
+      .toArray();
 
     const docSplitterExist = typeof this.#docSplitter.func === "function";
     const docLoadersExist = this.#docLoaders.size > 0;
@@ -221,18 +234,14 @@ export class DocBase {
 
     // 初始化文档管理器
     console.info("Initializing DocManager...");
-    const base = await this.#db.base.get()
-
-    const result = await Promise.allSettled(
-      base.map(async ({ path, id, name }) => {
-        await this.#startBase({ path, id, name })
-        return { id, path }
+    const result = await AsyncStream.of(this.#db.knowledgeBase.all())
+      .map(async ({ path, id, name }) => {
+        await this.#startBase({ path, id, name });
+        return { id, path };
       })
-    )
-
-    // 打印表格
-    console.info("DocManager initialized successfully:");
-    printAllSettedResult(result)
+      .toArray();
+    printTable(result);
+    console.info("DocManager initialized successfully");
     console.info("DocBase started successfully.");
   };
 
@@ -242,18 +251,19 @@ export class DocBase {
   scanAllNow = async () => {
     console.info("Starting to scan all directories immediately...");
 
-    const base = await this.#db.base.get()
-
-    printAllSettedResult(await Promise.allSettled(
-      base.map(async ({ id, path, name }) => { await this.#scan(id, [path]); return { name } })
-    ))
+    await AsyncStream.of(this.#db.knowledgeBase.all())
+      .map(async ({ id, path, name }) => {
+        await this.#scan(id, [path]);
+        return { name };
+      })
+      .toArray();
 
     console.info("All directories scanned immediately.");
   };
 
   /** 启动 base */
   #startBase = async ({ name, id, path }: Base) => {
-    const { meiliSearchConfig } = await this.#db.config.get()
+    const { meiliSearchConfig } = await this.#db.getConfig();
     console.info(`Init base ${name}...`);
     const docm = new DocManager({
       indexPrefix: id,
@@ -261,8 +271,8 @@ export class DocBase {
       docLoader: this.#hyperDocLoader,
       docSplitter: this.#docSplitter.func,
     });
-    await docm.init()
-    this.#docManagers.set(id, docm)
+    await docm.init();
+    this.#docManagers.set(id, docm);
     console.info(`Base ${name} init successfully.`);
 
     // 扫描目录
@@ -281,26 +291,26 @@ export class DocBase {
         this.#watcherTaskCache.set(path, { docManagerId: id, type: "remove" });
         this.#doWatcherTask();
       },
-    })
+    });
     console.info(`Base ${name} directories are being watched.`);
-  }
+  };
 
   /** 添加知识库 */
   addBase = async (name: string) => {
-    const base = await this.#db.base.add(name)
-    await this.#startBase(base)
-  }
+    const base = await this.#db.knowledgeBase.add(name);
+    await this.#startBase(base);
+  };
 
   /** 删除知识库 */
   delBase = async (id: string) => {
-    const base = await this.#db.base.delete(id)
-    await this.#docManagers.get(id).delete()
-    this.#docManagers.delete(id)
-    return this.#docWatcher.unwatch(base.path)
-  }
+    const base = await this.#db.knowledgeBase.del(id);
+    await this.#docManagers.get(id).delete();
+    this.#docManagers.delete(id);
+    return this.#docWatcher.unwatch(base.path);
+  };
 
   /** 获取所有知识库 */
-  getBase = async () => await this.#db.base.get()
+  getBase = async () => this.#db.knowledgeBase.all();
 
   /**
    * 卸载文档加载器插件
@@ -314,14 +324,23 @@ export class DocBase {
       .some((v) => v === docLoaderName);
 
     if (using) {
-      const result = { deleted: false, msg: `DocLoader ${docLoaderName} is using.` };
-      console.warn(`Failed to delete document loader: ${docLoaderName}. Reason: ${result.msg}`);
+      const result = {
+        deleted: false,
+        msg: `DocLoader ${docLoaderName} is using.`,
+      };
+      console.warn(
+        `Failed to delete document loader: ${docLoaderName}. Reason: ${result.msg}`
+      );
       return result;
     }
 
     const deleted = this.#docLoaders.delete(docLoaderName);
     const result = { deleted };
-    console.info(`Document loader deleted: ${docLoaderName}. Result: ${JSON.stringify(result)}`);
+    console.info(
+      `Document loader deleted: ${docLoaderName}. Result: ${JSON.stringify(
+        result
+      )}`
+    );
     return result;
   };
 
@@ -332,11 +351,17 @@ export class DocBase {
    * @throws 如果文档加载器不存在或不支持该扩展名会抛出错误
    */
   setDocLoader = async (ext: string, docLoaderName?: string) => {
-    console.info(`Attempting to set document loader for extension ${ext}: ${docLoaderName}`);
+    console.info(
+      `Attempting to set document loader for extension ${ext}: ${docLoaderName}`
+    );
     if (docLoaderName === undefined) {
       const modified = this.#docExtToLoaderName.delete(ext);
       const result = { modified };
-      console.info(`Document loader setting for extension ${ext} updated. Result: ${JSON.stringify(result)}`);
+      console.info(
+        `Document loader setting for extension ${ext} updated. Result: ${JSON.stringify(
+          result
+        )}`
+      );
       return result;
     }
     const docLoader = this.#docLoaders.get(docLoaderName);
@@ -344,23 +369,29 @@ export class DocBase {
     if (!docLoader) {
       const result = {
         modified: false,
-        msg: `No such docLoaderName ${docLoaderName}`
+        msg: `No such docLoaderName ${docLoaderName}`,
       };
-      console.warn(`Failed to set document loader for extension ${ext}. Reason: ${result.msg}`);
+      console.warn(
+        `Failed to set document loader for extension ${ext}. Reason: ${result.msg}`
+      );
       return result;
     }
 
     if (!docLoader.exts.includes(ext)) {
       const result = {
         modified: false,
-        msg: `${docLoaderName} not support ${ext}`
+        msg: `${docLoaderName} not support ${ext}`,
       };
-      console.warn(`Failed to set document loader for extension ${ext}. Reason: ${result.msg}`);
+      console.warn(
+        `Failed to set document loader for extension ${ext}. Reason: ${result.msg}`
+      );
       return result;
     }
 
     this.#docExtToLoaderName.set(ext, docLoaderName);
-    console.info(`Document loader set successfully for extension ${ext}: ${docLoaderName}`);
+    console.info(
+      `Document loader set successfully for extension ${ext}: ${docLoaderName}`
+    );
     return true;
   };
 
@@ -374,10 +405,12 @@ export class DocBase {
     pluginWithConfig: PluginWithConfig<T>,
     rescan = true
   ) => {
-    console.info(`Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`);
+    console.info(
+      `Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`
+    );
     const { plugin, config } = pluginWithConfig;
 
-    plugin.init && await plugin.init(config)
+    plugin.init && (await plugin.init(config));
 
     switch (plugin.pluginType) {
       case "DocLoader":
@@ -405,7 +438,7 @@ export class DocBase {
     }
 
     // 立即扫描所有目录
-    rescan && this.scanAllNow()
+    rescan && this.scanAllNow();
   };
 
   /**
@@ -414,11 +447,13 @@ export class DocBase {
    * @param opt - meilisearch 搜索选项
    * @returns 返回搜索结果
    */
-  search = async (params?: SearchParams & {
-    knowledgeId: string;
-  }) => {
+  search = async (
+    params?: SearchParams & {
+      knowledgeId: string;
+    }
+  ) => {
     console.info(`Searching for documents with query: ${params.q}`);
-    const docManager = this.#docManagers.get(params.knowledgeId)
+    const docManager = this.#docManagers.get(params.knowledgeId);
     const results = await docManager.search(params);
     console.info(`Search completed. Found ${results.length} documents.`);
     return results;
@@ -452,7 +487,9 @@ export class DocBase {
         paths: i.paths,
       },
     }));
-    console.info(`Dify search completed. Found ${difyResults.length} documents.`);
+    console.info(
+      `Dify search completed. Found ${difyResults.length} documents.`
+    );
     return difyResults;
   };
 }
