@@ -1,4 +1,3 @@
-import { AnyZodObject, z } from "zod";
 import type { BasePlugin, Content } from "./Plugin";
 
 // 文档分割器
@@ -19,15 +18,11 @@ export type DocSplitter = (text: AsyncIterable<Content>) => AsyncIterable<{
  * 文档分割器插件接口
  * @template T - 插件参数类型，默认为空对象
  */
-export interface DocSplitterPlugin<T extends AnyZodObject = AnyZodObject>
+export interface DocSplitterPlugin<T extends object = object>
   extends BasePlugin<DocSplitter, T> {
   /** 插件类型，固定为"DocSplitter" */
   pluginType: "DocSplitter";
 }
-
-const DocSplitterPluginParams = z.object({
-  len: z.number().describe("分割得到的每个文本块的长度"),
-})
 
 // 默认实现 ============
 import { AsyncStream } from "itertools-ts"
@@ -45,7 +40,7 @@ const cutToLen = (text: string, len: number) => {
  * 默认文档分割器插件实现
  * 按固定长度分割文本
  */
-class defaultDocSplitterPlugin implements DocSplitterPlugin<typeof DocSplitterPluginParams> {
+class defaultDocSplitterPlugin implements DocSplitterPlugin<{ len: number }> {
   name = "default"
   pluginType: "DocSplitter" = "DocSplitter"
   #len: number;

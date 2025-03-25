@@ -1,45 +1,54 @@
-import { z } from "zod";
 import { PluginWithConfig } from "./Plugin";
 
-const pluginSchema = z.object({
-    name: z.string(),
-    config: z.any()
-})
+// MeiliSearch 配置接口
+interface MeiliSearchConfig {
+    host: string; // 必须是有效的 URL
+    apiKey?: string;
+    clientAgents?: string[];
+    timeout?: number;
+}
 
-const baseSchema = z.object({
-    name: z.string(),
-    id: z.string(),
-    path: z.string(),
-})
+// 插件接口
+interface Plugin {
+    name: string;
+    config: any;
+}
 
-export type Base = z.infer<typeof baseSchema>;
+// 知识库基础信息接口
+export interface Base {
+    name: string; // 最大长度为 255
+    id: string; // 必须是有效的 UUID
+    path: string;
+}
 
-const configSchema = z.object({
-    meiliSearchConfig: z.object({}),
-})
+// 配置接口
+interface Config {
+    meiliSearchConfig: MeiliSearchConfig;
+}
 
+// 数据库层接口
 export interface DBLayer {
     // 配置表
     config: {
-        get: () => Promise<z.infer<typeof configSchema>>;
-        set: (config: z.infer<typeof configSchema>) => Promise<void>;
+        get: () => Promise<Config>;
+        set: (config: Config) => Promise<void>;
     }
     // 插件表
     plugin: {
         // 增加
-        add: (plugin: z.infer<typeof pluginSchema>) => Promise<void>;
+        add: (plugin: Plugin) => Promise<void>;
         // 删除
-        delete: (name: string) => Promise<void>
+        delete: (name: string) => Promise<void>;
         // 获取
         get: () => Promise<PluginWithConfig[]>;
     },
     // 知识库表
     base: {
         // 增加
-        add: (name: string) => Promise<z.infer<typeof baseSchema>>;
+        add: (name: string) => Promise<Base>;
         // 删除
-        delete: (id: string) => Promise<z.infer<typeof baseSchema>>;
+        delete: (id: string) => Promise<Base>;
         // 获取
-        get: () => Promise<z.infer<typeof baseSchema>[]>;
+        get: () => Promise<Base[]>;
     }
 }

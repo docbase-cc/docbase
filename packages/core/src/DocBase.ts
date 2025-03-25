@@ -12,7 +12,6 @@ import { createMeilisearchClient, getExtFromPath, printAllSettedResult } from ".
 import { MeiliSearch, type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
-import { AnyZodObject } from "zod";
 import { Base, DBLayer } from "./DBLayer";
 
 /** 任务执行节流时间 */
@@ -182,8 +181,6 @@ export class DocBase {
     this.#db = db
     // TODO 初始化配置？
     const { meiliSearchConfig } = await db.config.get();
-    // TODO
-    // @ts-ignore
     this.#meiliSearch = await createMeilisearchClient(meiliSearchConfig)
 
     // 初始化插件
@@ -375,7 +372,7 @@ export class DocBase {
    * @param pluginWithConfig - 包含插件和参数的配置对象
    * @throws 如果插件类型错误会抛出错误
    */
-  loadPlugin = async <T extends AnyZodObject>(
+  loadPlugin = async <T extends object>(
     pluginWithConfig: PluginWithConfig<T>,
     rescan = true
   ) => {

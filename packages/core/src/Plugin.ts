@@ -1,6 +1,5 @@
 import type { DocLoaderPlugin } from "./DocLoader";
 import type { DocSplitterPlugin } from "./DocSplitter";
-import { AnyZodObject, z } from "zod"
 
 /**
  * 文档内容类型
@@ -14,7 +13,7 @@ export type Content = string
  */
 export interface BasePlugin<
   PluginFunc extends Function = Function,
-  PluginParams extends z.AnyZodObject = z.AnyZodObject
+  PluginParams extends object = object
 > {
   /** 插件名称 */
   name: string;
@@ -24,7 +23,7 @@ export interface BasePlugin<
    * 插件初始化函数
    * @param params - 插件初始化参数
    */
-  init?: (params: z.infer<PluginParams>) => Promise<void>;
+  init?: (params: PluginParams) => Promise<void>;
   /** 插件函数 */
   func: PluginFunc;
 }
@@ -54,7 +53,7 @@ export interface PluginPakageJSON {
 }
 
 // docbase 插件接口
-export type DocBasePlugin<T extends AnyZodObject = AnyZodObject> =
+export type DocBasePlugin<T extends object = object> =
   // 文档加载器
   | DocLoaderPlugin<T>
   // 文档分割器
@@ -64,9 +63,9 @@ export type DocBasePlugin<T extends AnyZodObject = AnyZodObject> =
  * 带启动参数的插件接口
  * @template T - 插件参数类型
  */
-export interface PluginWithConfig<T extends AnyZodObject = AnyZodObject> {
+export interface PluginWithConfig<T extends object = object> {
   /** 插件实例 */
   plugin: DocBasePlugin<T>;
   /** 插件参数 */
-  config: z.infer<T>;
+  config: T;
 }

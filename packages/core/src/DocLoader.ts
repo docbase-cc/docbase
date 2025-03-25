@@ -2,7 +2,6 @@ import type { BasePlugin, Content } from "./Plugin";
 import { readFile } from "fs-extra";
 import { IDataType } from "hash-wasm";
 import { AsyncStream } from "itertools-ts";
-import { AnyZodObject } from "zod";
 
 export interface DocLoaderInput {
   path: string;
@@ -23,7 +22,7 @@ export type DocLoader = (input: DocLoaderInput) => Promise<{
  * 文档加载器插件接口
  * @template T - 插件参数类型，默认为空对象
  */
-export interface DocLoaderPlugin<T extends AnyZodObject = AnyZodObject>
+export interface DocLoaderPlugin<T extends object = object>
   extends BasePlugin<DocLoader, T> {
   /** 插件类型，固定为"DocLoader" */
   pluginType: "DocLoader";
