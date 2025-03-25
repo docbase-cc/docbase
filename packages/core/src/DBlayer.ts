@@ -7,9 +7,12 @@ const pluginSchema = z.object({
 })
 
 const baseSchema = z.object({
+    name: z.string(),
     id: z.string(),
     path: z.string(),
 })
+
+export type Base = z.infer<typeof baseSchema>;
 
 const configSchema = z.object({
     meiliSearchConfig: z.object({}),
@@ -33,9 +36,9 @@ export interface DBLayer {
     // 知识库表
     base: {
         // 增加
-        add: (base: z.infer<typeof baseSchema>) => Promise<void>;
+        add: (name: string) => Promise<z.infer<typeof baseSchema>>;
         // 删除
-        delete: (id: string) => Promise<void>;
+        delete: (id: string) => Promise<z.infer<typeof baseSchema>>;
         // 获取
         get: () => Promise<z.infer<typeof baseSchema>[]>;
     }

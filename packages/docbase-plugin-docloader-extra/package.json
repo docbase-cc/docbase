@@ -31,7 +31,7 @@
     "@llm-tools/embedjs-loader-msoffice": "^0.1.28",
     "@llm-tools/embedjs-loader-pdf": "^0.1.28",
     "@llm-tools/embedjs-loader-xml": "^0.1.28",
-    "@types/bun": "^1.2.5",
+    "@types/bun": "^1.2.6",
     "core": "workspace:*",
     "itertools-ts": "^2.2.0",
     "zod": "^3.24.2",

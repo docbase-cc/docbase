@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "@terascope/fetch-github-release": "^2.1.0",
-    "@types/bun": "^1.2.5",
+    "@types/bun": "^1.2.6",
     "chalk": "^5.4.1",
     "es-toolkit": "^1.33.0",
     "concurrently": "^9.1.2"

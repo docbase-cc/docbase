@@ -1,6 +1,5 @@
 import { omit, throttle } from "es-toolkit";
 import defaultDocLoaderPlugin, {
-  DocLoaderInput,
   type DocLoader,
   type DocLoaderPlugin,
 } from "./DocLoader";
@@ -8,14 +7,13 @@ import { DocManager } from "./DocManager";
 import defaultDocSplitterPlugin, {
   type DocSplitterPlugin,
 } from "./DocSplitter";
-import type { Content, PluginWithConfig } from "./Plugin";
-import { createMeilisearchClient, getExtFromPath } from "./Utils";
+import type { PluginWithConfig } from "./Plugin";
+import { createMeilisearchClient, getExtFromPath, printAllSettedResult } from "./Utils";
 import { MeiliSearch, type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { AnyZodObject } from "zod";
-import { DBLayer } from "./DBLayer";
-import { printTable } from "console-table-printer"
+import { Base, DBLayer } from "./DBLayer";
 
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
@@ -38,37 +36,6 @@ export interface DifyKnowledgeResponseRecord {
  */
 export interface DocBaseOptions {
   db: DBLayer
-  /**
-   * MeiliSearch 配置
-   */
-  // meiliSearchConfig: MeiliSearchConfig;
-  /**
-   * 初始化知识库目录
-   * @default []
-   */
-  // initPaths?: string[];
-  /**
-   * 初始化插件列表
-   * @default
-   * [
-   *   { plugin: defaultDocLoaderPlugin, params: {} },
-   *   { plugin: defaultDocSplitterPlugin, params: { len: 1000 } }
-   * ]
-   */
-  // initPlugins?: PluginWithConfig<any>[];
-  /**
-   * 是否在初始化时扫描初始化知识库目录
-   * @default false
-   */
-  // initscan?: boolean;
-  /**
-   * 索引前缀
-   */
-  // indexPrefix?: string;
-  /**
-   * 文件变动时间节流时段(毫秒)，在该时段内每个文件最多执行一次嵌入更新操作
-   */
-  // fileOpThrottleMs?: number;
 }
 
 export class DocBase {
@@ -98,6 +65,9 @@ export class DocBase {
     type: "remove" | "upsert"
   }>();
 
+  /** 数据持久层 */
+  #db: DBLayer;
+
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
     async () => {
@@ -123,14 +93,6 @@ export class DocBase {
     500,
     { edges: ["trailing"] }
   );
-
-  /**  获取挂载的知识库目录 */
-  // get dirs() {
-  //   console.info("Fetching watched directories...");
-  //   const watchedPaths = this.#docWatcher.getWatchedPaths();
-  //   console.info("Watched directories fetched successfully.");
-  //   return watchedPaths;
-  // }
 
   /** 获取支持的文档类型 */
   get exts() {
@@ -181,6 +143,12 @@ export class DocBase {
     return await dockLoader.func(input);
   };
 
+  /** 该路径文件是否需要被 docbase 处理 */
+  #pathFilterToLoader = (path: string) => {
+    const ext = getExtFromPath(path);
+    return this.#docExtToLoaderName.has(ext);
+  }
+
   /**
    * 扫描指定目录中的文档
    * @param dirs - 要扫描的目录数组
@@ -206,17 +174,9 @@ export class DocBase {
   };
 
   /** 启动 docbase */
-  start = async ({
-    // meiliSearchConfig,
-    // TODO 为区分多知识库的参数
-    // indexPrefix,
-    // TODO 改成后期增删查改
-    // initPaths = [],
-
-    db,
-    // fileOpThrottleMs,
-  }: DocBaseOptions) => {
+  start = async ({ db }: DocBaseOptions) => {
     console.info("Starting DocBase...");
+    this.#db = db
     // TODO 初始化配置？
     const { meiliSearchConfig } = await db.config.get();
     // TODO
@@ -241,7 +201,7 @@ export class DocBase {
     ]
     // 加载所有插件
     await Promise.all(
-      initPlugins.map((initPlugin) => this.loadPlugin(initPlugin))
+      initPlugins.map((initPlugin) => this.loadPlugin(initPlugin, false))
     );
 
     const docSplitterExist = typeof this.#docSplitter.func === "function";
@@ -264,69 +224,85 @@ export class DocBase {
 
     // 初始化文档管理器
     console.info("Initializing DocManager...");
-    const docLoader = (input: DocLoaderInput) => this.#hyperDocLoader(input)
-    const docSplitter = (content: AsyncIterable<Content>) => this.#docSplitter.func(content)
-    const filter = (path: string) => {
-      const ext = getExtFromPath(path);
-      return this.#docExtToLoaderName.has(ext);
-    }
     const base = await db.base.get()
 
     const result = await Promise.allSettled(
-      base.map(async ({ path, id }) => {
-        console.info(`Init base ${id}...`);
-        const docm = new DocManager({
-          indexPrefix: id,
-          meiliSearch: this.#meiliSearch,
-          docLoader,
-          docSplitter,
-        });
-        await docm.init()
-        this.#docManagers.set(id, docm)
-        console.info(`Base ${id} init successfully.`);
-
-        // 扫描目录
-        console.info(`Scanning base ${id}...`);
-        await this.#scan(id, [path]);
-        console.info(`Base ${id} scanned successfully.`);
-
-        // 监视目录
-        this.#docWatcher.watch(path, {
-          filter,
-          upsert: (path: string) => {
-            this.#watcherTaskCache.set(path, { docManagerId: id, type: "upsert" });
-            this.#doWatcherTask();
-          },
-          remove: (path: string) => {
-            this.#watcherTaskCache.set(path, { docManagerId: id, type: "remove" });
-            this.#doWatcherTask();
-          },
-        })
-        console.info(`Base ${id} directories are being watched.`);
+      base.map(async ({ path, id, name }) => {
+        await this.#startBase({ path, id, name })
         return { id, path }
       })
     )
 
     // 打印表格
     console.info("DocManager initialized successfully:");
-    printTable(result.map(i => ({
-      status: i.status,
-      ...(i.status === "fulfilled" ? i.value : { reason: i.reason })
-    })))
+    printAllSettedResult(result)
     console.info("DocBase started successfully.");
   };
 
-  // TODO 新安装插件立即扫描所有目录
   /**
    * 立即扫描所有目录
    */
-  // scanAllNow = async (id: string) => {
-  //   console.info("Starting to scan all directories immediately...");
-  //   await this.#scan(id, this.dirs);
-  //   console.info("All directories scanned immediately.");
-  // };
+  scanAllNow = async () => {
+    console.info("Starting to scan all directories immediately...");
 
-  // TODO 增加、删除、查询 知识库
+    const base = await this.#db.base.get()
+
+    printAllSettedResult(await Promise.allSettled(
+      base.map(async ({ id, path, name }) => { await this.#scan(id, [path]); return { name } })
+    ))
+
+    console.info("All directories scanned immediately.");
+  };
+
+  /** 启动 base */
+  #startBase = async ({ name, id, path }: Base) => {
+    console.info(`Init base ${name}...`);
+    const docm = new DocManager({
+      indexPrefix: id,
+      meiliSearch: this.#meiliSearch,
+      docLoader: this.#hyperDocLoader,
+      docSplitter: this.#docSplitter.func,
+    });
+    await docm.init()
+    this.#docManagers.set(id, docm)
+    console.info(`Base ${name} init successfully.`);
+
+    // 扫描目录
+    console.info(`Scanning base ${name}...`);
+    await this.#scan(id, [path]);
+    console.info(`Base ${name} scanned successfully.`);
+
+    // 监视目录
+    this.#docWatcher.watch(path, {
+      filter: this.#pathFilterToLoader,
+      upsert: (path: string) => {
+        this.#watcherTaskCache.set(path, { docManagerId: id, type: "upsert" });
+        this.#doWatcherTask();
+      },
+      remove: (path: string) => {
+        this.#watcherTaskCache.set(path, { docManagerId: id, type: "remove" });
+        this.#doWatcherTask();
+      },
+    })
+    console.info(`Base ${name} directories are being watched.`);
+  }
+
+  /** 添加知识库 */
+  addBase = async (name: string) => {
+    const base = await this.#db.base.add(name)
+    await this.#startBase(base)
+  }
+
+  /** 删除知识库 */
+  delBase = async (id: string) => {
+    const base = await this.#db.base.delete(id)
+    await this.#docManagers.get(id).delete()
+    this.#docManagers.delete(id)
+    return this.#docWatcher.unwatch(base.path)
+  }
+
+  /** 获取所有知识库 */
+  getBase = async () => await this.#db.base.get()
 
   /**
    * 卸载文档加载器插件
@@ -397,7 +373,8 @@ export class DocBase {
    * @throws 如果插件类型错误会抛出错误
    */
   loadPlugin = async <T extends AnyZodObject>(
-    pluginWithConfig: PluginWithConfig<T>
+    pluginWithConfig: PluginWithConfig<T>,
+    rescan = true
   ) => {
     console.info(`Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`);
     const { plugin, config } = pluginWithConfig;
@@ -428,42 +405,10 @@ export class DocBase {
         console.error(errorMsg);
         throw new Error(errorMsg);
     }
+
+    // 立即扫描所有目录
+    rescan && this.scanAllNow()
   };
-
-  /**
-   * 动态添加知识库目录
-   * @param dir - 要添加的目录路径
-   */
-  // addDir = async (dir: string) => {
-  //   console.info(`Adding knowledge base directory: ${dir}`);
-  //   // 扫描并监视
-  //   await this.#scan([dir]);
-  //   this.#docWatcher.watch(dir);
-  //   console.info(`Knowledge base directory added successfully: ${dir}`);
-  // };
-
-  /**
-   * 动态删除知识库目录
-   * @param dir - 要删除的目录路径
-   * @returns 是否存在 dir
-   */
-  // delDir = async (dir: string) => {
-  //   console.info(`Attempting to delete knowledge base directory: ${dir}`);
-  //   dir = slash(dir);
-
-  //   // 取消监视
-  //   const hasDir = this.#docWatcher.unwatch(dir);
-
-  //   // 删除知识库中目录下所有文档
-  //   if (hasDir) {
-  //     console.info(`Deleting documents in directory: ${dir}`);
-  //     await this.#docManager.deleteDocByPathPrefix(dir);
-  //     console.info(`Documents in directory deleted: ${dir}`);
-  //   }
-
-  //   console.info(`Knowledge base directory deletion result: ${hasDir ? 'Directory deleted.' : 'Directory not found.'}`);
-  //   return hasDir;
-  // };
 
   /**
    * 搜索文档

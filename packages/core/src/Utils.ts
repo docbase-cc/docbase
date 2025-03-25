@@ -2,6 +2,7 @@ import { lowerCase, retry } from "es-toolkit";
 import { extname } from "path";
 import os from "os";
 import { Config, MeiliSearch } from "meilisearch";
+import { printTable } from "console-table-printer";
 
 /** 从路径获取拓展名 */
 export const getExtFromPath = (path: string) =>
@@ -94,3 +95,8 @@ export const createMeilisearchClient = async (config: Config) => {
   await ensureContainsFilterFeatureOn(ml)
   return ml
 }
+
+export const printAllSettedResult = <T extends object = object>(result: PromiseSettledResult<T>[]) => printTable(result.map(i => ({
+  status: i.status,
+  ...(i.status === "fulfilled" ? i.value : { reason: i.reason })
+})))

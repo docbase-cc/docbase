@@ -12,7 +12,6 @@
     "build": "tsup && bun ./postbuild.ts"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.772.0",
     "@types/fs-extra": "^11.0.4",
     "tsup": "^8.4.0"
   },

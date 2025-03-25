@@ -68,11 +68,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 数据持久化层 -->
-<!-- TODO 添加数据持久化层，将插件安装、配置、映射信息存入 -->
-<!-- TODO 启动时加载全部插件 -->
-
-<!-- TODO 多知识库 -->
 <!-- TODO 知识库 配置 embedder 的 api -->
 <!-- TODO 知识库 自动 mcp 服务器 -->
 
