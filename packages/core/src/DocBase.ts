@@ -44,6 +44,9 @@ export interface DocBaseOptions {
 }
 
 export class DocBase {
+  /** 数据持久层 */
+  #db: DBLayer;
+
   /** 文档管理器 */
   #docManagers: Map<string, DocManager> = new Map();
 
@@ -70,9 +73,6 @@ export class DocBase {
       type: "remove" | "upsert";
     }
   >();
-
-  /** 数据持久层 */
-  #db: DBLayer;
 
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
