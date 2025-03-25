@@ -15,6 +15,9 @@ import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { AnyZodObject } from "zod";
 import { Base, DBLayer } from "./DBLayer";
 
+/** 任务执行节流时间 */
+const throttleMs = 500;
+
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
   query: string;
@@ -89,8 +92,8 @@ export class DocBase {
       console.debug("Watcher tasks execution completed.");
       return results;
     },
-    // 最小执行间隔为半秒
-    500,
+    // 最小执行间隔
+    throttleMs,
     { edges: ["trailing"] }
   );
 
