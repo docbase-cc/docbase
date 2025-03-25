@@ -1,7 +1,9 @@
 import { DocBase, DocBaseOptions } from "core/src";
 import { env } from "process";
 
-const createDocBase = async (opt: DocBaseOptions = getDocBaseConfigFromEnv()) => {
+const createDocBase = async (
+  opt: DocBaseOptions = getDocBaseConfigFromEnv()
+) => {
   const docBase = new DocBase();
 
   // 启动 docBase
@@ -21,11 +23,7 @@ const getDocBaseConfigFromEnv = (): DocBaseOptions => {
   } = env;
 
   // 校验参数是否存在
-  if (
-    !INIT_PATH ||
-    !MEILI_URL ||
-    !MEILI_MASTER_KEY
-  ) {
+  if (!INIT_PATH || !MEILI_URL || !MEILI_MASTER_KEY) {
     // 打印缺失的参数
     console.error("参数缺失：");
     if (!INIT_PATH) console.error("INIT_PATH");
@@ -37,11 +35,11 @@ const getDocBaseConfigFromEnv = (): DocBaseOptions => {
   return {
     meiliSearchConfig: {
       host: MEILI_URL,
-      apiKey: MEILI_MASTER_KEY
+      apiKey: MEILI_MASTER_KEY,
     },
     initPaths: [INIT_PATH],
-    initscan: true
-  }
-}
+    initscan: true,
+  };
+};
 
 export { createDocBase };
