@@ -15,6 +15,7 @@ import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { AnyZodObject } from "zod";
 import { DBLayer } from "./DBLayer";
+import { printTable } from "console-table-printer"
 
 export interface DifyKnowledgeRequest {
   knowledge_id: string;
@@ -302,12 +303,16 @@ export class DocBase {
           },
         })
         console.info(`Base ${id} directories are being watched.`);
+        return { id, path }
       })
     )
 
-    // TODO 打印表格
-    console.info("DocManager initialized successfully.", result);
-
+    // 打印表格
+    console.info("DocManager initialized successfully:");
+    printTable(result.map(i => ({
+      status: i.status,
+      ...(i.status === "fulfilled" ? i.value : { reason: i.reason })
+    })))
     console.info("DocBase started successfully.");
   };
 
