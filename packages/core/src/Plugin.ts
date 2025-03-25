@@ -4,7 +4,7 @@ import type { DocSplitterPlugin } from "./DocSplitter";
 /**
  * 文档内容类型
  */
-export type Content = string
+export type Content = string;
 
 /**
  * 基础插件接口

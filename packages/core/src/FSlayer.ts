@@ -26,15 +26,15 @@ export type Watcher = {
   getWatchedPaths: () => string[];
   unwatch: (path: string) => boolean;
   watch: (path: string, actions: WatchAction) => void;
-}
+};
 
 /**
  * 文件系统监视勾子
- * @param event 
- * @param actions 
+ * @param event
+ * @param actions
  */
 const eventHook = (event: string, actions: WatchAction) => {
-  const { filter, upsert, remove } = actions
+  const { filter, upsert, remove } = actions;
   try {
     const e = JSON.parse(event);
     const type = e.event.type;
@@ -52,7 +52,7 @@ const eventHook = (event: string, actions: WatchAction) => {
   } catch (parseError) {
     console.error(`Error parsing event data: ${parseError}`);
   }
-}
+};
 
 export const FSLayer = () => {
   const fd = new fdir().withBasePath();
@@ -69,23 +69,27 @@ export const FSLayer = () => {
         })
         .crawl(dir)
         .withPromise();
-      console.info(`Scanning directory ${dir} completed, found ${outs.length} files`);
-      await load(outs.map(path => slash(path)));
+      console.info(
+        `Scanning directory ${dir} completed, found ${outs.length} files`
+      );
+      await load(outs.map((path) => slash(path)));
     }
   };
 
   const watcher = {
     getWatchedPaths: () => watchers.keys().toArray(),
     unwatch: (path: string) => {
-      watchers.get(path)?.unwatch(path)
-      return watchers.delete(path)
+      watchers.get(path)?.unwatch(path);
+      return watchers.delete(path);
     },
     watch: (path: string, actions: WatchAction) => {
-      const watcher = DirectoryWatcher.new((_err, event) => eventHook(event, actions));
+      const watcher = DirectoryWatcher.new((_err, event) =>
+        eventHook(event, actions)
+      );
       watcher.watch(path);
-      watchers.set(path, watcher)
-    }
-  }
+      watchers.set(path, watcher);
+    },
+  };
 
   return { watcher, scanner };
 };

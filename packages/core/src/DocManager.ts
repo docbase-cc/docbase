@@ -28,7 +28,7 @@ export interface DocChunkDocument {
   /** 自定义向量 */
   _vectors?: {
     [key: string]: number[];
-  }
+  };
 }
 
 import { Index, MeiliSearch } from "meilisearch";
@@ -101,7 +101,9 @@ export class DocManager {
     this.#docSplitter = docSplitter;
     const prefix = compact([indexPrefix, this.#indexVersion]).join("_");
     this.#indexPrefix = `${prefix}-`;
-    console.info(`DocManager initialized with index prefix: ${this.#indexPrefix}`);
+    console.info(
+      `DocManager initialized with index prefix: ${this.#indexPrefix}`
+    );
   }
 
   /**
@@ -151,23 +153,23 @@ export class DocManager {
    */
   async #getChunkRelatedDocs(chunkHash: string) {
     console.debug(`Getting related docs for chunk ${chunkHash}`);
-    const filter = `chunkHashs IN ["${chunkHash}"]`
+    const filter = `chunkHashs IN ["${chunkHash}"]`;
     // 初始大小
     const initSize = 1000;
     // 获取文档
     const docs = await this.#docIndex.getDocuments({
       filter,
-      limit: initSize
+      limit: initSize,
     });
 
     if (docs.total <= initSize) {
-      return docs.results
+      return docs.results;
     } else {
       const allDocs = await this.#docIndex.getDocuments({
         filter,
-        limit: docs.total
+        limit: docs.total,
       });
-      return allDocs.results
+      return allDocs.results;
     }
   }
 
@@ -178,10 +180,13 @@ export class DocManager {
     await Promise.all([
       // 确保 docIndex 存在
       (async () => {
-        this.#docIndex = await this.#getIndexOrCreate(`${this.#indexPrefix}docs`);
+        this.#docIndex = await this.#getIndexOrCreate(
+          `${this.#indexPrefix}docs`
+        );
 
         // 获取已有的可筛选属性
-        const docIndexFilterableAttributes = await this.#docIndex.getFilterableAttributes();
+        const docIndexFilterableAttributes =
+          await this.#docIndex.getFilterableAttributes();
 
         // 需要设置的可筛选的属性
         const docIndexFilterableAttributesNeedCreate = difference(
@@ -208,7 +213,7 @@ export class DocManager {
         this.#docChunkIndex = await this.#getIndexOrCreate(
           `${this.#indexPrefix}chunks`
         );
-      })()
+      })(),
     ]);
 
     console.info("DocManager initialized successfully");
@@ -216,24 +221,24 @@ export class DocManager {
 
   /** 获取已有 embedders */
   getEmbedders = async () => {
-    await this.#docChunkIndex.getEmbedders()
-  }
+    await this.#docChunkIndex.getEmbedders();
+  };
 
   /** 重置已有 embedders */
   resetEmbedders = async (wait = false) => {
-    const task = await this.#docChunkIndex.resetEmbedders()
+    const task = await this.#docChunkIndex.resetEmbedders();
     if (wait) {
-      await this.#docChunkIndex.waitForTask(task.taskUid)
+      await this.#docChunkIndex.waitForTask(task.taskUid);
     }
-  }
+  };
 
   /** 增删改 embedders */
   updateEmbedders = async (embedders: Embedders, wait = false) => {
-    const task = await this.#docChunkIndex.updateEmbedders(embedders)
+    const task = await this.#docChunkIndex.updateEmbedders(embedders);
     if (wait) {
-      await this.#docChunkIndex.waitForTask(task.taskUid)
+      await this.#docChunkIndex.waitForTask(task.taskUid);
     }
-  }
+  };
 
   /**
    * 安全获取文档，如果不存在返回 false
@@ -321,7 +326,9 @@ export class DocManager {
         docSyncContent = await getDocSyncContent(localDoc.chunkHashs);
       } else {
         // 文档已落后
-        console.info(`Document at path ${localDoc.path} is outdated, updating...`);
+        console.info(
+          `Document at path ${localDoc.path} is outdated, updating...`
+        );
         const remoteChunkHashs = remoteDocByPath.chunkHashs;
         const incomingChunkHashs = localDoc.chunkHashs;
 
@@ -351,7 +358,9 @@ export class DocManager {
         this.#docChunkIndex.addDocuments(docSyncContent),
       ]);
 
-      console.info(`[Embedded ${docSyncContent.length} chunks] ${localDoc.path}`);
+      console.info(
+        `[Embedded ${docSyncContent.length} chunks] ${localDoc.path}`
+      );
     } else {
       console.info(`[Skipped] ${localDoc.path}`);
       // 文档存在
@@ -360,7 +369,9 @@ export class DocManager {
         const oldPathFileExists = await exists(remoteDocByHash.path);
         if (!oldPathFileExists) {
           // 更新 path
-          console.info(`Updating document path from ${remoteDocByHash.path} to ${localDoc.path}`);
+          console.info(
+            `Updating document path from ${remoteDocByHash.path} to ${localDoc.path}`
+          );
           await this.#docIndex.updateDocuments([
             { hash: remoteDocByHash.hash, path: localDoc.path },
           ]);
@@ -378,7 +389,9 @@ export class DocManager {
 
     // 如果有且修改时间相等则为已上传过，直接跳过
     if (remoteDocByPath && remoteDocByPath.updateAt === mtimeMs) {
-      console.debug(`Document at path ${path} is already up-to-date, skipping...`);
+      console.debug(
+        `Document at path ${path} is already up-to-date, skipping...`
+      );
       return;
     }
 
@@ -386,7 +399,7 @@ export class DocManager {
     const doc = await this.#docLoader({ path, hash: xxhash64 });
 
     if (doc) {
-      const { hash, content } = doc
+      const { hash, content } = doc;
 
       // 分割内容
       const chunks = this.#docSplitter(content);
@@ -397,8 +410,8 @@ export class DocManager {
           const chunkHash = await xxhash64(chunk.text);
           return {
             hash: chunkHash,
-            ...chunk
-          }
+            ...chunk,
+          };
         })
         .toArray();
 
@@ -503,7 +516,9 @@ export class DocManager {
 
       // 没有文档则结束
       if (docs.total === 0) {
-        console.debug(`No documents found under path prefix ${path}, stopping deletion...`);
+        console.debug(
+          `No documents found under path prefix ${path}, stopping deletion...`
+        );
         break;
       }
 
@@ -525,7 +540,9 @@ export class DocManager {
     if (doc) {
       await this.#deleteDoc(doc);
     } else {
-      console.debug(`Document with hash ${hash} not found, skipping deletion...`);
+      console.debug(
+        `Document with hash ${hash} not found, skipping deletion...`
+      );
     }
   };
 
@@ -540,8 +557,8 @@ export class DocManager {
       (async () => {
         const task = await this.#docChunkIndex.delete();
         await this.#client.waitForTask(task.taskUid);
-      })()
-    ])
+      })(),
+    ]);
   };
 
   /**
@@ -571,7 +588,9 @@ export class DocManager {
                 // 异步删除无效文档
                 console.info(`Deleting invalid document with hash ${doc.hash}`);
                 this.deleteDocByHash(doc.hash);
-              } else { paths.push(doc.path) };
+              } else {
+                paths.push(doc.path);
+              }
               return exists;
             })
           );

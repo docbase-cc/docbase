@@ -13,10 +13,13 @@ export interface DocLoaderInput {
  * @param path - 文档路径
  * @returns 返回加载后的文档对象的迭代器，false 表示不符合条件的文件，跳过处理
  */
-export type DocLoader = (input: DocLoaderInput) => Promise<{
-  hash: string;
-  content: AsyncIterable<Content>
-} | false>;
+export type DocLoader = (input: DocLoaderInput) => Promise<
+  | {
+      hash: string;
+      content: AsyncIterable<Content>;
+    }
+  | false
+>;
 
 /**
  * 文档加载器插件接口
@@ -42,14 +45,14 @@ const defaultDocLoaderPlugin: DocLoaderPlugin = {
   exts: ["md", "txt"],
   func: async ({ path, hash }) => {
     // 读取文件内容
-    const text = await readFile(path, "utf-8")
+    const text = await readFile(path, "utf-8");
 
     return {
       // 计算 hash
       hash: await hash(text),
-      content: AsyncStream.of([text])
-    }
-  }
+      content: AsyncStream.of([text]),
+    };
+  },
 };
 
 export default defaultDocLoaderPlugin;
