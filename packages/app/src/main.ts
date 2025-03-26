@@ -5,9 +5,8 @@ import apis from "./apis";
 import { version, name } from "~/package.json";
 import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
-import webdav from "./webdav";
-import { getDB, getPkgManager, PackageManager } from "./pkgManager";
-import { createDocBase } from "./docbase";
+import { getPkgManager, PackageManager } from "./docbase";
+import { getDocBase } from "./docbase";
 
 createConsola({
   level: import.meta.env.NODE_ENV === "production" ? 2 : 5,
@@ -25,11 +24,10 @@ declare module "hono" {
 
 const app = new OpenAPIHono();
 
-const pkgManager = await getPkgManager();
-const docbase = await createDocBase({ db: await getDB() });
-
 // 启动 docbase 实例
 app.use(async (c, next) => {
+  const pkgManager = await getPkgManager();
+  const docbase = await getDocBase();
   c.set("pkgManager", pkgManager);
   c.set("docbase", docbase);
   await next();
@@ -39,7 +37,7 @@ app.use(async (c, next) => {
 app.route(`/${routeVersion}`, apis);
 
 // 注册 webdav 服务
-app.route("/dav", webdav);
+// app.route("/dav", webdav);
 
 // API 文档
 app.get("/doc", swaggerUI({ url: "/openapi.json" }));

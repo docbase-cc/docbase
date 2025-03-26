@@ -36,7 +36,7 @@ import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
 import { exists, stat } from "fs-extra";
-import { compact, difference, merge } from "es-toolkit";
+import { compact, difference, isNotNil, merge } from "es-toolkit";
 import type { Embedders, SearchParams } from "meilisearch";
 import { AsyncStream } from "itertools-ts";
 
@@ -605,6 +605,6 @@ export class DocManager {
     );
 
     // 过滤掉无效的结果
-    return validHits.filter(Boolean);
+    return validHits.filter(isNotNil);
   };
 }

@@ -237,7 +237,8 @@ app.openapi(setExt, async (c) => {
     docLoaderName
   );
   const docBase = c.get("docbase");
-  return c.json(await docBase.setDocLoader(ext, docLoaderName));
+  const result = await docBase.setDocLoader(ext, docLoaderName);
+  return c.json(result);
 });
 
 app.openapi(listExt, async (c) => {

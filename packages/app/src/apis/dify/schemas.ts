@@ -16,7 +16,7 @@ export const DifyKnowledgeResponseRecordSchema = z
     text: z.string(),
     score: z.number().min(0).max(1),
     title: z.string(),
-    metadata: z.object({ paths: z.array(z.string()) }).optional(),
+    metadata: z.any(),
   })
   .openapi("DifyKnowledgeResponseRecordSchema");
 

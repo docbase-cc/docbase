@@ -33,7 +33,9 @@ export interface DifyKnowledgeResponseRecord {
   text: string;
   score: number;
   title: string;
-  metadata?: object;
+  metadata?: Awaited<ReturnType<DocBase["search"]>> extends (infer U)[]
+    ? U
+    : never;
 }
 
 /**
@@ -402,7 +404,8 @@ export class DocBase {
     console.info(
       `Document loader set successfully for extension ${ext}: ${docLoaderName}`
     );
-    return true;
+
+    return { modified: true };
   };
 
   /**
@@ -489,9 +492,7 @@ export class DocBase {
         text: i.text,
         score: i._rankingScore!,
         title: title ? basename(title) : "NoTitle",
-        metadata: {
-          paths: i.paths,
-        },
+        metadata: i,
       };
     });
 

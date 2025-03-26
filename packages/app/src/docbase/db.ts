@@ -5,6 +5,7 @@ import { readJSON, rm } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 
+/** docbase 本地数据持久层 */
 export class DB implements DBLayer {
   #dataDir: string;
   #pkgManager: PackageManager;

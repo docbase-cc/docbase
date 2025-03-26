@@ -3,6 +3,7 @@ import { exists, readJSON } from "fs-extra";
 import { join } from "path";
 import { DocBasePlugin } from "core/src";
 
+/** npm 包管理器 */
 export class PackageManager {
   #path: string;
   #pkgPath: string;

@@ -1,21 +1,26 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import search from "./search";
-import difySearch from "./difySearch";
 
 const app = new OpenAPIHono();
 
 // 搜索
 app.openapi(search, async (c) => {
-  const { q, opts } = c.req.valid("json");
+  const { knowledgeId } = c.req.valid("param");
+  const params = c.req.valid("json");
   const docBase = c.get("docbase");
-  const results = await docBase.search(q, opts);
-  return c.json(results);
-});
-
-// dify 外部知识库搜索
-app.openapi(difySearch, async (c) => {
-  const body = c.req.valid("json");
-  const docBase = c.get("docbase");
-  const results = await docBase.difySearch(body);
-  return c.json({ records: results });
+  try {
+    const res = await docBase.search({ knowledgeId, ...params });
+    return c.json(res, 200);
+  } catch (error) {
+    const msg = (error as Error).message;
+    if (msg.startsWith("No such docManagerId")) {
+      const errorResponse = {
+        error_code: "2001" as "2001",
+        error_msg: msg,
+      };
+      return c.json(errorResponse, 404);
+    } else {
+      throw error;
+    }
+  }
 });

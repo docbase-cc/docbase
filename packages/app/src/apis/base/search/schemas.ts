@@ -19,10 +19,11 @@ export const SearchResultsSchema = z
   .openapi("SearchResults");
 
 /**
- * 搜索选项
+ * 搜索参数
  */
-export const SearchOptionsSchema = z
+export const SearchParamSchema = z
   .object({
+    q: z.string().optional().describe("搜索查询内容"),
     offset: z.number().optional().describe("分页偏移量"),
     limit: z.number().optional().describe("每页限制数量"),
     attributesToHighlight: z
@@ -71,15 +72,5 @@ export const SearchOptionsSchema = z
     distinct: z.string().optional().describe("去重字段"),
     retrieveVectors: z.boolean().optional().describe("是否检索向量"),
     locales: z.array(z.string()).optional().describe("语言区域数组"),
-  })
-  .openapi("SearchOptions");
-
-/**
- * 搜索参数
- */
-export const SearchParamSchema = z
-  .object({
-    q: z.string(),
-    opts: SearchOptionsSchema.optional(),
   })
   .openapi("SearchParam");

@@ -8,11 +8,11 @@ import { spawn } from "child_process";
 const app = new OpenAPIHono();
 const dufsPort = 15000;
 
+// TODO 区分每个知识库
+
 interface ProxyOptions {
-  proxy_url?: string;
-  authorization?: (
-    old: string | null
-  ) => string | null | Promise<string | null>;
+  proxy_url: string;
+  authorization: (old: string | null) => string | null | Promise<string | null>;
 }
 
 const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
