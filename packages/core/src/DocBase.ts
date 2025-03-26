@@ -1,4 +1,4 @@
-import { omit, throttle } from "es-toolkit";
+import { isNotNil, omit, throttle } from "es-toolkit";
 import defaultDocLoaderPlugin, {
   type DocLoader,
   type DocLoaderPlugin,
@@ -54,7 +54,7 @@ export class DocBase {
   #docExtToLoaderName: Map<string, string> = new Map();
 
   /** 文档加载器，映射文档加载器名称到加载器实例 */
-  #docLoaders: Map<string, DocLoaderPlugin> = new Map();
+  #docLoaders: Map<string, DocLoaderPlugin<object>> = new Map();
 
   /** 文档分割器 */
   #docSplitter!: DocSplitterPlugin;
@@ -74,6 +74,16 @@ export class DocBase {
     }
   >();
 
+  #validGetDocManager = (id: string) => {
+    const docManager = this.#docManagers.get(id);
+    if (!docManager) {
+      const errorMsg = `No such docManagerId ${id}`;
+      console.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+    return docManager;
+  };
+
   // 执行任务缓存器中的任务, 每 watcherTaskThrottleMs 毫秒最多执行一次
   #doWatcherTask = throttle(
     async () => {
@@ -82,7 +92,7 @@ export class DocBase {
         this.#watcherTaskCache
           .entries()
           .map(async ([path, { docManagerId, type }]) => {
-            const docManager = this.#docManagers.get(docManagerId);
+            const docManager = this.#validGetDocManager(docManagerId);
             if (type === "upsert") {
               console.debug(`Upserting document: ${path}`);
               await docManager.upsertDoc(path);
@@ -164,7 +174,7 @@ export class DocBase {
    * @param dirs - 要扫描的目录数组
    */
   #scan = async (id: string, dirs: string[]) => {
-    const docManager = this.#docManagers.get(id);
+    const docManager = this.#validGetDocManager(id);
     await this.#docScanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
@@ -195,7 +205,7 @@ export class DocBase {
 
     // 加载所有插件
     await AsyncStream.of(
-      chainAsync(
+      chainAsync<PluginWithConfig<any>>(
         [
           {
             plugin: defaultDocLoaderPlugin,
@@ -211,7 +221,7 @@ export class DocBase {
         this.#db.plugins()
       )
     )
-      .map((initPlugin) => this.loadPlugin(initPlugin, false))
+      .map((initPlugin) => this.loadPlugin(initPlugin))
       .toArray();
 
     const docSplitterExist = typeof this.#docSplitter.func === "function";
@@ -304,13 +314,13 @@ export class DocBase {
   /** 删除知识库 */
   delBase = async (id: string) => {
     const base = await this.#db.knowledgeBase.del(id);
-    await this.#docManagers.get(id).delete();
+    await this.#validGetDocManager(id).delete();
     this.#docManagers.delete(id);
     return this.#docWatcher.unwatch(base.path);
   };
 
   /** 获取所有知识库 */
-  getBase = async () => this.#db.knowledgeBase.all();
+  getBase = () => this.#db.knowledgeBase.all();
 
   /**
    * 卸载文档加载器插件
@@ -401,10 +411,7 @@ export class DocBase {
    * @param pluginWithConfig - 包含插件和参数的配置对象
    * @throws 如果插件类型错误会抛出错误
    */
-  loadPlugin = async <T extends object>(
-    pluginWithConfig: PluginWithConfig<T>,
-    rescan = true
-  ) => {
+  loadPlugin = async (pluginWithConfig: PluginWithConfig<object>) => {
     console.info(
       `Loading ${pluginWithConfig.plugin.pluginType} plugin ${pluginWithConfig.plugin.name}`
     );
@@ -436,9 +443,6 @@ export class DocBase {
         console.error(errorMsg);
         throw new Error(errorMsg);
     }
-
-    // 立即扫描所有目录
-    rescan && this.scanAllNow();
   };
 
   /**
@@ -448,12 +452,12 @@ export class DocBase {
    * @returns 返回搜索结果
    */
   search = async (
-    params?: SearchParams & {
+    params: SearchParams & {
       knowledgeId: string;
     }
   ) => {
     console.info(`Searching for documents with query: ${params.q}`);
-    const docManager = this.#docManagers.get(params.knowledgeId);
+    const docManager = this.#validGetDocManager(params.knowledgeId);
     const results = await docManager.search(params);
     console.info(`Search completed. Found ${results.length} documents.`);
     return results;
@@ -479,17 +483,22 @@ export class DocBase {
       showRankingScore: true,
     });
 
-    const difyResults = results.map((i) => ({
-      text: i.text,
-      score: i._rankingScore,
-      title: basename(i.paths.at(0)),
-      metadata: {
-        paths: i.paths,
-      },
-    }));
+    const difyResults = results.filter(isNotNil).map((i) => {
+      const title = i.paths.at(0);
+      return {
+        text: i.text,
+        score: i._rankingScore!,
+        title: title ? basename(title) : "NoTitle",
+        metadata: {
+          paths: i.paths,
+        },
+      };
+    });
+
     console.info(
       `Dify search completed. Found ${difyResults.length} documents.`
     );
+
     return difyResults;
   };
 }

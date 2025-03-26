@@ -43,7 +43,7 @@ const cutToLen = (text: string, len: number) => {
 class defaultDocSplitterPlugin implements DocSplitterPlugin<{ len: number }> {
   name = "default";
   pluginType: "DocSplitter" = "DocSplitter";
-  #len: number;
+  #len!: number;
   init = async ({ len }: { len: number }) => {
     this.#len = len;
   };

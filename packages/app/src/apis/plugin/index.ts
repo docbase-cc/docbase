@@ -25,7 +25,7 @@ const addPlugin = createRoute({
           schema: z.any(),
         },
       },
-    }
+    },
   },
   responses: {
     200: {
@@ -35,9 +35,9 @@ const addPlugin = createRoute({
           schema: z.object({
             installed: z.boolean(),
             msg: z.string().optional(),
-          })
-        }
-      }
+          }),
+        },
+      },
     },
   },
 });
@@ -56,7 +56,7 @@ const delPlugin = createRoute({
   request: {
     query: z.object({
       name: z.string(),
-    })
+    }),
   },
   responses: {
     200: {
@@ -66,9 +66,9 @@ const delPlugin = createRoute({
           schema: z.object({
             deleted: z.boolean(),
             msg: z.string().optional(),
-          })
-        }
-      }
+          }),
+        },
+      },
     },
   },
 });
@@ -90,14 +90,16 @@ const listPlugin = createRoute({
       content: {
         "application/json": {
           schema: z.object({
-            docLoaders: z.array(z.object({
-              /** Plugin name */
-              name: z.string(),
-              /** Plugin type, fixed as "DocLoader" */
-              pluginType: z.literal("DocLoader"),
-              /** List of supported file extensions */
-              exts: z.array(z.string()),
-            })),
+            docLoaders: z.array(
+              z.object({
+                /** Plugin name */
+                name: z.string(),
+                /** Plugin type, fixed as "DocLoader" */
+                pluginType: z.literal("DocLoader"),
+                /** List of supported file extensions */
+                exts: z.array(z.string()),
+              })
+            ),
             docSplitter: z.object({
               /** Plugin name */
               name: z.string(),
@@ -127,9 +129,9 @@ const listExt = createRoute({
       description: "Plugin-extension mapping",
       content: {
         "application/json": {
-          schema: z.record(z.string())
-        }
-      }
+          schema: z.record(z.string()),
+        },
+      },
     },
   },
 });
@@ -149,7 +151,7 @@ const setExt = createRoute({
     query: z.object({
       ext: z.string(),
       docLoaderName: z.string().optional(),
-    })
+    }),
   },
   responses: {
     200: {
@@ -158,107 +160,118 @@ const setExt = createRoute({
         "application/json": {
           schema: z.object({
             modified: z.boolean(),
-          })
-        }
-      }
+          }),
+        },
+      },
     },
   },
 });
 
 // Install a plugin
 app.openapi(addPlugin, async (c) => {
-  console.info('Starting to install plugin:', c.req.valid("query").name);
+  console.info("Starting to install plugin:", c.req.valid("query").name);
   const docBase = c.get("docbase");
   // npm name
-  const { name } = c.req.valid("query")
+  const { name } = c.req.valid("query");
   // Plugin initialization parameters
-  const body = c.req.valid("json")
-  const pkgManager = c.get("pkgManager")
+  const body = c.req.valid("json");
+  const pkgManager = c.get("pkgManager");
 
   try {
     // Install the npm package
-    await pkgManager.add(name)
-    console.info('Successfully installed npm package:', name);
+    await pkgManager.add(name);
+    console.info("Successfully installed npm package:", name);
     // Import the npm package plugin
-    const plugin: DocBasePlugin = await pkgManager.import(name)
-    console.info('Successfully imported plugin:', name);
+    const plugin: DocBasePlugin = await pkgManager.import(name);
+    console.info("Successfully imported plugin:", name);
     if (plugin.pluginType === "DocSplitter") {
-      const oldPlugin = docBase.docSplitter.name
+      const oldPlugin = docBase.docSplitter.name;
       // Load the plugin
       const installed = await docBase.loadPlugin({
         plugin,
-        params: body
-      })
-      console.info('Successfully loaded DocSplitter plugin:', name);
+        config: body,
+      });
+      console.info("Successfully loaded DocSplitter plugin:", name);
       // Delete the old non-default DocSplitter plugin
       if (oldPlugin !== "default") {
-        await pkgManager.del(oldPlugin)
-        console.info('Deleted old non-default DocSplitter plugin:', oldPlugin);
+        await pkgManager.del(oldPlugin);
+        console.info("Deleted old non-default DocSplitter plugin:", oldPlugin);
       }
       return c.json({ installed });
     } else {
       // Load the plugin
       await docBase.loadPlugin({
         plugin,
-        params: body
-      })
-      console.info('Successfully loaded plugin:', name);
+        config: body,
+      });
+      console.info("Successfully loaded plugin:", name);
       // Save the plugin configuration name -> body
       // Start a full re-scan immediately
-      docBase.scanAllNow()
-      console.info('Started full re-scan after plugin installation:', name);
+      docBase.scanAllNow();
+      console.info("Started full re-scan after plugin installation:", name);
       return c.json({ installed: true });
     }
   } catch (error) {
-    await pkgManager.del(name)
-    const err = (error as Error)
-    console.error('Failed to install plugin:', name, err.message);
+    await pkgManager.del(name);
+    const err = error as Error;
+    console.error("Failed to install plugin:", name, err.message);
     return c.json({ installed: false, msg: err.message });
   }
-})
+});
 
 app.openapi(listPlugin, async (c) => {
-  console.info('Listing plugins');
+  console.info("Listing plugins");
   const docBase = c.get("docbase");
   return c.json({
     docLoaders: docBase.docLoaders.toArray(),
     docSplitter: docBase.docSplitter,
   });
-})
+});
 
 app.openapi(setExt, async (c) => {
-  const { ext, docLoaderName } = c.req.valid("query")
-  console.info('Modifying extension-plugin mapping for ext:', ext, 'with docLoaderName:', docLoaderName);
+  const { ext, docLoaderName } = c.req.valid("query");
+  console.info(
+    "Modifying extension-plugin mapping for ext:",
+    ext,
+    "with docLoaderName:",
+    docLoaderName
+  );
   const docBase = c.get("docbase");
   return c.json(await docBase.setDocLoader(ext, docLoaderName));
-})
+});
 
 app.openapi(listExt, async (c) => {
-  console.info('Getting extension-plugin mapping');
+  console.info("Getting extension-plugin mapping");
   const docBase = c.get("docbase");
   return c.json(Object.fromEntries(docBase.exts));
-})
+});
 
 app.openapi(delPlugin, async (c) => {
-  const { name } = c.req.valid("query")
-  console.info('Starting to delete plugin:', name);
+  const { name } = c.req.valid("query");
+  console.info("Starting to delete plugin:", name);
   const docBase = c.get("docbase");
   if (name === "default") {
-    console.warn('Attempted to delete default plugin:', name);
-    return c.json({ deleted: false, msg: "The default plugin cannot be deleted" });
+    console.warn("Attempted to delete default plugin:", name);
+    return c.json({
+      deleted: false,
+      msg: "The default plugin cannot be deleted",
+    });
   }
 
   if (docBase.docSplitter.name === name) {
-    console.warn('Attempted to delete DocSplitter plugin:', name);
-    return c.json({ deleted: false, msg: "Cannot delete the DocSplitter plugin. Please install a new plugin to replace it" });
+    console.warn("Attempted to delete DocSplitter plugin:", name);
+    return c.json({
+      deleted: false,
+      msg: "Cannot delete the DocSplitter plugin. Please install a new plugin to replace it",
+    });
   }
 
-  const deleted = await docBase.delDocLoader(name)
+  const deleted = await docBase.unLoadDocLoader(name);
   if (deleted.deleted) {
-    await c.get("pkgManager").del(name)
-    console.info('Successfully deleted plugin:', name);
+    await c.get("pkgManager").del(name);
+    console.info("Successfully deleted plugin:", name);
   }
   return c.json(deleted);
-})
+});
 
-export default app
+export default app;

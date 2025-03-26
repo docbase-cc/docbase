@@ -1,7 +1,5 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
-import search from "./search";
-import plugin from "./plugin"
-import difySearch from "./difySearch";
+import plugin from "./plugin";
 import { cors } from "hono/cors";
 import { bearerAuth } from "hono/bearer-auth";
 import { env } from "process";
@@ -17,22 +15,6 @@ app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
   scheme: "bearer",
 });
 
-// 搜索
-app.openapi(search, async (c) => {
-  const { q, opts } = c.req.valid("json");
-  const docBase = c.get("docbase");
-  const results = await docBase.search(q, opts);
-  return c.json(results);
-});
-
-// dify 外部知识库搜索
-app.openapi(difySearch, async (c) => {
-  const body = c.req.valid("json");
-  const docBase = c.get("docbase");
-  const results = await docBase.difySearch(body as any);
-  return c.json({ records: results });
-});
-
-app.route("/plugin", plugin)
+app.route("/plugin", plugin);
 
 export default app;
