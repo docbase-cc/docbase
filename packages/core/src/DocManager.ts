@@ -221,7 +221,7 @@ export class DocManager {
 
   /** 获取已有 embedders */
   getEmbedders = async () => {
-    await this.#docChunkIndex.getEmbedders();
+    return await this.#docChunkIndex.getEmbedders();
   };
 
   /** 重置已有 embedders */

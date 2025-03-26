@@ -9,7 +9,7 @@ import defaultDocSplitterPlugin, {
 } from "./DocSplitter";
 import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
-import { type SearchParams } from "meilisearch";
+import { Embedders, type SearchParams } from "meilisearch";
 import { basename } from "path";
 import { FSLayer, Scanner, Watcher } from "./FSLayer";
 import { Base, DBLayer } from "./DBLayer";
@@ -323,6 +323,19 @@ export class DocBase {
 
   /** 获取所有知识库 */
   getBase = () => this.#db.knowledgeBase.all();
+
+  /** 获取 docbase 的嵌入器 */
+  getEmbedders = (id: string) => this.#validGetDocManager(id).getEmbedders();
+
+  /** 清空 docbase 的嵌入器 */
+  resetEmbedders = (id: string) =>
+    this.#validGetDocManager(id).resetEmbedders(true);
+
+  /** 修改 docbase 的嵌入器 */
+  updateEmbedder = (id: string, embedders: Embedders) => {
+    const docManager = this.#validGetDocManager(id);
+    return docManager.updateEmbedders(embedders, true);
+  };
 
   /**
    * 卸载文档加载器插件

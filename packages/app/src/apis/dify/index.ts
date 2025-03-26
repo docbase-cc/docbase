@@ -38,17 +38,17 @@ const difySearch = createRoute({
         },
       },
     },
-    // 403: {
-    //   description: "AccessDeniedException",
-    //   content: {
-    //     "application/json": {
-    //       schema: z.object({
-    //         error_code: z.enum(["1002"]),
-    //         error_msg: z.string(),
-    //       }),
-    //     },
-    //   },
-    // },
+    403: {
+      description: "AccessDeniedException",
+      content: {
+        "application/json": {
+          schema: z.object({
+            error_code: z.enum(["1002", "1001"]),
+            error_msg: z.string(),
+          }),
+        },
+      },
+    },
     404: {
       description: "KnowledgeDoesNotExist",
       content: {
@@ -67,21 +67,8 @@ const difySearch = createRoute({
 app.openapi(difySearch, async (c) => {
   const params = c.req.valid("json");
   const docBase = c.get("docbase");
-  try {
-    const results = await docBase.difySearch(params);
-    return c.json({ records: results }, 200);
-  } catch (error) {
-    const msg = (error as Error).message;
-    if (msg.startsWith("No such docManagerId")) {
-      const errorResponse = {
-        error_code: "2001" as "2001",
-        error_msg: msg,
-      };
-      return c.json(errorResponse, 404);
-    } else {
-      throw error;
-    }
-  }
+  const results = await docBase.difySearch(params);
+  return c.json({ records: results }, 200);
 });
 
 export default app;
