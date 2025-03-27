@@ -311,6 +311,7 @@ export class DocBase {
   addBase = async (name: string) => {
     const base = await this.#db.knowledgeBase.add(name);
     await this.#startBase(base);
+    return base;
   };
 
   /** 删除知识库 */

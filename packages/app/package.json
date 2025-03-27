@@ -17,6 +17,7 @@
     "prisma": "^6.5.0",
     "@prisma/client": "^6.5.0",
     "@types/fs-extra": "^11.0.4",
+    "itertools-ts": "^2.2.0",
     "fs-extra": "^11.3.0"
   },
   "dependencies": {
