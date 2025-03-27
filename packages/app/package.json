@@ -2,9 +2,7 @@
   "name": "app",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot src/main.ts",
-    "gen": "bun ./gen.ts",
-    "dbpush": "prisma db push",
+    "dev": "bun ./dev.ts",
     "build": "bun ./build.ts"
   },
   "devDependencies": {

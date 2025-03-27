@@ -5,12 +5,14 @@ import { exists, readJSON, rm, writeJSON } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
+import { spawnSync } from "child_process";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
   #dataDir: string;
   #pkgManager: PackageManager;
   #configPath: string;
+  #dbPath: string;
   #prisma: PrismaClient;
 
   constructor({
@@ -23,11 +25,19 @@ export class DB implements DBLayer {
     this.#dataDir = dataDir;
     this.#configPath = join(dataDir, "config.json");
     this.#pkgManager = pkgManager;
-    const dbFile = join(dataDir, "db.sqlite");
+    this.#dbPath = join(dataDir, "db.sqlite");
+    const url = `file:${this.#dbPath}`;
+    spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
+      stdio: "inherit",
+      env: {
+        ...env,
+        DATABASE_URL: url,
+      },
+    });
     this.#prisma = new PrismaClient({
       datasources: {
         db: {
-          url: `file:${dbFile}`,
+          url,
         },
       },
     });

@@ -70,7 +70,6 @@ docker-compose up -d
 <!-- 下一步-->
 <!-- TODO 写 API (知识库、嵌入引擎管理) -->
 <!-- TODO webdav 知识库区分 -->
-<!-- TODO 自动构建(安装时自动生成数据库) -->
 <!-- TODO 知识库 自动 mcp 服务器 -->
 <!-- TODO 测试功能 -->
 

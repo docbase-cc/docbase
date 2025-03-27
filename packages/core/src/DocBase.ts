@@ -252,7 +252,7 @@ export class DocBase {
         return { id, path };
       })
       .toArray();
-    printTable(result);
+    result.length > 0 && printTable(result);
     console.info("DocManager initialized successfully");
     console.info("DocBase started successfully.");
   };
