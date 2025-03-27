@@ -3,7 +3,7 @@ import { version } from "package.json";
 import { downloadRelease } from "@terascope/fetch-github-release";
 import { arch, platform } from "os";
 import { spawnSync } from "child_process";
-import { isArray } from "es-toolkit/compat"
+import { isArray } from "es-toolkit/compat";
 
 const outputdir = "dist/main";
 
@@ -48,7 +48,7 @@ const names = await downloadRelease(
 
 const target = (isArray(names) ? names : names.assetFileNames).at(0);
 
-if (await exists(target)) {
+if (target && (await exists(target))) {
   // 使用 tar -zxvf 文件名.tar.gz -C dist/ 并输出到命令行
   spawnSync("tar", ["-zxvf", target, "-C", "dist/"], {
     stdio: "inherit",
