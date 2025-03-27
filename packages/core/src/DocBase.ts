@@ -1,4 +1,4 @@
-import { isNotNil, omit, throttle } from "es-toolkit";
+import { isNotNil, omit, pick, throttle } from "es-toolkit";
 import defaultDocLoaderPlugin, {
   type DocLoader,
   type DocLoaderPlugin,
@@ -247,9 +247,9 @@ export class DocBase {
     // 初始化文档管理器
     console.info("Initializing DocManager...");
     const result = await AsyncStream.of(this.#db.knowledgeBase.all())
-      .map(async ({ path, id, name }) => {
-        await this.#startBase({ path, id, name });
-        return { id, path };
+      .map(async (item) => {
+        await this.#startBase(item);
+        return pick(item, ["id", "name"]);
       })
       .toArray();
     result.length > 0 && printTable(result);

@@ -7,12 +7,19 @@ const app = new OpenAPIHono();
 
 const dufsPort = 15000;
 
-// 代理 webdav
+// 鉴权
 // app.use(
-//   "*",
+//   ":id/*",
 //   basicAuth({
-//     username: "docbase",
-//     password: env.MEILI_MASTER_KEY,
+//     verifyUser: async (username, password, c) => {
+//       if (!c.req.path.startsWith("/dav/__")) {
+//         // 知识库 id
+//         const id = c.req.param().id;
+//         return false;
+//       } else {
+//         return true;
+//       }
+//     },
 //   })
 // );
 

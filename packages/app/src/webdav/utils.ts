@@ -20,11 +20,6 @@ export const proxy = ({ proxy_url, authorization }: ProxyOptions): Handler => {
       headers.delete("authorization");
     }
 
-    if (!c.req.path.startsWith("/dav/__")) {
-      // 知识库 id
-      const id = c.req.param().id;
-    }
-
     // 构建代理URL
     const targetUrl = new URL(c.req.path, proxy_url);
 

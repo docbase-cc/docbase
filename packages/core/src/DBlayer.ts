@@ -10,8 +10,11 @@ export interface MeiliSearchConfig {
 
 // 知识库基础信息接口
 export interface Base {
-  name: string; // 最大长度为 255
-  id: string; // 必须是有效的 UUID
+  // ID
+  id: string;
+  // 名称
+  name: string;
+  // 路径
   path: string;
 }
 
