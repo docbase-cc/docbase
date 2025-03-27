@@ -18,8 +18,8 @@ export const startWebDAV = (path: string) => {
     const dufsProcess = spawn(dufsCmd, [
       // 运行 dufs
       "-A",
-      // "--path-prefix",
-      // "/dav",
+      "--path-prefix",
+      "/dav",
       "--render-try-index",
       "-p",
       dufsPort.toString(),

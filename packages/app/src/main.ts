@@ -7,6 +7,7 @@ import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import { getPkgManager, PackageManager } from "./docbase";
 import { getDocBase } from "./docbase";
+import webdav from "./webdav";
 
 createConsola({
   level: import.meta.env.NODE_ENV === "production" ? 2 : 5,
@@ -37,7 +38,7 @@ app.use(async (c, next) => {
 app.route(`/${routeVersion}`, apis);
 
 // 注册 webdav 服务
-// app.route("/dav", webdav);
+app.route("/dav", webdav);
 
 // API 文档
 app.get("/doc", swaggerUI({ url: "/openapi.json" }));

@@ -12,10 +12,14 @@ export { PackageManager };
 const baseDir = join(homedir(), ".docbase");
 const pluginsDir = join(baseDir, "plugins");
 const dataDir = join(baseDir, "data");
+const fileDir = join(baseDir, "files");
+
 await ensureDir(pluginsDir);
 await ensureDir(dataDir);
+await ensureDir(fileDir);
+
 // 启动 webdav
-startWebDAV(dataDir);
+startWebDAV(fileDir);
 
 let pkgManager: PackageManager | undefined;
 let db: DBLayer | undefined;
@@ -36,6 +40,7 @@ const getDB = async () => {
   } else {
     db = new DB({
       dataDir,
+      fileDir,
       pkgManager: await getPkgManager(),
     });
     return db;

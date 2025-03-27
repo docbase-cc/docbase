@@ -18,7 +18,7 @@ const dufsPort = 15000;
 
 // 代理 webdav
 app.use(
-  "*",
+  ":id/*",
   proxy({
     proxy_url: `http://localhost:${dufsPort}`,
     authorization: () => null,

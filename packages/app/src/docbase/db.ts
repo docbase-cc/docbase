@@ -9,20 +9,22 @@ import { spawnSync } from "child_process";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
-  #dataDir: string;
   #pkgManager: PackageManager;
   #configPath: string;
   #dbPath: string;
   #prisma: PrismaClient;
+  #fileDir: string;
 
   constructor({
     dataDir,
     pkgManager,
+    fileDir,
   }: {
     dataDir: string;
+    fileDir: string;
     pkgManager: PackageManager;
   }) {
-    this.#dataDir = dataDir;
+    this.#fileDir = fileDir;
     this.#configPath = join(dataDir, "config.json");
     this.#pkgManager = pkgManager;
     this.#dbPath = join(dataDir, "db.sqlite");
@@ -89,7 +91,7 @@ export class DB implements DBLayer {
           name,
         },
       });
-      const path = join(this.#dataDir, res.id);
+      const path = join(this.#fileDir, res.id);
       await mkdir(path);
       return { path, ...res };
     },
@@ -99,7 +101,7 @@ export class DB implements DBLayer {
           id,
         },
       });
-      const path = join(this.#dataDir, res.id);
+      const path = join(this.#fileDir, res.id);
       await rm(path, { force: true, recursive: true });
       return { path, ...res };
     },
@@ -111,7 +113,7 @@ export class DB implements DBLayer {
           yield {
             name,
             id,
-            path: join(self.#dataDir, id),
+            path: join(self.#fileDir, id),
           };
         }
       })();
