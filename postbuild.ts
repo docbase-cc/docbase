@@ -15,6 +15,9 @@ if (await exists(outputdir)) {
 // 复制 docbase 后端构建
 await copy("packages/app/dist", outputdir);
 
+// 复制 docbase client
+await copy("packages/app/client", "dist/client");
+
 // 复制 docbase 前端构建
 await copy("packages/ui/dist", "dist/main/public");
 

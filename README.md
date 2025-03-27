@@ -73,7 +73,7 @@ docker-compose up -d
 <!-- TODO 知识库 自动 mcp 服务器 -->
 <!-- TODO 测试功能 -->
 
-<!-- TODO 命令行（插件开发助手、快速启动本地 docbase） -->
+<!-- TODO 命令行（插件开发助手、快速启动本地 docbase(让用户输入一个 meilisearch 参数即可)） -->
 <!-- TODO 客户端版 -->
 <!-- TODO 文档补充更多搜索参数/插件管理/向量搜索配置教程/多知识库使用 -->
 <!-- TODO 中间件插件（search、upsert、remove 操作可使用中间件拓展） -->

@@ -4,6 +4,21 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "import": "./dist/client/client.gen.ts",
+      "require": "./dist/client/client.gen.ts"
+    },
+    "./sdk": {
+      "import": "./dist/client/index.ts",
+      "require": "./dist/client/index.ts"
+    }
+  },
   "repository": {
     "url": "https://github.com/docbase-cc/docbase"
   },
