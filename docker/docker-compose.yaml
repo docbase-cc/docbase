@@ -19,7 +19,6 @@ services:
     image: gonorth/docbase:latest
     environment:
       <<: *common-env
-      INIT_PATH: /data
       MEILI_URL: http://meilisearch:7700
     volumes:
       - data:/data
