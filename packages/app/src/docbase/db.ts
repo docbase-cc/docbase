@@ -100,7 +100,7 @@ export class DB implements DBLayer {
         },
       });
       const path = join(this.#dataDir, res.id);
-      await rm(path, { force: true });
+      await rm(path, { force: true, recursive: true });
       return { path, ...res };
     },
     all: () => {

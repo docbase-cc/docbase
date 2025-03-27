@@ -475,7 +475,7 @@ export class DocBase {
   ) => {
     console.info(`Searching for documents with query: ${params.q}`);
     const docManager = this.#validGetDocManager(params.knowledgeId);
-    const results = await docManager.search(params);
+    const results = await docManager.search(omit(params, ["knowledgeId"]));
     console.info(`Search completed. Found ${results.length} documents.`);
     return results;
   };

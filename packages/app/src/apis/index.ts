@@ -50,6 +50,15 @@ app.onError((err, c) => {
       return c.json(errorResponse, 404);
     }
 
+    // 数据不存在
+    if (err.message.endsWith("does not exist.")) {
+      const errorResponse = {
+        error_code: "2001",
+        error_msg: err.message,
+      };
+      return c.json(errorResponse, 404);
+    }
+
     console.error(err);
 
     return c.json(

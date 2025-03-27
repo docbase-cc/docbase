@@ -23,11 +23,11 @@ declare module "hono" {
 }
 
 const app = new OpenAPIHono();
+const pkgManager = await getPkgManager();
+const docbase = await getDocBase();
 
 // 启动 docbase 实例
 app.use(async (c, next) => {
-  const pkgManager = await getPkgManager();
-  const docbase = await getDocBase();
   c.set("pkgManager", pkgManager);
   c.set("docbase", docbase);
   await next();

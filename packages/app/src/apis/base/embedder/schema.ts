@@ -83,7 +83,11 @@ const EmbedderSchema = z.union([
 
 export type Embedder = z.infer<typeof EmbedderSchema>;
 
-export const EmbeddersSchema = z.union([z.record(EmbedderSchema), z.null()]);
+export const EmbeddersSchema = z
+  .union([z.record(EmbedderSchema), z.null()])
+  .openapi({
+    title: "Embedders",
+  });
 
 export type Embedders = z.infer<typeof EmbeddersSchema>;
 
