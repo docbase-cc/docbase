@@ -69,7 +69,6 @@ docker-compose up -d
 
 <!-- 下一步-->
 <!-- TODO 知识库 自动 mcp 服务器 -->
-<!-- TODO webdav 密钥设置 -->
 <!-- TODO 测试功能 -->
 
 <!-- TODO 命令行（插件开发助手、快速启动本地 docbase(让用户输入一个 meilisearch 参数即可)） -->
