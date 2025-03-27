@@ -228,7 +228,10 @@ export class DocManager {
   resetEmbedders = async (wait = false) => {
     const task = await this.#docChunkIndex.resetEmbedders();
     if (wait) {
-      await this.#docChunkIndex.waitForTask(task.taskUid);
+      const task1 = await this.#docChunkIndex.waitForTask(task.taskUid);
+      return task1.status;
+    } else {
+      return task.status;
     }
   };
 
@@ -236,7 +239,10 @@ export class DocManager {
   updateEmbedders = async (embedders: Embedders, wait = false) => {
     const task = await this.#docChunkIndex.updateEmbedders(embedders);
     if (wait) {
-      await this.#docChunkIndex.waitForTask(task.taskUid);
+      const task1 = await this.#docChunkIndex.waitForTask(task.taskUid);
+      return task1.status;
+    } else {
+      return task.status;
     }
   };
 

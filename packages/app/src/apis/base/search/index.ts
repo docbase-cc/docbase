@@ -4,7 +4,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 
 // Search
 const search = createRoute({
-  tags: ["search"],
+  tags: ["search", "base"],
   method: "post",
   path: "/:knowledgeId/search",
   summary: "Knowledge base search",

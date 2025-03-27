@@ -14,7 +14,7 @@ const baseSchema = z
 
 // Search
 const addBase = createRoute({
-  tags: ["manage"],
+  tags: ["base"],
   method: "put",
   path: "/base",
   summary: "add knowledge base",
@@ -48,7 +48,7 @@ const addBase = createRoute({
 
 // Get
 const getBase = createRoute({
-  tags: ["manage"],
+  tags: ["base"],
   method: "get",
   path: "/base",
   summary: "get knowledge bases",
@@ -71,7 +71,7 @@ const getBase = createRoute({
 
 // Del
 const delBase = createRoute({
-  tags: ["manage"],
+  tags: ["base"],
   method: "delete",
   path: "/base",
   summary: "del knowledge base",
@@ -105,7 +105,6 @@ const delBase = createRoute({
   },
 });
 
-// 搜索
 app.openapi(addBase, async (c) => {
   const docBase = c.get("docbase");
   const { name } = c.req.valid("json");
@@ -113,13 +112,11 @@ app.openapi(addBase, async (c) => {
   return c.json(base, 200);
 });
 
-// 搜索
 app.openapi(getBase, async (c) => {
   const docBase = c.get("docbase");
   return c.json(await AsyncStream.of(docBase.getBase()).toArray(), 200);
 });
 
-// 搜索
 app.openapi(delBase, async (c) => {
   const docBase = c.get("docbase");
   const { id } = c.req.valid("json");
