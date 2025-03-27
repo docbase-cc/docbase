@@ -10,6 +10,10 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./src": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    },
     "./client": {
       "import": "./dist/client/client.gen.ts",
       "require": "./dist/client/client.gen.ts"
