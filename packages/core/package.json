@@ -15,12 +15,12 @@
       "require": "./src/index.ts"
     },
     "./client": {
-      "import": "./dist/client/client.gen.ts",
-      "require": "./dist/client/client.gen.ts"
+      "import": "./client/client.gen.ts",
+      "require": "./client/client.gen.ts"
     },
     "./sdk": {
-      "import": "./dist/client/index.ts",
-      "require": "./dist/client/index.ts"
+      "import": "./client/index.ts",
+      "require": "./client/index.ts"
     }
   },
   "repository": {
@@ -61,7 +61,8 @@
   },
   "files": [
     "./dist/**/*",
-    "./docker-compose.yaml"
+    "./docker-compose.yaml",
+    "./client/*"
   ],
   "optionalDependencies": {
     "filesystem-notify-win32-x64-msvc": "latest",

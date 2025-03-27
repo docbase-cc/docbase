@@ -17,6 +17,7 @@ packageJson.version = version;
 delete packageJson.scripts;
 delete packageJson.devDependencies;
 delete packageJson.tsup;
+delete packageJson.exports["./src"];
 
 // 写入文件
 await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
