@@ -1,9 +1,10 @@
-import { DBLayer } from "core/src";
+import { DBLayer, DocBaseConfig } from "core/src";
 import { PackageManager } from "./pkgManager";
 import { join } from "path";
-import { readJSON, rm } from "fs-extra";
+import { exists, readJSON, rm, writeJSON } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
+import { env } from "process";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
@@ -46,7 +47,30 @@ export class DB implements DBLayer {
     })();
   };
 
-  getConfig = async () => await readJSON(this.#configPath);
+  getConfig = async (): Promise<DocBaseConfig> => {
+    const configExists = await exists(this.#configPath);
+    if (!configExists) {
+      return await this.#initConifgFromEnv();
+    } else {
+      const config = await readJSON(this.#configPath);
+      return config as DocBaseConfig;
+    }
+  };
+
+  #initConifgFromEnv = async () => {
+    if (env.MEILI_URL && env.MEILI_MASTER_KEY) {
+      const config = {
+        meiliSearchConfig: {
+          host: env.MEILI_URL,
+          apiKey: env.MEILI_MASTER_KEY,
+        },
+      };
+      await writeJSON(this.#configPath, config);
+      return config;
+    } else {
+      throw new Error("MEILI_URL and MEILI_MASTER_KEY env must be set");
+    }
+  };
 
   knowledgeBase = {
     add: async (name: string) => {
