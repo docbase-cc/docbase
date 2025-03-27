@@ -309,6 +309,256 @@ export type PostBaseKnowledgeIdSearchResponses = {
 
 export type PostBaseKnowledgeIdSearchResponse = PostBaseKnowledgeIdSearchResponses[keyof PostBaseKnowledgeIdSearchResponses];
 
+export type DeleteBaseBaseData = {
+    body?: {
+        id: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/base/base';
+};
+
+export type DeleteBaseBaseResponses = {
+    /**
+     * del base status
+     */
+    200: {
+        deleted: boolean;
+    };
+};
+
+export type DeleteBaseBaseResponse = DeleteBaseBaseResponses[keyof DeleteBaseBaseResponses];
+
+export type GetBaseBaseData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/base/base';
+};
+
+export type GetBaseBaseResponses = {
+    /**
+     * all base
+     */
+    200: Array<{
+        name: string;
+        id: string;
+        path: string;
+    }>;
+};
+
+export type GetBaseBaseResponse = GetBaseBaseResponses[keyof GetBaseBaseResponses];
+
+export type PutBaseBaseData = {
+    body?: {
+        name: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/base/base';
+};
+
+export type PutBaseBaseResponses = {
+    /**
+     * added base
+     */
+    200: {
+        name: string;
+        id: string;
+        path: string;
+    };
+};
+
+export type PutBaseBaseResponse = PutBaseBaseResponses[keyof PutBaseBaseResponses];
+
+export type DeleteBaseKnowledgeIdEmbedderData = {
+    body?: never;
+    path: {
+        knowledgeId: string;
+    };
+    query?: never;
+    url: '/base/:knowledgeId/embedder';
+};
+
+export type DeleteBaseKnowledgeIdEmbedderResponses = {
+    /**
+     * Embedders reset successfully
+     */
+    200: {
+        status: 'succeeded' | 'processing' | 'failed' | 'enqueued' | 'canceled';
+    };
+};
+
+export type DeleteBaseKnowledgeIdEmbedderResponse = DeleteBaseKnowledgeIdEmbedderResponses[keyof DeleteBaseKnowledgeIdEmbedderResponses];
+
+export type GetBaseKnowledgeIdEmbedderData = {
+    body?: never;
+    path: {
+        knowledgeId: string;
+    };
+    query?: never;
+    url: '/base/:knowledgeId/embedder';
+};
+
+export type GetBaseKnowledgeIdEmbedderResponses = {
+    /**
+     * Embedders
+     */
+    200: {
+        [key: string]: {
+            source: 'openAi';
+            model?: string;
+            apiKey?: string;
+            documentTemplate?: string;
+            dimensions?: number;
+            distribution?: {
+                mean: number;
+                sigma: number;
+            };
+            url?: string;
+            documentTemplateMaxBytes?: number;
+            binaryQuantized?: boolean;
+        } | {
+            source: 'huggingFace';
+            model?: string;
+            revision?: string;
+            documentTemplate?: string;
+            distribution?: {
+                mean: number;
+                sigma: number;
+            };
+            documentTemplateMaxBytes?: number;
+            binaryQuantized?: boolean;
+        } | {
+            source: 'userProvided';
+            dimensions: number;
+            distribution?: {
+                mean: number;
+                sigma: number;
+            };
+            binaryQuantized?: boolean;
+        } | {
+            source: 'rest';
+            url: string;
+            apiKey?: string;
+            dimensions?: number;
+            documentTemplate?: string;
+            distribution?: {
+                mean: number;
+                sigma: number;
+            };
+            request: {};
+            response: {};
+            headers?: {
+                [key: string]: string;
+            };
+            documentTemplateMaxBytes?: number;
+            binaryQuantized?: boolean;
+        } | {
+            source: 'ollama';
+            url?: string;
+            apiKey?: string;
+            model?: string;
+            documentTemplate?: string;
+            distribution?: {
+                mean: number;
+                sigma: number;
+            };
+            dimensions?: number;
+            documentTemplateMaxBytes?: number;
+            binaryQuantized?: boolean;
+        } | null;
+    } | null;
+};
+
+export type GetBaseKnowledgeIdEmbedderResponse = GetBaseKnowledgeIdEmbedderResponses[keyof GetBaseKnowledgeIdEmbedderResponses];
+
+export type PostBaseKnowledgeIdEmbedderData = {
+    body?: {
+        embedders: {
+            [key: string]: {
+                source: 'openAi';
+                model?: string;
+                apiKey?: string;
+                documentTemplate?: string;
+                dimensions?: number;
+                distribution?: {
+                    mean: number;
+                    sigma: number;
+                };
+                url?: string;
+                documentTemplateMaxBytes?: number;
+                binaryQuantized?: boolean;
+            } | {
+                source: 'huggingFace';
+                model?: string;
+                revision?: string;
+                documentTemplate?: string;
+                distribution?: {
+                    mean: number;
+                    sigma: number;
+                };
+                documentTemplateMaxBytes?: number;
+                binaryQuantized?: boolean;
+            } | {
+                source: 'userProvided';
+                dimensions: number;
+                distribution?: {
+                    mean: number;
+                    sigma: number;
+                };
+                binaryQuantized?: boolean;
+            } | {
+                source: 'rest';
+                url: string;
+                apiKey?: string;
+                dimensions?: number;
+                documentTemplate?: string;
+                distribution?: {
+                    mean: number;
+                    sigma: number;
+                };
+                request: {};
+                response: {};
+                headers?: {
+                    [key: string]: string;
+                };
+                documentTemplateMaxBytes?: number;
+                binaryQuantized?: boolean;
+            } | {
+                source: 'ollama';
+                url?: string;
+                apiKey?: string;
+                model?: string;
+                documentTemplate?: string;
+                distribution?: {
+                    mean: number;
+                    sigma: number;
+                };
+                dimensions?: number;
+                documentTemplateMaxBytes?: number;
+                binaryQuantized?: boolean;
+            } | null;
+        } | null;
+    };
+    path: {
+        knowledgeId: string;
+    };
+    query?: never;
+    url: '/base/:knowledgeId/embedder';
+};
+
+export type PostBaseKnowledgeIdEmbedderResponses = {
+    /**
+     * Embedder updated successfully
+     */
+    200: {
+        status: 'succeeded' | 'processing' | 'failed' | 'enqueued' | 'canceled';
+    };
+};
+
+export type PostBaseKnowledgeIdEmbedderResponse = PostBaseKnowledgeIdEmbedderResponses[keyof PostBaseKnowledgeIdEmbedderResponses];
+
 export type ClientOptions = {
     baseUrl: `${string}://client` | (string & {});
 };

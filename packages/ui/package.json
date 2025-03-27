@@ -2,7 +2,7 @@
   "name": "ui",
   "type": "module",
   "scripts": {
-    "build": "nuxt generate",
+    "no:build": "nuxt generate",
     "dev": "nuxt dev --port 3001",
     "postinstall": "nuxt prepare"
   },
