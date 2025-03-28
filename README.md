@@ -68,9 +68,9 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 测试功能 -->
+<!-- TODO 命令行（快速启动本地 docbase(让用户输入一个 meilisearch 参数即可)、插件开发助手） -->
+<!-- TODO 新版多知识库前端 -->
 
-<!-- TODO 命令行（插件开发助手、快速启动本地 docbase(让用户输入一个 meilisearch 参数即可)） -->
 <!-- TODO 客户端版 -->
 <!-- TODO 文档补充更多搜索参数/插件管理/向量搜索配置教程/多知识库使用 -->
 <!-- TODO 中间件插件（search、upsert、remove 操作可使用中间件拓展） -->

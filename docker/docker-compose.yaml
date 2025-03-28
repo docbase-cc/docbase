@@ -1,6 +1,5 @@
 # Common environment variables
-x-environment: &common-env
-  # key
+x-environment: &common-env # key
   MEILI_MASTER_KEY: mykey
 
 services:
@@ -21,7 +20,7 @@ services:
       <<: *common-env
       MEILI_URL: http://meilisearch:7700
     volumes:
-      - data:/data
+      - data:~/.docbase
     ports:
       - "3000:3000"
 
