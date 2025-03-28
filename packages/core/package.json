@@ -61,7 +61,8 @@
   },
   "files": [
     "./dist/**/*",
-    "./docker-compose.yaml",
-    "./client/*"
+    "./client/**/*",
+    "./main/**/*",
+    "./docker-compose.yaml"
   ]
 }
