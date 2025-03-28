@@ -35,10 +35,10 @@
     "tsup": "^8.4.0"
   },
   "dependencies": {
+    "chokidar": "^4.0.3",
     "console-table-printer": "^2.12.1",
-    "es-toolkit": "^1.34.0",
+    "es-toolkit": "^1.34.1",
     "fdir": "^6.4.3",
-    "filesystem-notify": "^0.0.3",
     "fs-extra": "^11.3.0",
     "hash-wasm": "^4.12.0",
     "itertools-ts": "^2.2.0",
@@ -63,22 +63,5 @@
     "./dist/**/*",
     "./docker-compose.yaml",
     "./client/*"
-  ],
-  "optionalDependencies": {
-    "filesystem-notify-win32-x64-msvc": "latest",
-    "filesystem-notify-darwin-x64": "latest",
-    "filesystem-notify-linux-x64-gnu": "latest",
-    "filesystem-notify-darwin-arm64": "latest",
-    "filesystem-notify-android-arm64": "latest",
-    "filesystem-notify-linux-arm64-gnu": "latest",
-    "filesystem-notify-linux-arm64-musl": "latest",
-    "filesystem-notify-win32-arm64-msvc": "latest",
-    "filesystem-notify-linux-arm-gnueabihf": "latest",
-    "filesystem-notify-linux-arm-musleabihf": "latest",
-    "filesystem-notify-linux-x64-musl": "latest",
-    "filesystem-notify-win32-ia32-msvc": "latest",
-    "filesystem-notify-android-arm-eabi": "latest",
-    "filesystem-notify-darwin-universal": "latest",
-    "filesystem-notify-linux-riscv64-gnu": "latest"
-  }
+  ]
 }

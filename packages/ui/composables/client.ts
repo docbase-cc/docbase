@@ -1,5 +1,5 @@
 import { client } from "app/client/client.gen";
-import { postSearch, type SearchParam } from "app/client";
+import { postBaseKnowledgeIdSearch, type SearchParam } from "app/client";
 
 // 区分开发和生产环境
 const urlBase = import.meta.env.DEV ? "http://localhost:3000" : "";
@@ -21,4 +21,10 @@ client.setConfig({
   auth: () => useTokenStore().token,
 });
 
-export const search = (body: SearchParam) => postSearch({ body });
+export const search = (body: SearchParam) =>
+  postBaseKnowledgeIdSearch({
+    body,
+    path: {
+      knowledgeId: "",
+    },
+  });

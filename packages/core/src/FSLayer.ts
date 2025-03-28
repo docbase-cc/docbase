@@ -1,6 +1,6 @@
 import { fdir } from "fdir";
-import { DirectoryWatcher } from "filesystem-notify";
 import { getExtFromPath, slash } from "./Utils";
+import { watch } from "chokidar";
 
 /**
  * 扫描器类型定义
@@ -28,35 +28,9 @@ export type Watcher = {
   watch: (path: string, actions: WatchAction) => void;
 };
 
-/**
- * 文件系统监视勾子
- * @param event
- * @param actions
- */
-const eventHook = (event: string, actions: WatchAction) => {
-  const { filter, upsert, remove } = actions;
-  try {
-    const e = JSON.parse(event);
-    const type = e.event.type;
-    const path = e.event.paths[0];
-
-    // 过滤需要的路径
-    if (filter(path)) {
-      console.info(`[${type}] ${path}`);
-      if (type === "create" || type === "modify") {
-        upsert(slash(path));
-      } else if (type === "remove") {
-        remove(slash(path));
-      }
-    }
-  } catch (parseError) {
-    console.error(`Error parsing event data: ${parseError}`);
-  }
-};
-
 export const FSLayer = () => {
   const fd = new fdir().withBasePath();
-  const watchers = new Map<string, Watcher>();
+  const watchers = new Map<string, { unwatch: (path: string) => void }>();
 
   // 扫描器
   const scanner: Scanner = async ({ dirs, exts, load }) => {
@@ -83,10 +57,27 @@ export const FSLayer = () => {
       return watchers.delete(path);
     },
     watch: (path: string, actions: WatchAction) => {
-      const watcher = DirectoryWatcher.new((_err, event) =>
-        eventHook(event, actions)
-      );
-      watcher.watch(path);
+      const { filter, upsert, remove } = actions;
+
+      const addOrChange = (p: string) => {
+        if (filter(p)) {
+          console.info(`[upsert] ${p}`);
+          upsert(slash(p));
+        }
+      };
+
+      const unlink = (p: string) => {
+        if (filter(p)) {
+          console.info(`[remove] ${p}`);
+          remove(slash(p));
+        }
+      };
+
+      const watcher = watch(path)
+        .on("add", addOrChange)
+        .on("change", addOrChange)
+        .on("unlink", unlink);
+
       watchers.set(path, watcher);
     },
   };

@@ -27,10 +27,8 @@ watch(() => fields.value.q, debounce(async (newVal) => {
 
         const res = await search({
             q: newVal,
-            opts: {
-                showRankingScore: true,
-                rankingScoreThreshold: 0.8
-            }
+            showRankingScore: true,
+            rankingScoreThreshold: 0.8
         })
 
         fields.value.searchResults = res.data!
