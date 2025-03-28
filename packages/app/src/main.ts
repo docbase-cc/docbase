@@ -3,9 +3,9 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import apis from "./apis";
 import { version, name } from "~/package.json";
-import { type DocBase } from "core/src";
+import { DBLayer, type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
-import { getPkgManager, PackageManager } from "./docbase";
+import { getDB, getPkgManager, PackageManager } from "./docbase";
 import { getDocBase } from "./docbase";
 import webdav from "./webdav";
 
@@ -19,17 +19,20 @@ export const routeVersion = `v${version.split(".")[0]}`;
 declare module "hono" {
   interface ContextVariableMap {
     docbase: DocBase;
+    db: DBLayer;
     pkgManager: PackageManager;
   }
 }
 
 const app = new OpenAPIHono();
-const pkgManager = await getPkgManager();
+const pkgManager = getPkgManager();
+const db = getDB();
 const docbase = await getDocBase();
 
 // 启动 docbase 实例
 app.use(async (c, next) => {
   c.set("pkgManager", pkgManager);
+  c.set("db", db);
   c.set("docbase", docbase);
   await next();
 });

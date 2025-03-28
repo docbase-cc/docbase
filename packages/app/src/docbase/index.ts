@@ -25,7 +25,7 @@ let pkgManager: PackageManager | undefined;
 let db: DBLayer | undefined;
 let docbase: DocBase | undefined;
 
-export const getPkgManager = async () => {
+export const getPkgManager = () => {
   if (pkgManager) {
     return pkgManager;
   } else {
@@ -34,14 +34,14 @@ export const getPkgManager = async () => {
   }
 };
 
-const getDB = async () => {
+export const getDB = () => {
   if (db) {
     return db;
   } else {
     db = new DB({
       dataDir,
       fileDir,
-      pkgManager: await getPkgManager(),
+      pkgManager: getPkgManager(),
     });
     return db;
   }
@@ -51,7 +51,7 @@ export const getDocBase = async () => {
   if (docbase) {
     return docbase;
   } else {
-    docbase = await createDocBase({ db: await getDB() });
+    docbase = await createDocBase({ db: getDB() });
     return docbase;
   }
 };
