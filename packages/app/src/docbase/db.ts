@@ -1,11 +1,12 @@
 import { DBLayer, DocBaseConfig } from "core/src";
 import { PackageManager } from "./pkgManager";
-import { join } from "path";
-import { exists, readJSON, rm, writeJSON } from "fs-extra";
+import path, { join } from "path";
+import { exists, existsSync, readJSON, rm, writeJSON } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
+import { fileURLToPath } from "url";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
@@ -29,12 +30,16 @@ export class DB implements DBLayer {
     this.#pkgManager = pkgManager;
     this.#dbPath = join(dataDir, "db.sqlite");
     const url = `file:${this.#dbPath}`;
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const prodPrismaPath = join(__dirname, "prisma");
+    const prodPrismaExists = existsSync(prodPrismaPath);
     spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
       stdio: "inherit",
       env: {
         ...env,
         DATABASE_URL: url,
       },
+      cwd: prodPrismaExists ? prodPrismaPath : undefined,
     });
     this.#prisma = new PrismaClient({
       datasources: {

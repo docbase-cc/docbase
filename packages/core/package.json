@@ -14,6 +14,11 @@
       "import": "./src/index.ts",
       "require": "./src/index.ts"
     },
+    "./server": {
+      "types": "./main/index.d.ts",
+      "import": "./main/index.js",
+      "require": "./main/index.js"
+    },
     "./client": {
       "import": "./client/client.gen.ts",
       "require": "./client/client.gen.ts"
