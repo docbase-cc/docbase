@@ -1,5 +1,3 @@
-// 区分每个知识库
-
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { proxy } from "./utils";
 

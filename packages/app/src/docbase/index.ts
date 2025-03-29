@@ -7,7 +7,7 @@ import { DB } from "./db";
 import { createDocBase } from "./docbase";
 import { startWebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
-export { PackageManager };
+export { PackageManager, DB };
 
 // 初始化插件目录
 const baseDir = join(homedir(), ".docbase");

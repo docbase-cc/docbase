@@ -31,8 +31,9 @@ await createClient({
 });
 
 await Bun.build({
-  entrypoints: ["./src/main.ts"],
+  entrypoints: ["./src/main.ts", "./src/index.ts"],
   outdir: "./dist",
+  splitting: true,
   target: "bun",
   sourcemap: "external",
   minify: true,

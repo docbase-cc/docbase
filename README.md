@@ -68,7 +68,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TOOD docbase 与本地文件系统解耦 -->
 <!-- TODO docbase plugin 数据与持久化同步 -->
 <!-- TODO 命令行（快速启动本地 docbase(让用户输入一个 meilisearch 参数即可)、插件开发助手） -->
 <!-- TODO 新版多知识库前端 -->
