@@ -11,7 +11,7 @@ import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
 import { Embedders, type SearchParams } from "meilisearch";
 import { basename } from "path";
-import { FSLayer, Scanner, Watcher } from "./FSLayer";
+import { createFSLayer, FSLayer, FSLayerParams } from "./FSLayer";
 import { Base, DBLayer } from "./DBLayer";
 import { chainAsync } from "itertools-ts/lib/multi";
 import { AsyncStream } from "itertools-ts";
@@ -43,11 +43,13 @@ export interface DifyKnowledgeResponseRecord {
  */
 export interface DocBaseOptions {
   db: DBLayer;
+  fs: FSLayerParams;
 }
 
 export class DocBase {
   /** 数据持久层 */
   #db: DBLayer;
+  #fs: FSLayer;
 
   /** 文档管理器 */
   #docManagers: Map<string, DocManager> = new Map();
@@ -59,13 +61,7 @@ export class DocBase {
   #docLoaders: Map<string, DocLoaderPlugin<object>> = new Map();
 
   /** 文档分割器 */
-  #docSplitter!: DocSplitterPlugin;
-
-  /** 文档扫描器 */
-  #docScanner!: Scanner;
-
-  /** 文档监视器 */
-  #docWatcher!: Watcher;
+  #docSplitter: DocSplitterPlugin = defaultDocSplitterPlugin;
 
   /** 任务缓存器 */
   #watcherTaskCache = new Map<
@@ -177,19 +173,13 @@ export class DocBase {
    */
   #scan = async (id: string, dirs: string[]) => {
     const docManager = this.#validGetDocManager(id);
-    await this.#docScanner({
+    await this.#fs.scanner({
       dirs,
       exts: Array.from(this.#docExtToLoaderName.keys()),
-      load: async (paths) => {
-        // 使用 Promise.all 并行处理多个文档插入
-        await Promise.all(
-          paths.map(async (path) => {
-            console.info(`Upserting document during scan: ${path}`);
-            await docManager.upsertDoc(path);
-            console.info(`Document upserted during scan: ${path}`);
-          })
-        );
-        console.info(`Documents loaded from paths: ${paths.join(", ")}`);
+      load: async (path) => {
+        console.info(`Upserting document during scan: ${path}`);
+        await docManager.upsertDoc(path);
+        console.info(`Document upserted during scan: ${path}`);
       },
     });
     console.info(`Directories scanned successfully: ${dirs.join(", ")}`);
@@ -197,54 +187,28 @@ export class DocBase {
 
   constructor(options: DocBaseOptions) {
     this.#db = options.db;
+    this.#fs = createFSLayer(options.fs);
   }
 
   /** 启动 docbase */
   start = async () => {
     console.info("Starting DocBase...");
+
     // 初始化插件
     console.info("Loading all plugins...");
-
+    await this.loadPlugin({
+      plugin: defaultDocLoaderPlugin,
+      config: {},
+    });
     // 加载所有插件
-    await AsyncStream.of(
-      chainAsync<PluginWithConfig<any>>(
-        [
-          {
-            plugin: defaultDocLoaderPlugin,
-            config: {},
-          },
-          {
-            plugin: defaultDocSplitterPlugin,
-            config: {
-              len: 1000,
-            },
-          },
-        ],
-        this.#db.plugins()
-      )
-    )
+    await AsyncStream.of(chainAsync<PluginWithConfig<any>>(this.#db.plugins()))
       .map((initPlugin) => this.loadPlugin(initPlugin))
       .toArray();
-
-    const docSplitterExist = typeof this.#docSplitter.func === "function";
-    const docLoadersExist = this.#docLoaders.size > 0;
-
-    // 校验文档监视器、文档扫描器、文档分割器是否存在
-    if (!docSplitterExist || !docLoadersExist) {
-      const msg = `DocLoaders: ${docLoadersExist} | DocSplitter: ${docSplitterExist}`;
-      console.error("Loaded components: \n" + msg);
-      throw new Error("Loaded components: \n" + msg);
-    }
     console.info("All plugins loaded successfully.");
 
-    // 初始化监视器扫描器
-    console.info("Initializing watcher and scanner...");
-    const { watcher, scanner } = FSLayer();
-    this.#docWatcher = watcher;
-    this.#docScanner = scanner;
-    console.info("Watcher and scanner initialized successfully.");
+    // TODO 加载 extToLoader 映射
 
-    // 初始化文档管理器
+    // 加载所有文档管理器
     console.info("Initializing DocManager...");
     const result = await AsyncStream.of(this.#db.knowledgeBase.all())
       .map(async (item) => {
@@ -254,6 +218,7 @@ export class DocBase {
       .toArray();
     result.length > 0 && printTable(result);
     console.info("DocManager initialized successfully");
+
     console.info("DocBase started successfully.");
   };
 
@@ -293,7 +258,7 @@ export class DocBase {
     console.info(`Base ${name} scanned successfully.`);
 
     // 监视目录
-    this.#docWatcher.watch(path, {
+    this.#fs.watcher.watch(path, {
       filter: this.#pathFilterToLoader,
       upsert: (path: string) => {
         this.#watcherTaskCache.set(path, { docManagerId: id, type: "upsert" });
@@ -318,8 +283,9 @@ export class DocBase {
   delBase = async (id: string) => {
     const base = await this.#db.knowledgeBase.del(id);
     await this.#validGetDocManager(id).delete();
-    this.#docManagers.delete(id);
-    return this.#docWatcher.unwatch(base.path);
+    const deleted =
+      this.#docManagers.delete(id) && this.#fs.watcher.unwatch(base.path);
+    return deleted;
   };
 
   /** 获取所有知识库 */

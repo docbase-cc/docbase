@@ -6,6 +6,7 @@ import { DocBase } from "core/src";
 import { DB } from "./db";
 import { createDocBase } from "./docbase";
 import { startWebDAV } from "./webdav";
+import { fsLayerParams } from "./fs";
 export { PackageManager };
 
 // 初始化插件目录
@@ -51,7 +52,7 @@ export const getDocBase = async () => {
   if (docbase) {
     return docbase;
   } else {
-    docbase = await createDocBase({ db: getDB() });
+    docbase = await createDocBase({ db: getDB(), fs: fsLayerParams });
     return docbase;
   }
 };

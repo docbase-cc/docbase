@@ -40,13 +40,10 @@ const cutToLen = (text: string, len: number) => {
  * 默认文档分割器插件实现
  * 按固定长度分割文本
  */
-class defaultDocSplitterPlugin implements DocSplitterPlugin<{ len: number }> {
+class defaultDocSplitterPlugin implements DocSplitterPlugin {
   name = "default";
   pluginType: "DocSplitter" = "DocSplitter";
-  #len!: number;
-  init = async ({ len }: { len: number }) => {
-    this.#len = len;
-  };
+  #len: number = 1000;
   func: DocSplitter = (text) =>
     AsyncStream.of(text)
       .map((text) => cutToLen(text, this.#len))

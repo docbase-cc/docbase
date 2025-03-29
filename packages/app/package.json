@@ -18,7 +18,9 @@
     "@prisma/client": "^6.5.0",
     "@types/fs-extra": "^11.0.4",
     "itertools-ts": "^2.2.0",
-    "fs-extra": "^11.3.0"
+    "fs-extra": "^11.3.0",
+    "chokidar": "^4.0.3",
+    "fdir": "^6.4.3"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.4"

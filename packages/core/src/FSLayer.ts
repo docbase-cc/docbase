@@ -1,6 +1,19 @@
-import { fdir } from "fdir";
-import { watch } from "chokidar";
-import { getExtFromPath, slash } from "./Utils";
+import { slash } from "./Utils";
+import { AsyncStream } from "itertools-ts";
+
+export interface DirWatcher {
+  onUpsert: (callback: (path: string) => void) => void;
+  onRemove: (callback: (path: string) => void) => void;
+  unwatch: (path: string) => void;
+}
+
+export interface FSLayerParams {
+  scan: (params: { dir: string; exts: string[] }) => AsyncIterable<string>;
+  watch: (params: {
+    path: string;
+    filter: (path: string) => boolean;
+  }) => DirWatcher;
+}
 
 /**
  * 扫描器类型定义
@@ -12,7 +25,7 @@ import { getExtFromPath, slash } from "./Utils";
 export type Scanner = (params: {
   dirs: string[];
   exts: string[];
-  load: (paths: string[]) => Promise<void>;
+  load: (paths: string) => Promise<void>;
 }) => Promise<void>;
 
 interface WatchAction {
@@ -28,25 +41,26 @@ export type Watcher = {
   watch: (path: string, actions: WatchAction) => void;
 };
 
-export const FSLayer = () => {
-  const fd = new fdir().withBasePath();
-  const watchers = new Map<string, { unwatch: (path: string) => void }>();
+export interface FSLayer {
+  watcher: Watcher;
+  scanner: Scanner;
+}
+
+export const createFSLayer = (params: FSLayerParams): FSLayer => {
+  const watchers = new Map<string, DirWatcher>();
+  const { scan, watch } = params;
 
   // 扫描器
   const scanner: Scanner = async ({ dirs, exts, load }) => {
     for (const dir of dirs) {
       console.info(`Starting to scan directory: ${dir}`);
-      const outs = await fd
-        .filter((path) => {
-          const ext = getExtFromPath(path);
-          return exts.includes(ext);
-        })
-        .crawl(dir)
-        .withPromise();
-      console.info(
-        `Scanning directory ${dir} completed, found ${outs.length} files`
-      );
-      await load(outs.map((path) => slash(path)));
+      const paths = scan({ dir, exts });
+
+      const len = await AsyncStream.of(paths)
+        .map((path) => load(slash(path)))
+        .toCount();
+
+      console.info(`Scanning directory ${dir} completed, found ${len} files`);
     }
   };
 
@@ -59,24 +73,16 @@ export const FSLayer = () => {
     watch: (path: string, actions: WatchAction) => {
       const { filter, upsert, remove } = actions;
 
-      const addOrChange = (p: string) => {
-        if (filter(p)) {
-          console.info(`[upsert] ${p}`);
-          upsert(slash(p));
-        }
-      };
+      const watcher = watch({ path, filter });
 
-      const unlink = (p: string) => {
-        if (filter(p)) {
-          console.info(`[remove] ${p}`);
-          remove(slash(p));
-        }
-      };
-
-      const watcher = watch(path)
-        .on("add", addOrChange)
-        .on("change", addOrChange)
-        .on("unlink", unlink);
+      watcher.onUpsert((p: string) => {
+        console.info(`[upsert] ${p}`);
+        upsert(slash(p));
+      });
+      watcher.onRemove((p: string) => {
+        console.info(`[remove] ${p}`);
+        remove(slash(p));
+      });
 
       watchers.set(path, watcher);
     },
