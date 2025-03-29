@@ -52,7 +52,8 @@ await Promise.all([
   (async () => {
     await copy("./prisma", "./dist/prisma");
   })(),
-  (async () => {
-    await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited;
-  })(),
+  import.meta.env.NODE_ENV === "production" &&
+    (async () => {
+      await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited;
+    })(),
 ]);

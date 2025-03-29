@@ -33,6 +33,8 @@ jobs:
       - run: bun install
 
       - run: bun run build
+        env:
+          NODE_ENV: production
 
       - name: get-npm-version
         id: package-version
