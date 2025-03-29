@@ -4,14 +4,10 @@ import { existsSync } from "fs-extra";
 const dufsPort = 15000;
 
 export const startWebDAV = (path: string) => {
-  let dufsCmd: string | undefined = undefined;
+  let dufsCmd: string = "dufs";
 
   if (existsSync("../../dist/dufs.exe")) {
     dufsCmd = "../../dist/dufs.exe";
-  }
-
-  if (existsSync("/bin/dufs")) {
-    dufsCmd = "dufs";
   }
 
   if (dufsCmd) {
@@ -27,7 +23,7 @@ export const startWebDAV = (path: string) => {
     ]);
     // 错误处理
     dufsProcess.on("error", (err) => {
-      console.error("启动 dufs 失败:", err);
+      console.error("启动 dufs 失败, 请确保已安装 dufs:", err);
     });
     dufsProcess.stderr.on("data", (data) => {
       console.error(`dufs 错误: ${data}`);
