@@ -9,18 +9,18 @@
     "@hey-api/openapi-ts": "^0.64.15",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
+    "@prisma/client": "^6.5.0",
+    "@types/fs-extra": "^11.0.4",
+    "chokidar": "^4.0.3",
     "consola": "^3.4.2",
     "core": "workspace:*",
     "es-toolkit": "^1.34.1",
-    "hono": "^4.7.5",
-    "nypm": "^0.6.0",
-    "prisma": "^6.5.0",
-    "@prisma/client": "^6.5.0",
-    "@types/fs-extra": "^11.0.4",
-    "itertools-ts": "^2.2.0",
+    "fdir": "^6.4.3",
     "fs-extra": "^11.3.0",
-    "chokidar": "^4.0.3",
-    "fdir": "^6.4.3"
+    "hono": "^4.7.5",
+    "itertools-ts": "^2.2.0",
+    "nypm": "^0.6.0",
+    "prisma": "^6.5.0"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.4"
