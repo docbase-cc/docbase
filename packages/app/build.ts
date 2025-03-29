@@ -1,9 +1,9 @@
-import { cpSync, rmSync } from "fs-extra";
+import { exists, mkdir, writeFile, copy } from "fs-extra";
 import { createClient } from "@hey-api/openapi-ts";
 import apis from "./src/apis";
 import { version, name } from "~/package.json";
-import fs from "fs";
 
+// 并行化文件操作
 const openapi = apis.getOpenAPI31Document({
   openapi: "3.1.0",
   info: {
@@ -16,21 +16,27 @@ const openapiPath = "client/openapi.json";
 // 确保目录存在
 const dir = openapiPath.split("/").slice(0, -1).join("/");
 
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
+if (!(await exists(dir))) {
+  await mkdir(dir, { recursive: true });
 }
 
 // 将 openapi 写入文件
-fs.writeFileSync(openapiPath, JSON.stringify(openapi, null, 2));
+const writeOpenapiPromise = writeFile(
+  openapiPath,
+  JSON.stringify(openapi, null, 2)
+);
 
 // 生成客户端
-await createClient({
-  input: openapiPath,
-  output: "client",
-  plugins: ["@hey-api/client-fetch"],
-});
+const createClientPromise = writeOpenapiPromise.then(() =>
+  createClient({
+    input: openapiPath,
+    output: "client",
+    plugins: ["@hey-api/client-fetch"],
+  })
+);
 
-await Bun.build({
+// 并行构建
+const buildPromise = Bun.build({
   entrypoints: ["./src/main.ts", "./src/index.ts"],
   outdir: "./dist",
   splitting: true,
@@ -39,5 +45,14 @@ await Bun.build({
   minify: true,
 });
 
-rmSync("./dist/prisma", { recursive: true, force: true });
-cpSync("./prisma", "./dist/prisma", { force: true, recursive: true });
+// 等待所有异步操作完成
+await Promise.all([
+  createClientPromise,
+  buildPromise,
+  (async () => {
+    await copy("./prisma", "./dist/prisma");
+  })(),
+  (async () => {
+    await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited;
+  })(),
+]);

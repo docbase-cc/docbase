@@ -20,7 +20,9 @@
     "hono": "^4.7.5",
     "itertools-ts": "^2.2.0",
     "nypm": "^0.6.0",
-    "prisma": "^6.5.0"
+    "prisma": "^6.5.0",
+    "rollup": "^4.38.0",
+    "rollup-plugin-dts": "^6.2.1"
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.8.4"
