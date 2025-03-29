@@ -7,7 +7,13 @@ export interface DirWatcher {
   unwatch: (path: string) => void;
 }
 
-export interface FSLayerParams {
+export interface DocManagerFsLayer {
+  exists: (path: string) => Promise<boolean>;
+  stat: (path: string) => Promise<import("fs").Stats>;
+  read: (path: string) => Promise<string>;
+}
+
+export interface DocBaseFSLayerParams extends DocManagerFsLayer {
   scan: (params: { dir: string; exts: string[] }) => AsyncIterable<string>;
   watch: (params: {
     path: string;
@@ -41,12 +47,12 @@ export type Watcher = {
   watch: (path: string, actions: WatchAction) => void;
 };
 
-export interface FSLayer {
+export interface FSLayer extends DocManagerFsLayer {
   watcher: Watcher;
   scanner: Scanner;
 }
 
-export const createFSLayer = (params: FSLayerParams): FSLayer => {
+export const createFSLayer = (params: DocBaseFSLayerParams): FSLayer => {
   const watchers = new Map<string, DirWatcher>();
   const { scan, watch } = params;
 
@@ -88,5 +94,5 @@ export const createFSLayer = (params: FSLayerParams): FSLayer => {
     },
   };
 
-  return { watcher, scanner };
+  return { watcher, scanner, ...params };
 };

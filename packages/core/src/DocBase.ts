@@ -11,7 +11,7 @@ import type { PluginWithConfig } from "./Plugin";
 import { createMeilisearchClient, getExtFromPath } from "./Utils";
 import { Embedders, type SearchParams } from "meilisearch";
 import { basename } from "path";
-import { createFSLayer, FSLayer, FSLayerParams } from "./FSLayer";
+import { createFSLayer, FSLayer, DocBaseFSLayerParams } from "./FSLayer";
 import { Base, DBLayer } from "./DBLayer";
 import { chainAsync } from "itertools-ts/lib/multi";
 import { AsyncStream } from "itertools-ts";
@@ -43,7 +43,7 @@ export interface DifyKnowledgeResponseRecord {
  */
 export interface DocBaseOptions {
   db: DBLayer;
-  fs: FSLayerParams;
+  fs: DocBaseFSLayerParams;
 }
 
 export class DocBase {
@@ -244,6 +244,7 @@ export class DocBase {
     console.info(`Init base ${name}...`);
     const docm = new DocManager({
       indexPrefix: id,
+      fsLayer: this.#fs,
       meiliSearch: await createMeilisearchClient(meiliSearchConfig),
       docLoader: this.#hyperDocLoader,
       docSplitter: this.#docSplitter.func,

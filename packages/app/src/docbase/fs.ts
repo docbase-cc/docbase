@@ -1,8 +1,9 @@
 import { fdir } from "fdir";
 import { watch } from "chokidar";
-import { getExtFromPath, FSLayerParams } from "core/src";
+import { getExtFromPath, DocBaseFSLayerParams } from "core/src";
+import { exists, stat, readFile } from "fs-extra";
 
-export const fsLayerParams: FSLayerParams = {
+export const fsLayerParams: DocBaseFSLayerParams = {
   scan: (params): AsyncIterable<string> => {
     const { dir, exts } = params;
     const fd = new fdir().withBasePath();
@@ -43,4 +44,7 @@ export const fsLayerParams: FSLayerParams = {
       },
     };
   },
+  exists: exists,
+  stat: stat,
+  read: (path: string) => readFile(path, "utf-8"),
 };

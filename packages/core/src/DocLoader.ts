@@ -1,11 +1,11 @@
 import type { BasePlugin, Content } from "./Plugin";
-import { readFile } from "fs-extra";
 import { IDataType } from "hash-wasm";
 import { AsyncStream } from "itertools-ts";
 
 export interface DocLoaderInput {
   path: string;
   hash: (data: IDataType) => Promise<string>;
+  read: (path: string) => Promise<string>;
 }
 
 /**
@@ -43,9 +43,9 @@ const defaultDocLoaderPlugin: DocLoaderPlugin = {
   name: "default",
   pluginType: "DocLoader",
   exts: ["md", "txt"],
-  func: async ({ path, hash }) => {
+  func: async ({ path, hash, read }) => {
     // 读取文件内容
-    const text = await readFile(path, "utf-8");
+    const text = await read(path);
 
     return {
       // 计算 hash

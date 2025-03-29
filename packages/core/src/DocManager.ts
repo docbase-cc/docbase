@@ -35,10 +35,10 @@ import { Index, MeiliSearch } from "meilisearch";
 import type { DocLoader } from "./DocLoader";
 import type { DocSplitter } from "./DocSplitter";
 import { xxhash64 } from "hash-wasm";
-import { exists, stat } from "fs-extra";
 import { compact, difference, isNotNil, merge } from "es-toolkit";
 import type { Embedders, SearchParams } from "meilisearch";
 import { AsyncStream } from "itertools-ts";
+import { DocManagerFsLayer } from "./FSLayer";
 
 // 从新旧 chunks 计算需要执行的操作
 export const chunkDiff = (
@@ -62,6 +62,9 @@ export const chunkDiff = (
 export class DocManager {
   /** MeiliSearch 客户端实例 */
   #client: MeiliSearch;
+
+  /** 文档管理器文件系统层 */
+  #fs: DocManagerFsLayer;
 
   /** 索引版本 */
   #indexVersion = "v0";
@@ -89,13 +92,16 @@ export class DocManager {
     meiliSearch,
     docLoader,
     docSplitter,
+    fsLayer,
     indexPrefix = "",
   }: {
     meiliSearch: MeiliSearch;
     docLoader: DocLoader;
     docSplitter: DocSplitter;
+    fsLayer: DocManagerFsLayer;
     indexPrefix?: string;
   }) {
+    this.#fs = fsLayer;
     this.#client = meiliSearch;
     this.#docLoader = docLoader;
     this.#docSplitter = docSplitter;
@@ -372,7 +378,7 @@ export class DocManager {
       // 文档存在
       if (!(remoteDocByHash.path === localDoc.path)) {
         // path 错误
-        const oldPathFileExists = await exists(remoteDocByHash.path);
+        const oldPathFileExists = await this.#fs.exists(remoteDocByHash.path);
         if (!oldPathFileExists) {
           // 更新 path
           console.info(
@@ -389,7 +395,7 @@ export class DocManager {
   upsertDoc = async (path: string) => {
     // 查询该路径有无文档
     const [{ mtimeMs }, remoteDocByPath] = await Promise.all([
-      stat(path),
+      this.#fs.stat(path),
       this.#getDocByPathIfExist(path),
     ]);
 
@@ -402,7 +408,11 @@ export class DocManager {
     }
 
     // 加载内容 Promise
-    const doc = await this.#docLoader({ path, hash: xxhash64 });
+    const doc = await this.#docLoader({
+      path,
+      hash: xxhash64,
+      read: this.#fs.read,
+    });
 
     if (doc) {
       const { hash, content } = doc;
@@ -589,7 +599,7 @@ export class DocManager {
         const docChecks: Promise<boolean>[] = [];
         for (const doc of docs) {
           docChecks.push(
-            exists(doc.path).then((exists) => {
+            this.#fs.exists(doc.path).then((exists) => {
               if (!exists) {
                 // 异步删除无效文档
                 console.info(`Deleting invalid document with hash ${doc.hash}`);
