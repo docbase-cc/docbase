@@ -3,11 +3,12 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
 import apis from "./apis";
 import { version, name } from "~/package.json";
-import { DBLayer, type DocBase } from "core/src";
+import { type DocBase } from "core/src";
 import { serveStatic } from "hono/bun";
 import { getDB, getPkgManager, PackageManager } from "./docbase";
 import { getDocBase } from "./docbase";
 import webdav from "./webdav";
+import { DB } from "./docbase/db";
 
 createConsola({
   level: import.meta.env.NODE_ENV === "production" ? 2 : 5,
@@ -19,7 +20,7 @@ export const routeVersion = `v${version.split(".")[0]}`;
 declare module "hono" {
   interface ContextVariableMap {
     docbase: DocBase;
-    db: DBLayer;
+    db: DB;
     pkgManager: PackageManager;
   }
 }

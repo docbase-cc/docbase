@@ -1,6 +1,6 @@
 import { fdir } from "fdir";
-import { getExtFromPath, slash } from "./Utils";
 import { watch } from "chokidar";
+import { getExtFromPath, slash } from "./Utils";
 
 /**
  * 扫描器类型定义

@@ -2,7 +2,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { ensureDir } from "fs-extra";
 import { PackageManager } from "./pkgManager";
-import { DBLayer, DocBase } from "core/src";
+import { DocBase } from "core/src";
 import { DB } from "./db";
 import { createDocBase } from "./docbase";
 import { startWebDAV } from "./webdav";
@@ -22,7 +22,7 @@ await ensureDir(fileDir);
 startWebDAV(fileDir);
 
 let pkgManager: PackageManager | undefined;
-let db: DBLayer | undefined;
+let db: DB | undefined;
 let docbase: DocBase | undefined;
 
 export const getPkgManager = () => {

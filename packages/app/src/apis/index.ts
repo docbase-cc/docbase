@@ -12,29 +12,30 @@ const app = new OpenAPIHono();
 app.use(`*`, cors());
 
 // 使用 bearer 验证
-app.use(`*`, async (c, next) => {
-  const apiKey = (await c.get("db").getConfig()).meiliSearchConfig.apiKey;
+app.use(
+  `*`,
+  bearerAuth({
+    verifyToken: async (token, c) => {
+      const { meiliSearchConfig } = await c.get("db").getConfig();
 
-  if (apiKey) {
-    return bearerAuth({
-      token: apiKey,
-      noAuthenticationHeaderMessage: {
-        error_code: "1001",
-        error_msg: "Authentication header is missing",
-      },
-      invalidAuthenticationHeaderMessage: {
-        error_code: "1001",
-        error_msg: "Invalid authentication header",
-      },
-      invalidTokenMessage: {
-        error_code: "1002",
-        error_msg: "Invalid token",
-      },
-    })(c, next);
-  } else {
-    return await next();
-  }
-});
+      return meiliSearchConfig.apiKey
+        ? token === meiliSearchConfig.apiKey
+        : true;
+    },
+    noAuthenticationHeaderMessage: {
+      error_code: "1001",
+      error_msg: "Authentication header is missing",
+    },
+    invalidAuthenticationHeaderMessage: {
+      error_code: "1001",
+      error_msg: "Invalid authentication header",
+    },
+    invalidTokenMessage: {
+      error_code: "1002",
+      error_msg: "Invalid token",
+    },
+  })
+);
 app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
   type: "http",
   scheme: "bearer",
