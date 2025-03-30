@@ -38,7 +38,7 @@ const createClientPromise = writeOpenapiPromise.then(() =>
 // 并行构建
 const buildPromise = Bun.build({
   entrypoints: ["./src/main.ts", "./src/index.ts"],
-  external: ["@prisma/client"],
+  // external: ["@prisma/client"],
   outdir: "./dist",
   splitting: true,
   target: "bun",
