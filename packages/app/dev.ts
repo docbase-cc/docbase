@@ -2,15 +2,15 @@
 import { spawnSync } from "child_process";
 import { homedir } from "os";
 import { join } from "path";
-import { env } from "process";
 import { version } from "~/package.json";
 
 spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
   stdio: "inherit",
   env: {
-    ...env,
     DATABASE_URL: `file:${join(homedir(), ".docbase/data/db.sqlite")}`,
   },
 });
 
-spawnSync("bun", ["run", "--hot", "src/main.ts"], { stdio: "inherit" });
+spawnSync("bun", ["run", "--hot", "src/main.ts"], {
+  stdio: "inherit",
+});
