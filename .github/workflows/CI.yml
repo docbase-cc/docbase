@@ -32,10 +32,6 @@ jobs:
 
       - run: bun install
 
-      - run: cd packages/app && bun x prisma migrate dev
-        env:
-          DATABASE_URL: file:/root/.docbase/data/db.sqlite
-
       - run: bun run build
         env:
           NODE_ENV: production
@@ -158,10 +154,6 @@ jobs:
           bun-version: latest
 
       - run: bun install
-
-      - run: cd packages/app && bun x prisma migrate dev
-        env:
-          DATABASE_URL: file:/root/.docbase/data/db.sqlite
 
       - run: bun run build
 
