@@ -59,7 +59,7 @@ export class DB implements DBLayer {
       env: {
         DATABASE_URL: url,
       },
-      cwd: prodPrismaExists ? __dirname : undefined,
+      cwd: prodPrismaExists ? prodPrismaPath : undefined,
     });
 
     spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
@@ -67,7 +67,7 @@ export class DB implements DBLayer {
       env: {
         DATABASE_URL: url,
       },
-      cwd: prodPrismaExists ? __dirname : undefined,
+      cwd: prodPrismaExists ? prodPrismaPath : undefined,
     });
 
     // 初始化 prisma
