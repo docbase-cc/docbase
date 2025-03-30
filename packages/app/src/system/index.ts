@@ -96,7 +96,10 @@ app.openapi(setConfig, async (c) => {
       return c.json({ inited: true as true }, 200);
     } catch (error) {
       const msg = (error as Error).message;
-      return c.json({ inited: false, msg }, 400);
+      return c.json(
+        { inited: false, msg: `failed to connect to meilisearch: ${msg}` },
+        400
+      );
     }
   }
 });

@@ -1,4 +1,4 @@
-import { lowerCase, retry } from "es-toolkit";
+import { lowerCase } from "es-toolkit";
 import { extname } from "path";
 import os from "os";
 import { Config, MeiliSearch } from "meilisearch";
@@ -68,34 +68,32 @@ export const ensureContainsFilterFeatureOn = async (client: MeiliSearch) => {
   const key = client.config.apiKey;
 
   // 尝试并等待 meilisearch 启动
-  await retry(
-    async () => {
-      console.debug("Trying to ensure ContainsFilter feature is on");
-      const res = await fetch(`${host}/experimental-features`, {
-        headers: {
-          Authorization: `Bearer ${key}`,
-        },
-      });
-
-      const { containsFilter } = await res.json();
-
-      if (!containsFilter) {
-        console.warn("ContainsFilter feature is off, turning it on...");
-        await fetch(`${host}/experimental-features`, {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${key}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ containsFilter: true }),
-        });
-        console.info("ContainsFilter feature turned on successfully");
-      } else {
-        console.debug("ContainsFilter feature is on");
-      }
+  console.debug("Trying to ensure ContainsFilter feature is on");
+  const res = await fetch(`${host}/experimental-features`, {
+    headers: {
+      Authorization: `Bearer ${key}`,
     },
-    { retries: 3, delay: 3000 }
-  );
+  });
+
+  const { containsFilter } = await res.json();
+
+  if (!containsFilter) {
+    console.debug("ContainsFilter feature is off, turning it on...");
+    const res = await fetch(`${host}/experimental-features`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ containsFilter: true }),
+    });
+    if (res.status !== 200) {
+      throw new Error((await res.json()).message);
+    }
+    console.debug("ContainsFilter feature turned on successfully");
+  } else {
+    console.debug("ContainsFilter feature is on");
+  }
 };
 
 /** 创建 meilisearch 客户端 */
