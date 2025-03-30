@@ -43,7 +43,15 @@ docker-compose up -d
 
 - MEILI_MASTER_KEY: DocBase 的应用密钥
 
-### 下载安装客户端
+### cli 启动
+
+1. 确保已安装`Bun`：
+
+2. 启动服务
+
+```bash
+bun x docbase
+```
 
 <!-- 客户端版 -->
 <!-- 前端插件管理页面 -->
@@ -68,7 +76,7 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO docker 镜像运行测试 -->
+<!-- TODO [部署]docker 镜像 build 逻辑（编译时 generate，并一起打包 prisma client） -->
 <!-- TODO 本地客户端 -->
 
 <!-- TODO [持久化]docbase ext 设置持久化 -->
