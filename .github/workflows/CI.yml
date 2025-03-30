@@ -32,7 +32,9 @@ jobs:
 
       - run: bun install
 
-      - run: DATABASE_URL=~/.docbase/data/db.sqlite cd packages/app && bun x prisma migrate reset && bun x prisma generate
+      - run: cd packages/app && bun x prisma migrate reset && bun x prisma generate
+        env:
+          DATABASE_URL: ~/.docbase/data/db.sqlite
 
       - run: bun run build
         env:
@@ -157,8 +159,10 @@ jobs:
 
       - run: bun install
 
-      - run: DATABASE_URL=~/.docbase/data/db.sqlite cd packages/app && bun x prisma migrate reset && bun x prisma generate
-      
+      - run: cd packages/app && bun x prisma migrate reset && bun x prisma generate
+        env:
+          DATABASE_URL: ~/.docbase/data/db.sqlite
+
       - run: bun run build
 
       # 登录到 Docker Hub
