@@ -9,9 +9,10 @@
 </template>
 
 <script setup lang="ts">
-import { type SearchResult } from "app/client"
+import { postV0BaseKnowledgeIdSearch, type SearchResult } from "app/client"
 import { debounce } from "es-toolkit";
 
+const id = "TODO 选择知识库进行搜索"
 const fields = defineModel<{
     q: string,
     searchResults: SearchResult[]
@@ -25,10 +26,15 @@ watch(() => fields.value.q, debounce(async (newVal) => {
     if (newVal) {
         isLoading.value = true
 
-        const res = await search({
-            q: newVal,
-            showRankingScore: true,
-            rankingScoreThreshold: 0.8
+        const res = await postV0BaseKnowledgeIdSearch({
+            body: {
+                q: newVal,
+                showRankingScore: true,
+                rankingScoreThreshold: 0.8
+            },
+            path: {
+                knowledgeId: id
+            }
         })
 
         fields.value.searchResults = res.data!

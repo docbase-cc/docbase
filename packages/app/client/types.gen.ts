@@ -309,16 +309,16 @@ export type PostV0BaseKnowledgeIdSearchResponses = {
 
 export type PostV0BaseKnowledgeIdSearchResponse = PostV0BaseKnowledgeIdSearchResponses[keyof PostV0BaseKnowledgeIdSearchResponses];
 
-export type DeleteV0BaseBaseData = {
+export type DeleteV0BaseData = {
     body?: {
         id: string;
     };
     path?: never;
     query?: never;
-    url: '/v0/base/base';
+    url: '/v0/base';
 };
 
-export type DeleteV0BaseBaseResponses = {
+export type DeleteV0BaseResponses = {
     /**
      * del base status
      */
@@ -327,16 +327,16 @@ export type DeleteV0BaseBaseResponses = {
     };
 };
 
-export type DeleteV0BaseBaseResponse = DeleteV0BaseBaseResponses[keyof DeleteV0BaseBaseResponses];
+export type DeleteV0BaseResponse = DeleteV0BaseResponses[keyof DeleteV0BaseResponses];
 
-export type GetV0BaseBaseData = {
+export type GetV0BaseData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/v0/base/base';
+    url: '/v0/base';
 };
 
-export type GetV0BaseBaseResponses = {
+export type GetV0BaseResponses = {
     /**
      * all base
      */
@@ -347,18 +347,18 @@ export type GetV0BaseBaseResponses = {
     }>;
 };
 
-export type GetV0BaseBaseResponse = GetV0BaseBaseResponses[keyof GetV0BaseBaseResponses];
+export type GetV0BaseResponse = GetV0BaseResponses[keyof GetV0BaseResponses];
 
-export type PutV0BaseBaseData = {
+export type PutV0BaseData = {
     body?: {
         name: string;
     };
     path?: never;
     query?: never;
-    url: '/v0/base/base';
+    url: '/v0/base';
 };
 
-export type PutV0BaseBaseResponses = {
+export type PutV0BaseResponses = {
     /**
      * added base
      */
@@ -369,7 +369,7 @@ export type PutV0BaseBaseResponses = {
     };
 };
 
-export type PutV0BaseBaseResponse = PutV0BaseBaseResponses[keyof PutV0BaseBaseResponses];
+export type PutV0BaseResponse = PutV0BaseResponses[keyof PutV0BaseResponses];
 
 export type DeleteV0BaseKnowledgeIdEmbedderData = {
     body?: never;

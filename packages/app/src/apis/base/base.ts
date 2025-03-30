@@ -16,7 +16,7 @@ const baseSchema = z
 const addBase = createRoute({
   tags: ["base"],
   method: "put",
-  path: "/base",
+  path: "/",
   summary: "add knowledge base",
   security: [
     {
@@ -50,7 +50,7 @@ const addBase = createRoute({
 const getBase = createRoute({
   tags: ["base"],
   method: "get",
-  path: "/base",
+  path: "/",
   summary: "get knowledge bases",
   security: [
     {
@@ -73,7 +73,7 @@ const getBase = createRoute({
 const delBase = createRoute({
   tags: ["base"],
   method: "delete",
-  path: "/base",
+  path: "/",
   summary: "del knowledge base",
   security: [
     {
