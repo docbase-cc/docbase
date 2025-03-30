@@ -18,6 +18,12 @@ export interface Base {
   path: string;
 }
 
+export interface Plugin {
+  name: string;
+  type: string;
+  config: object;
+}
+
 // 配置接口
 export interface DocBaseConfig {
   meiliSearchConfig: MeiliSearchConfig;
@@ -26,7 +32,12 @@ export interface DocBaseConfig {
 // 数据库层接口
 export interface DBLayer {
   // 插件表
-  plugins: () => AsyncIterable<PluginWithConfig>;
+  plugin: {
+    // 获取
+    all: () => AsyncIterable<PluginWithConfig>;
+    add: (plugin: Plugin) => Promise<void>;
+    del: (name: string) => Promise<void>;
+  };
   // 配置表
   getConfig: () => Promise<DocBaseConfig>;
   // 知识库表

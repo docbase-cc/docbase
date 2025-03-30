@@ -1,4 +1,4 @@
-import { DBLayer, DocBaseConfig } from "core/src";
+import { DBLayer, DocBaseConfig, Plugin } from "core/src";
 import { PackageManager } from "./pkgManager";
 import path, { join } from "path";
 import { exists, existsSync, readJSON, rm, writeJSON } from "fs-extra";
@@ -50,18 +50,41 @@ export class DB implements DBLayer {
     });
   }
 
-  plugins = () => {
-    const self = this;
-    return (async function* () {
-      const plugins = await self.#prisma.plugin.findMany();
-      for (const { name, config } of plugins) {
-        const plugin = await self.#pkgManager.import(name);
-        yield {
-          plugin,
-          config: config as object,
-        };
-      }
-    })();
+  plugin = {
+    all: () => {
+      const self = this;
+      return (async function* () {
+        const plugins = await self.#prisma.plugin.findMany();
+        for (const { name, config } of plugins) {
+          const plugin = await self.#pkgManager.import(name);
+          yield {
+            plugin,
+            config: config as object,
+          };
+        }
+      })();
+    },
+    del: async (name: string) => {
+      await this.#prisma.plugin.delete({
+        where: {
+          name,
+        },
+      });
+    },
+    add: async (plugin: Plugin) => {
+      await this.#prisma.plugin.upsert({
+        where: {
+          name: plugin.name,
+        },
+        create: {
+          name: plugin.name,
+          config: plugin.config,
+        },
+        update: {
+          config: plugin.config,
+        },
+      });
+    },
   };
 
   getConfig = async (): Promise<DocBaseConfig> => {

@@ -192,12 +192,10 @@ app.openapi(addPlugin, async (c) => {
         plugin,
         config: body,
       });
-      // TODO 将 DocSplitter plugin 保存到数据库
       console.info("Successfully loaded DocSplitter plugin:", name);
       // Delete the old non-default DocSplitter plugin
       if (oldPlugin !== "default") {
         await pkgManager.del(oldPlugin);
-        // TODO 将 旧的 DocSplitter plugin 从数据库删除
         console.info("Deleted old non-default DocSplitter plugin:", oldPlugin);
       }
       return c.json({ installed });
@@ -207,7 +205,6 @@ app.openapi(addPlugin, async (c) => {
         plugin,
         config: body,
       });
-      // TODO 将 DocSplitter plugin 保存到数据库
       console.info("Successfully loaded plugin:", name);
       // Save the plugin configuration name -> body
       // Start a full re-scan immediately

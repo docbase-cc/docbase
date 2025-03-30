@@ -201,7 +201,9 @@ export class DocBase {
       config: {},
     });
     // 加载所有插件
-    await AsyncStream.of(chainAsync<PluginWithConfig<any>>(this.#db.plugins()))
+    await AsyncStream.of(
+      chainAsync<PluginWithConfig<any>>(this.#db.plugin.all())
+    )
       .map((initPlugin) => this.loadPlugin(initPlugin))
       .toArray();
     console.info("All plugins loaded successfully.");
@@ -328,6 +330,7 @@ export class DocBase {
     }
 
     const deleted = this.#docLoaders.delete(docLoaderName);
+    await this.#db.plugin.del(docLoaderName);
     const result = { deleted };
     console.info(
       `Document loader deleted: ${docLoaderName}. Result: ${JSON.stringify(
@@ -418,6 +421,10 @@ export class DocBase {
         break;
 
       case "DocSplitter":
+        // 卸载旧的 DocSplitter 插件
+        this.#docSplitter.name !== "default" &&
+          this.#db.plugin.del(this.#docSplitter.name);
+
         this.#docSplitter = plugin;
         console.info(`Document splitter plugin loaded: ${plugin.name}`);
         break;
@@ -427,6 +434,12 @@ export class DocBase {
         console.error(errorMsg);
         throw new Error(errorMsg);
     }
+
+    await this.#db.plugin.add({
+      name: pluginWithConfig.plugin.name,
+      type: pluginWithConfig.plugin.pluginType,
+      config: pluginWithConfig.config,
+    });
   };
 
   /**
