@@ -34,7 +34,7 @@ jobs:
 
       - run: cd packages/app && bun x prisma migrate dev
         env:
-          DATABASE_URL: file:~/.docbase/data/db.sqlite
+          DATABASE_URL: file:/root/.docbase/data/db.sqlite
 
       - run: bun run build
         env:
@@ -161,7 +161,7 @@ jobs:
 
       - run: cd packages/app && bun x prisma migrate dev
         env:
-          DATABASE_URL: file:~/.docbase/data/db.sqlite
+          DATABASE_URL: file:/root/.docbase/data/db.sqlite
 
       - run: bun run build
 
