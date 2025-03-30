@@ -23,7 +23,6 @@ const showSuccessPage = ref(false); // 新增变量，用于控制显示初始�
 onMounted(async () => {
   try {
     const res = await getSystem();
-    console.log(res);
     initialized.value = res.data?.inited === true;
     if (initialized.value) {
       showSuccessPage.value = true; // 已初始化，显示初始化成功页面
@@ -39,13 +38,13 @@ onMounted(async () => {
 
 const submitForm = async () => {
   status.value = "idle";
-  try {
-    await postSystem({ body: formData.value });
+  const res = await postSystem({ body: formData.value });
+  if (res.data?.inited === true) {
     status.value = "success";
     showSuccessPage.value = true; // 初始化成功，显示初始化成功页面
-  } catch (err) {
+  } else {
     status.value = "error";
-    console.error(err);
+    console.error(res.error?.msg);
   }
 };
 </script>
@@ -71,7 +70,7 @@ const submitForm = async () => {
       <!-- 初始化表单 -->
       <div v-else class="init-form">
         <h1>欢迎使用 DocBase</h1>
-        <p>请填写以下信息完成系统初始化</p>
+        <p>请填写 MeiliSearch 引擎配置完成系统初始化</p>
 
         <form @submit.prevent="submitForm">
           <div class="form-group">
@@ -85,7 +84,7 @@ const submitForm = async () => {
           </div>
 
           <div class="form-group">
-            <label>API Key</label>
+            <label>Meilisearch apiKey</label>
             <input
               v-model="formData.apiKey"
               type="password"
@@ -103,8 +102,6 @@ const submitForm = async () => {
               >✗ 初始化失败，请重试</span
             >
           </button>
-
-          
         </form>
       </div>
     </div>
