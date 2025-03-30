@@ -18,6 +18,7 @@ const formData = ref({
   apiKey: "",
 });
 const status = ref<"idle" | "success" | "error">("idle");
+const showSuccessPage = ref(false); // 新增变量，用于控制显示初始化成功页面
 
 onMounted(async () => {
   try {
@@ -25,10 +26,7 @@ onMounted(async () => {
     console.log(res);
     initialized.value = res.data?.inited === true;
     if (initialized.value) {
-      // 已初始化，3秒后跳转
-      setTimeout(() => {
-        window.location.href = "https://docbase.cc";
-      }, 3000);
+      showSuccessPage.value = true; // 已初始化，显示初始化成功页面
     } else {
       showForm.value = true;
     }
@@ -44,9 +42,7 @@ const submitForm = async () => {
   try {
     await postSystem({ body: formData.value });
     status.value = "success";
-    setTimeout(() => {
-      window.location.href = "https://docbase.cc";
-    }, 2000);
+    showSuccessPage.value = true; // 初始化成功，显示初始化成功页面
   } catch (err) {
     status.value = "error";
     console.error(err);
@@ -61,53 +57,56 @@ const submitForm = async () => {
       <div class="spinner"></div>
       <p>正在检查系统状态...</p>
     </div>
-
-    <!-- 已初始化状态 -->
-    <div v-if="!loading && initialized" class="initialized-state">
-      <div class="checkmark">✓</div>
-      <h1>系统已初始化</h1>
-      <p>即将跳转到 docbase.cc...</p>
-      <div class="progress-bar">
-        <div class="progress"></div>
+    <div v-else>
+      <!-- 已初始化状态 -->
+      <div v-if="showSuccessPage" class="initialized-state">
+        <div class="checkmark">✓</div>
+        <h1>系统初始化成功</h1>
+        <p>即将跳转到 docbase.cc...</p>
+        <div class="progress-bar">
+          <div class="progress"></div>
+        </div>
       </div>
-    </div>
 
-    <!-- 初始化表单 -->
-    <div v-if="showForm" class="init-form">
-      <h1>欢迎使用 DocBase</h1>
-      <p>请填写以下信息完成系统初始化</p>
+      <!-- 初始化表单 -->
+      <div v-else class="init-form">
+        <h1>欢迎使用 DocBase</h1>
+        <p>请填写以下信息完成系统初始化</p>
 
-      <form @submit.prevent="submitForm">
-        <div class="form-group">
-          <label>Meilisearch Host</label>
-          <input
-            v-model="formData.host"
-            type="text"
-            placeholder="http://localhost:7700"
-            required
-          />
-        </div>
+        <form @submit.prevent="submitForm">
+          <div class="form-group">
+            <label>Meilisearch Host</label>
+            <input
+              v-model="formData.host"
+              type="text"
+              placeholder="http://localhost:7700"
+              required
+            />
+          </div>
 
-        <div class="form-group">
-          <label>API Key</label>
-          <input
-            v-model="formData.apiKey"
-            type="password"
-            placeholder="输入您的API密钥"
-            required
-          />
-        </div>
+          <div class="form-group">
+            <label>API Key</label>
+            <input
+              v-model="formData.apiKey"
+              type="password"
+              placeholder="输入您的API密钥"
+              required
+            />
+          </div>
 
-        <button type="submit" :disabled="status === 'success'">
-          <span v-if="status === 'idle'">初始化系统</span>
-          <span v-else-if="status === 'success'" class="success-text"
-            >✓ 初始化成功</span
-          >
-          <span v-else-if="status === 'error'" class="error-text"
-            >✗ 初始化失败，请重试</span
-          >
-        </button>
-      </form>
+          <button type="submit" :disabled="status === 'success'">
+            <span v-if="status === 'idle'">初始化系统</span>
+            <span v-else-if="status === 'success'" class="success-text"
+              >✓ 初始化成功</span
+            >
+            <span v-else-if="status === 'error'" class="error-text"
+              >✗ 初始化失败，请重试</span
+            >
+          </button>
+
+          
+        </form>
+      </div>
     </div>
   </div>
 </template>
@@ -219,7 +218,7 @@ label {
   font-weight: 500;
 }
 input {
-  width: 100%;
+  width: calc(100% - 1.5rem); /* 修改输入框宽度以匹配按钮 */
   padding: 0.75rem;
   border: none;
   border-radius: 8px;
