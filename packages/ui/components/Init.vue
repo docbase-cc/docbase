@@ -68,7 +68,7 @@ const submitForm = async () => {
 
       <!-- 初始化表单 -->
       <div v-else class="init-form">
-        <h1 style="text-align: center">欢迎使用 DocBase</h1>
+        <h1 style="text-align: center">欢迎使用 <span class="gradient-text">DocBase</span></h1>
         <p style="text-align: center">
           请填写 MeiliSearch 引擎配置完成系统初始化
         </p>
@@ -304,5 +304,27 @@ button:disabled {
   font-size: 1.5rem;
   margin-right: 0.5rem;
   color: #ef4444;
+}
+
+/* 彩色动态渐变效果 */
+.gradient-text {
+  background: linear-gradient(90deg,  #764ba2, #8A2BE2, #9400D3, #4B0082, #0000FF, #00BFFF);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient 3s ease-in-out infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 </style>
