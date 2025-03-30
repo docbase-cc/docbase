@@ -58,3 +58,4 @@ await Promise.all([
       await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited;
     })(),
 ]);
+process.exit(0);
