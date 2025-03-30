@@ -5,6 +5,8 @@ import system from "./system";
 import apis from "./apis";
 import { swaggerUI } from "@hono/swagger-ui";
 import { version, name } from "~/package.json";
+import { Context } from "hono";
+import { cors } from "hono/cors";
 
 // 路由版本
 const routeVersion = `v${version.split(".")[0]}`;
@@ -17,16 +19,33 @@ declare module "hono" {
   }
 }
 
+export interface CORSOptions {
+  origin:
+    | string
+    | string[]
+    | ((origin: string, c: Context) => string | undefined | null);
+  allowMethods?: string[];
+  allowHeaders?: string[];
+  maxAge?: number;
+  credentials?: boolean;
+  exposeHeaders?: string[];
+}
+
 export const createDocBaseApp = ({
   db,
   pkgManager,
   docbase,
+  corsOpts,
 }: {
   db: DB;
   pkgManager: PackageManager;
   docbase: DocBase;
+  corsOpts?: CORSOptions;
 }) => {
   const app = new OpenAPIHono();
+
+  // 允许跨域
+  app.use(`*`, cors(corsOpts));
 
   // 启动 docbase 实例
   app.use(async (c, next) => {
