@@ -135,16 +135,16 @@ export type SearchParam = {
     locales?: Array<string>;
 };
 
-export type DeletePluginData = {
+export type DeleteV0PluginData = {
     body?: never;
     path?: never;
     query: {
         name: string;
     };
-    url: '/plugin';
+    url: '/v0/plugin';
 };
 
-export type DeletePluginResponses = {
+export type DeleteV0PluginResponses = {
     /**
      * Whether the plugin was successfully deleted
      */
@@ -154,16 +154,16 @@ export type DeletePluginResponses = {
     };
 };
 
-export type DeletePluginResponse = DeletePluginResponses[keyof DeletePluginResponses];
+export type DeleteV0PluginResponse = DeleteV0PluginResponses[keyof DeleteV0PluginResponses];
 
-export type GetPluginData = {
+export type GetV0PluginData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/plugin';
+    url: '/v0/plugin';
 };
 
-export type GetPluginResponses = {
+export type GetV0PluginResponses = {
     /**
      * List of plugins
      */
@@ -180,18 +180,18 @@ export type GetPluginResponses = {
     };
 };
 
-export type GetPluginResponse = GetPluginResponses[keyof GetPluginResponses];
+export type GetV0PluginResponse = GetV0PluginResponses[keyof GetV0PluginResponses];
 
-export type PutPluginData = {
+export type PutV0PluginData = {
     body?: unknown;
     path?: never;
     query: {
         name: string;
     };
-    url: '/plugin';
+    url: '/v0/plugin';
 };
 
-export type PutPluginResponses = {
+export type PutV0PluginResponses = {
     /**
      * Whether the plugin was successfully installed
      */
@@ -201,16 +201,16 @@ export type PutPluginResponses = {
     };
 };
 
-export type PutPluginResponse = PutPluginResponses[keyof PutPluginResponses];
+export type PutV0PluginResponse = PutV0PluginResponses[keyof PutV0PluginResponses];
 
-export type GetPluginExtData = {
+export type GetV0PluginExtData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/plugin/ext';
+    url: '/v0/plugin/ext';
 };
 
-export type GetPluginExtResponses = {
+export type GetV0PluginExtResponses = {
     /**
      * Plugin-extension mapping
      */
@@ -219,19 +219,19 @@ export type GetPluginExtResponses = {
     };
 };
 
-export type GetPluginExtResponse = GetPluginExtResponses[keyof GetPluginExtResponses];
+export type GetV0PluginExtResponse = GetV0PluginExtResponses[keyof GetV0PluginExtResponses];
 
-export type PatchPluginExtData = {
+export type PatchV0PluginExtData = {
     body?: never;
     path?: never;
     query: {
         ext: string;
         docLoaderName?: string;
     };
-    url: '/plugin/ext';
+    url: '/v0/plugin/ext';
 };
 
-export type PatchPluginExtResponses = {
+export type PatchV0PluginExtResponses = {
     /**
      * Whether the mapping was successfully modified
      */
@@ -240,16 +240,16 @@ export type PatchPluginExtResponses = {
     };
 };
 
-export type PatchPluginExtResponse = PatchPluginExtResponses[keyof PatchPluginExtResponses];
+export type PatchV0PluginExtResponse = PatchV0PluginExtResponses[keyof PatchV0PluginExtResponses];
 
-export type PostDifyRetrievalData = {
+export type PostV0DifyRetrievalData = {
     body?: DifyKnowledgeRequestSchema;
     path?: never;
     query?: never;
-    url: '/dify/retrieval';
+    url: '/v0/dify/retrieval';
 };
 
-export type PostDifyRetrievalErrors = {
+export type PostV0DifyRetrievalErrors = {
     /**
      * AccessDeniedException
      */
@@ -266,9 +266,9 @@ export type PostDifyRetrievalErrors = {
     };
 };
 
-export type PostDifyRetrievalError = PostDifyRetrievalErrors[keyof PostDifyRetrievalErrors];
+export type PostV0DifyRetrievalError = PostV0DifyRetrievalErrors[keyof PostV0DifyRetrievalErrors];
 
-export type PostDifyRetrievalResponses = {
+export type PostV0DifyRetrievalResponses = {
     /**
      * Search results
      */
@@ -277,18 +277,18 @@ export type PostDifyRetrievalResponses = {
     };
 };
 
-export type PostDifyRetrievalResponse = PostDifyRetrievalResponses[keyof PostDifyRetrievalResponses];
+export type PostV0DifyRetrievalResponse = PostV0DifyRetrievalResponses[keyof PostV0DifyRetrievalResponses];
 
-export type PostBaseKnowledgeIdSearchData = {
+export type PostV0BaseKnowledgeIdSearchData = {
     body?: SearchParam;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/base/:knowledgeId/search';
+    url: '/v0/base/:knowledgeId/search';
 };
 
-export type PostBaseKnowledgeIdSearchErrors = {
+export type PostV0BaseKnowledgeIdSearchErrors = {
     /**
      * KnowledgeDoesNotExist
      */
@@ -298,27 +298,27 @@ export type PostBaseKnowledgeIdSearchErrors = {
     };
 };
 
-export type PostBaseKnowledgeIdSearchError = PostBaseKnowledgeIdSearchErrors[keyof PostBaseKnowledgeIdSearchErrors];
+export type PostV0BaseKnowledgeIdSearchError = PostV0BaseKnowledgeIdSearchErrors[keyof PostV0BaseKnowledgeIdSearchErrors];
 
-export type PostBaseKnowledgeIdSearchResponses = {
+export type PostV0BaseKnowledgeIdSearchResponses = {
     /**
      * Search results
      */
     200: SearchResults;
 };
 
-export type PostBaseKnowledgeIdSearchResponse = PostBaseKnowledgeIdSearchResponses[keyof PostBaseKnowledgeIdSearchResponses];
+export type PostV0BaseKnowledgeIdSearchResponse = PostV0BaseKnowledgeIdSearchResponses[keyof PostV0BaseKnowledgeIdSearchResponses];
 
-export type DeleteBaseBaseData = {
+export type DeleteV0BaseBaseData = {
     body?: {
         id: string;
     };
     path?: never;
     query?: never;
-    url: '/base/base';
+    url: '/v0/base/base';
 };
 
-export type DeleteBaseBaseResponses = {
+export type DeleteV0BaseBaseResponses = {
     /**
      * del base status
      */
@@ -327,16 +327,16 @@ export type DeleteBaseBaseResponses = {
     };
 };
 
-export type DeleteBaseBaseResponse = DeleteBaseBaseResponses[keyof DeleteBaseBaseResponses];
+export type DeleteV0BaseBaseResponse = DeleteV0BaseBaseResponses[keyof DeleteV0BaseBaseResponses];
 
-export type GetBaseBaseData = {
+export type GetV0BaseBaseData = {
     body?: never;
     path?: never;
     query?: never;
-    url: '/base/base';
+    url: '/v0/base/base';
 };
 
-export type GetBaseBaseResponses = {
+export type GetV0BaseBaseResponses = {
     /**
      * all base
      */
@@ -347,18 +347,18 @@ export type GetBaseBaseResponses = {
     }>;
 };
 
-export type GetBaseBaseResponse = GetBaseBaseResponses[keyof GetBaseBaseResponses];
+export type GetV0BaseBaseResponse = GetV0BaseBaseResponses[keyof GetV0BaseBaseResponses];
 
-export type PutBaseBaseData = {
+export type PutV0BaseBaseData = {
     body?: {
         name: string;
     };
     path?: never;
     query?: never;
-    url: '/base/base';
+    url: '/v0/base/base';
 };
 
-export type PutBaseBaseResponses = {
+export type PutV0BaseBaseResponses = {
     /**
      * added base
      */
@@ -369,18 +369,18 @@ export type PutBaseBaseResponses = {
     };
 };
 
-export type PutBaseBaseResponse = PutBaseBaseResponses[keyof PutBaseBaseResponses];
+export type PutV0BaseBaseResponse = PutV0BaseBaseResponses[keyof PutV0BaseBaseResponses];
 
-export type DeleteBaseKnowledgeIdEmbedderData = {
+export type DeleteV0BaseKnowledgeIdEmbedderData = {
     body?: never;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/base/:knowledgeId/embedder';
+    url: '/v0/base/:knowledgeId/embedder';
 };
 
-export type DeleteBaseKnowledgeIdEmbedderResponses = {
+export type DeleteV0BaseKnowledgeIdEmbedderResponses = {
     /**
      * Embedders reset successfully
      */
@@ -389,18 +389,18 @@ export type DeleteBaseKnowledgeIdEmbedderResponses = {
     };
 };
 
-export type DeleteBaseKnowledgeIdEmbedderResponse = DeleteBaseKnowledgeIdEmbedderResponses[keyof DeleteBaseKnowledgeIdEmbedderResponses];
+export type DeleteV0BaseKnowledgeIdEmbedderResponse = DeleteV0BaseKnowledgeIdEmbedderResponses[keyof DeleteV0BaseKnowledgeIdEmbedderResponses];
 
-export type GetBaseKnowledgeIdEmbedderData = {
+export type GetV0BaseKnowledgeIdEmbedderData = {
     body?: never;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/base/:knowledgeId/embedder';
+    url: '/v0/base/:knowledgeId/embedder';
 };
 
-export type GetBaseKnowledgeIdEmbedderResponses = {
+export type GetV0BaseKnowledgeIdEmbedderResponses = {
     /**
      * Embedders
      */
@@ -471,9 +471,9 @@ export type GetBaseKnowledgeIdEmbedderResponses = {
     } | null;
 };
 
-export type GetBaseKnowledgeIdEmbedderResponse = GetBaseKnowledgeIdEmbedderResponses[keyof GetBaseKnowledgeIdEmbedderResponses];
+export type GetV0BaseKnowledgeIdEmbedderResponse = GetV0BaseKnowledgeIdEmbedderResponses[keyof GetV0BaseKnowledgeIdEmbedderResponses];
 
-export type PostBaseKnowledgeIdEmbedderData = {
+export type PostV0BaseKnowledgeIdEmbedderData = {
     body?: {
         embedders: {
             [key: string]: {
@@ -545,10 +545,10 @@ export type PostBaseKnowledgeIdEmbedderData = {
         knowledgeId: string;
     };
     query?: never;
-    url: '/base/:knowledgeId/embedder';
+    url: '/v0/base/:knowledgeId/embedder';
 };
 
-export type PostBaseKnowledgeIdEmbedderResponses = {
+export type PostV0BaseKnowledgeIdEmbedderResponses = {
     /**
      * Embedder updated successfully
      */
@@ -557,7 +557,58 @@ export type PostBaseKnowledgeIdEmbedderResponses = {
     };
 };
 
-export type PostBaseKnowledgeIdEmbedderResponse = PostBaseKnowledgeIdEmbedderResponses[keyof PostBaseKnowledgeIdEmbedderResponses];
+export type PostV0BaseKnowledgeIdEmbedderResponse = PostV0BaseKnowledgeIdEmbedderResponses[keyof PostV0BaseKnowledgeIdEmbedderResponses];
+
+export type GetSystemData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/system';
+};
+
+export type GetSystemResponses = {
+    /**
+     * system inited or not
+     */
+    200: {
+        inited: boolean;
+    };
+};
+
+export type GetSystemResponse = GetSystemResponses[keyof GetSystemResponses];
+
+export type PostSystemData = {
+    body?: {
+        host: string;
+        apiKey: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/system';
+};
+
+export type PostSystemErrors = {
+    /**
+     * system has already inited
+     */
+    400: {
+        inited: boolean;
+        msg: string;
+    };
+};
+
+export type PostSystemError = PostSystemErrors[keyof PostSystemErrors];
+
+export type PostSystemResponses = {
+    /**
+     * system inited successfully
+     */
+    200: {
+        inited: true;
+    };
+};
+
+export type PostSystemResponse = PostSystemResponses[keyof PostSystemResponses];
 
 export type ClientOptions = {
     baseUrl: `${string}://client` | (string & {});

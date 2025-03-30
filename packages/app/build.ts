@@ -1,10 +1,10 @@
 import { exists, mkdir, writeFile, copy } from "fs-extra";
 import { createClient } from "@hey-api/openapi-ts";
-import apis from "./src/apis";
+import { app } from "./src/main";
 import { version, name } from "~/package.json";
 
 // 并行化文件操作
-const openapi = apis.getOpenAPI31Document({
+const openapi = app.getOpenAPI31Document({
   openapi: "3.1.0",
   info: {
     version: version,
