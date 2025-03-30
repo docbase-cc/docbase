@@ -32,7 +32,7 @@ jobs:
 
       - run: bun install
 
-      - run: cd packages/app && bun x prisma db push --force
+      - run: cd packages/app && bun x prisma db push --force-reset
         env:
           DATABASE_URL: file:~/.docbase/data/db.sqlite
 
@@ -159,7 +159,7 @@ jobs:
 
       - run: bun install
 
-      - run: cd packages/app && bun x prisma db push --force
+      - run: cd packages/app && bun x prisma db push --force-reset
         env:
           DATABASE_URL: file:~/.docbase/data/db.sqlite
 
