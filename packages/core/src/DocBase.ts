@@ -242,7 +242,7 @@ export class DocBase {
 
   /** 启动 base */
   #startBase = async ({ name, id, path }: Base) => {
-    const { meiliSearchConfig } = await this.#db.getConfig();
+    const { meiliSearchConfig } = await this.#db.config.get();
     console.info(`Init base ${name}...`);
     const docm = new DocManager({
       indexPrefix: id,
@@ -435,11 +435,18 @@ export class DocBase {
         throw new Error(errorMsg);
     }
 
-    await this.#db.plugin.add({
-      name: pluginWithConfig.plugin.name,
-      type: pluginWithConfig.plugin.pluginType,
-      config: pluginWithConfig.config,
-    });
+    const plgExists = await this.#db.plugin.exists(
+      pluginWithConfig.plugin.name
+    );
+
+    if (pluginWithConfig.plugin.name !== "default" && !plgExists) {
+      console.info(`Saving ${pluginWithConfig.plugin.name} plugin to db`);
+      await this.#db.plugin.add({
+        name: pluginWithConfig.plugin.name,
+        type: pluginWithConfig.plugin.pluginType,
+        config: pluginWithConfig.config,
+      });
+    }
   };
 
   /**

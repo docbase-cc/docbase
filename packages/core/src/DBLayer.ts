@@ -37,9 +37,12 @@ export interface DBLayer {
     all: () => AsyncIterable<PluginWithConfig>;
     add: (plugin: Plugin) => Promise<void>;
     del: (name: string) => Promise<void>;
+    exists: (name: string) => Promise<boolean>;
   };
   // 配置表
-  getConfig: () => Promise<DocBaseConfig>;
+  config: {
+    get: () => Promise<DocBaseConfig>;
+  };
   // 知识库表
   knowledgeBase: {
     // 增加

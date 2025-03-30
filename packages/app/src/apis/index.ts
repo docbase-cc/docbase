@@ -16,7 +16,7 @@ app.use(
   `*`,
   bearerAuth({
     verifyToken: async (token, c) => {
-      const { meiliSearchConfig } = await c.get("db").getConfig();
+      const { meiliSearchConfig } = await c.get("db").config.get();
 
       return meiliSearchConfig.apiKey
         ? token === meiliSearchConfig.apiKey

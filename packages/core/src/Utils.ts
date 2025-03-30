@@ -63,7 +63,7 @@ export const createOpenaiEmbedder = ({
  * 确保 ContainsFilter 功能开启
  */
 // https://www.meilisearch.com/docs/learn/filtering_and_sorting/filter_expression_reference#contains
-const ensureContainsFilterFeatureOn = async (client: MeiliSearch) => {
+export const ensureContainsFilterFeatureOn = async (client: MeiliSearch) => {
   const host = client.config.host;
   const key = client.config.apiKey;
 
@@ -101,6 +101,6 @@ const ensureContainsFilterFeatureOn = async (client: MeiliSearch) => {
 /** 创建 meilisearch 客户端 */
 export const createMeilisearchClient = async (config: Config) => {
   const ml = new MeiliSearch(config);
-  await ensureContainsFilterFeatureOn(ml);
+  // await ensureContainsFilterFeatureOn(ml);
   return ml;
 };

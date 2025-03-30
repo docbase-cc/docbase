@@ -1,6 +1,7 @@
 import { DocBase } from "core/src";
 import { PackageManager, DB } from "./docbase";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import system from "./system";
 import apis from "./apis";
 import { swaggerUI } from "@hono/swagger-ui";
 import { version, name } from "~/package.json";
@@ -37,6 +38,9 @@ export const createDocBaseApp = ({
 
   // 注册 docbase API
   app.route(`/${routeVersion}`, apis);
+
+  // 系统相关 API
+  app.route("/system", system);
 
   // API 文档
   app.get("/doc", swaggerUI({ url: "/openapi.json" }));
