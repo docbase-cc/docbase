@@ -23,10 +23,10 @@ export const startWebDAV = (path: string) => {
     ]);
     // 错误处理
     dufsProcess.on("error", (err) => {
-      console.error("启动 dufs 失败, 请确保已安装 dufs:", err);
+      console.warn("启动 dufs 失败, 请确保已安装 dufs:", err);
     });
     dufsProcess.stderr.on("data", (data) => {
-      console.error(`dufs 错误: ${data}`);
+      console.warn(`dufs 错误: ${data}`);
     });
     console.info("webdav server has up at http://localhost:15000");
   }
