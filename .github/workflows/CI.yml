@@ -157,6 +157,8 @@ jobs:
 
       - run: bun install
 
+      - run: cd packages/app && bun x prisma generate
+      
       - run: bun run build
 
       # 登录到 Docker Hub
