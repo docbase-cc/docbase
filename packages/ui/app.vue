@@ -19,6 +19,7 @@ const formData = ref({
 });
 const status = ref<"idle" | "success" | "error">("idle");
 const showSuccessPage = ref(false); // 新增变量，用于控制显示初始化成功页面
+const errorMessage = ref(""); // 新增变量，用于存储错误消息
 
 onMounted(async () => {
   try {
@@ -26,6 +27,9 @@ onMounted(async () => {
     initialized.value = res.data?.inited === true;
     if (initialized.value) {
       showSuccessPage.value = true; // 已初始化，显示初始化成功页面
+      setTimeout(() => {
+        window.location.href = "https://docbase.cc"; // 3秒后跳转到 docbase.cc
+      }, 3000);
     } else {
       showForm.value = true;
     }
@@ -38,13 +42,18 @@ onMounted(async () => {
 
 const submitForm = async () => {
   status.value = "idle";
+  errorMessage.value = ""; // 提交表单前清空错误消息
   const res = await postSystem({ body: formData.value });
   if (res.data?.inited === true) {
     status.value = "success";
     showSuccessPage.value = true; // 初始化成功，显示初始化成功页面
   } else {
     status.value = "error";
-    console.error(res.error?.msg);
+    errorMessage.value =
+      res.error?.msg.replace(
+        "failed to connect to meilisearch",
+        "连接 MeiliSearch 失败"
+      ) || "未知错误"; // 存储错误消息
   }
 };
 </script>
@@ -61,7 +70,7 @@ const submitForm = async () => {
       <div v-if="showSuccessPage" class="initialized-state">
         <div class="checkmark">✓</div>
         <h1>系统初始化成功</h1>
-        <p>即将跳转到 docbase.cc...</p>
+        <p>3 秒后跳转到 docbase.cc...</p>
         <div class="progress-bar">
           <div class="progress"></div>
         </div>
@@ -69,8 +78,19 @@ const submitForm = async () => {
 
       <!-- 初始化表单 -->
       <div v-else class="init-form">
-        <h1>欢迎使用 DocBase</h1>
-        <p>请填写 MeiliSearch 引擎配置完成系统初始化</p>
+        <h1 style="text-align: center">欢迎使用 DocBase</h1>
+        <p style="text-align: center">
+          请填写 MeiliSearch 引擎配置完成系统初始化
+        </p>
+
+        <div
+          v-if="errorMessage"
+          class="error-message"
+          style="display: flex; justify-content: center; align-items: center"
+        >
+          <i class="error-icon">⚠</i>
+          <span>{{ errorMessage }}</span>
+        </div>
 
         <form @submit.prevent="submitForm">
           <div class="form-group">
@@ -251,6 +271,7 @@ button:disabled {
   animation: pulse 1s infinite;
 }
 .error-text {
+  color: #ef4444;
   animation: shake 0.5s;
 }
 @keyframes pulse {
@@ -277,5 +298,21 @@ button:disabled {
   80% {
     transform: translateX(5px);
   }
+}
+
+/* 美化错误消息样式 */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+.error-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  color: #ef4444;
 }
 </style>
