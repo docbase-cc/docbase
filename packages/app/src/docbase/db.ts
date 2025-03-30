@@ -9,7 +9,7 @@ import {
   writeJSON,
   writeJsonSync,
 } from "fs-extra";
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
@@ -20,8 +20,9 @@ export class DB implements DBLayer {
   #pkgManager: PackageManager;
   #configPath: string;
   #dbPath: string;
-  #prisma: PrismaClient;
+  #prisma!: PrismaClient;
   #fileDir: string;
+  #dbURL: string;
 
   constructor({
     dataDir,
@@ -70,15 +71,18 @@ export class DB implements DBLayer {
       cwd: prodPrismaExists ? __dirname : undefined,
     });
 
-    // 初始化 prisma
-    this.#prisma = new PrismaClient({
+    this.#dbURL = url;
+  }
+
+  init = async () => {
+    this.#prisma = new (await import("@prisma/client")).PrismaClient({
       datasources: {
         db: {
-          url,
+          url: this.#dbURL,
         },
       },
     });
-  }
+  };
 
   plugin = {
     exists: async (name: string) => {

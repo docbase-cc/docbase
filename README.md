@@ -68,8 +68,7 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO 初始化的前端 -->
-
+<!-- TODO docker 镜像运行测试 -->
 <!-- TODO 本地客户端 -->
 
 <!-- TODO [持久化]docbase ext 设置持久化 -->

@@ -10,7 +10,7 @@ createConsola({
 
 const app = createDocBaseApp({
   pkgManager: getPkgManager(),
-  db: getDB(),
+  db: await getDB(),
   docbase: await getDocBase(),
 });
 

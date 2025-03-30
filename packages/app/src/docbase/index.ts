@@ -35,7 +35,7 @@ export const getPkgManager = () => {
   }
 };
 
-export const getDB = () => {
+export const getDB = async () => {
   if (db) {
     return db;
   } else {
@@ -44,6 +44,7 @@ export const getDB = () => {
       fileDir,
       pkgManager: getPkgManager(),
     });
+    await db.init();
     return db;
   }
 };
@@ -52,7 +53,7 @@ export const getDocBase = async () => {
   if (docbase) {
     return docbase;
   } else {
-    docbase = await createDocBase({ db: getDB(), fs: fsLayerParams });
+    docbase = await createDocBase({ db: await getDB(), fs: fsLayerParams });
     return docbase;
   }
 };
