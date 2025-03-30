@@ -1,8 +1,11 @@
-// bun x prisma migrate dev && bun run --hot src/main.ts
 import { spawnSync } from "child_process";
 import { homedir } from "os";
 import { join } from "path";
 import { version } from "~/package.json";
+
+spawnSync("bun", ["run", "./gen.ts"], {
+  stdio: "inherit",
+});
 
 spawnSync(
   "bun",
