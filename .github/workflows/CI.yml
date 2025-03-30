@@ -32,7 +32,7 @@ jobs:
 
       - run: bun install
 
-      - run: cd packages/app && bun x prisma migrate reset && bun x prisma generate
+      - run: DATABASE_URL=~/.docbase/data/db.sqlite cd packages/app && bun x prisma migrate reset && bun x prisma generate
 
       - run: bun run build
         env:
@@ -157,7 +157,7 @@ jobs:
 
       - run: bun install
 
-      - run: cd packages/app && bun x prisma migrate reset && bun x prisma generate
+      - run: DATABASE_URL=~/.docbase/data/db.sqlite cd packages/app && bun x prisma migrate reset && bun x prisma generate
       
       - run: bun run build
 
