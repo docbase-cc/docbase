@@ -102,13 +102,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - run: bun install
 
       # 下载构建产物
       - name: Download build artifacts
@@ -116,6 +114,10 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - run: bun install
+      - run: bun run ./downloaddufs.ts
+      - run: cd dist/main && bun add @prisma/client
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
@@ -132,10 +134,6 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: linux/arm64,linux/amd64
-
-      - run: bun run ./downloaddufs.ts
-
-      - run: cd dist/main && bun add @prisma/client
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
