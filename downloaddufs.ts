@@ -37,11 +37,12 @@ const dld = async (targetPath: string) => {
   const target = (isArray(names) ? names : names.assetFileNames).at(0);
 
   if (target && (await exists(target))) {
-    spawnSync("tar", ["-zxvf", target], {
+    const target = join(targetPath, dufsName);
+    spawnSync("tar", ["-zxvf", target, "-C", target], {
       stdio: "inherit",
     });
     await remove(target);
-    await chmod(join(targetPath, dufsName), 777);
+    await chmod(target, 777);
   }
 };
 
