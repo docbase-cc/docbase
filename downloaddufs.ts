@@ -38,7 +38,7 @@ const dld = async (targetPath: string) => {
 
   if (target && (await exists(target))) {
     const target = join(targetPath, dufsName);
-    spawnSync("tar", ["-zxvf", target, "-C", target], {
+    spawnSync("tar", ["-zxvf", target, "-C", targetPath], {
       stdio: "inherit",
     });
     await remove(target);
