@@ -79,7 +79,8 @@ export class DB implements DBLayer {
   }
 
   init = async () => {
-    this.#prisma = new (await import("@prisma/client")).PrismaClient({
+    const pc = await import("@prisma/client");
+    this.#prisma = new pc.default.PrismaClient({
       datasources: {
         db: {
           url: this.#dbURL,
