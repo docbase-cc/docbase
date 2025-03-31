@@ -9,4 +9,4 @@ ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "alias npm=\"bun\" && bun main.js"]
+CMD ["bun", "main.js"]
