@@ -45,4 +45,4 @@ const dld = async (targetPath: string) => {
   }
 };
 
-await dld("dist/main");
+await dld(".");

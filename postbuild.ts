@@ -5,7 +5,3 @@ import { version } from "package.json";
 const content = await readFile("docker/docker-compose.yaml", "utf-8");
 const newContent = content.replace(/docbase:latest/g, `docbase:${version}`);
 await writeFile("dist/docker-compose.yaml", newContent);
-// TODO 区分 arm64 编译
-//   spawnSync("bun", ["run", "./downloaddufs.ts"], {
-//     stdio: "inherit",
-//   });

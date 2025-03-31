@@ -9,8 +9,14 @@ const dufsPort = 15000;
 export const startWebDAV = (path: string) => {
   const dufsName: string = platform() === "win32" ? "dufs.exe" : "dufs";
   const __dirname = dirname();
-  const dufsPath = join(__dirname, dufsName);
+  let dufsPath = join(__dirname, dufsName);
   const dufsExists = existsSync(dufsPath);
+
+  const dufsExists2 = existsSync("/bin/dufs");
+
+  if (dufsExists2) {
+    dufsPath = "dufs";
+  }
 
   if (dufsExists) {
     const dufsProcess = spawn(dufsPath, [

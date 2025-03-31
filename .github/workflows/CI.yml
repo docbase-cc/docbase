@@ -109,8 +109,8 @@ jobs:
           bun-version: latest
 
       - run: bun install
-      - run: cd packages/app && bun x prisma generate
-      - run: bun run build
+
+      - run: bun run ./downloaddufs.ts
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
@@ -138,11 +138,11 @@ jobs:
         with:
           context: .
           load: true
-          push: true
+          push: false
           tags: gonorth/docbase:latest,gonorth/docbase:${{ steps.package-version.outputs.current-version }}
 
       # Push to the registry
-      # - run: docker image push "gonorth/docbase" --all-tags
+      - run: docker image push "gonorth/docbase" --all-tags
 
   # docker-arm:
   #   name: Build and Push Docker Image ARM
