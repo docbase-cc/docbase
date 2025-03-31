@@ -35,6 +35,12 @@
 bun x docbase
 ```
 
+### 使用 Docker
+
+```
+docker run -d -p 3000:3000 -v ./data:/root/.docbase gonorth/docbase:latest
+```
+
 ### 使用 Docker Compose
 
 1. 下载 Docker Compose 文件：
