@@ -7,7 +7,7 @@ const content = await readFile("docker/docker-compose.yaml", "utf-8");
 const newContent = content.replace(/docbase:latest/g, `docbase:${version}`);
 await writeFile("dist/docker-compose.yaml", newContent);
 // TODO 区分 arm64 编译
-import.meta.env.NODE_ENV === "docker" &&
+import.meta.env.DOCKER_BUILD === "true" &&
   spawnSync("bun", ["run", "./downloaddufs.ts"], {
     stdio: "inherit",
   });

@@ -4,7 +4,7 @@ import { copy } from "fs-extra";
 await Promise.all([
   Bun.build({
     entrypoints: ["./src/main.ts", "./src/index.ts"],
-    external: import.meta.env.NODE_ENV === "docker" ? [] : ["@prisma/client"],
+    external: import.meta.env.DOCKER_BUILD === "true" ? [] : ["@prisma/client"],
     outdir: "./dist",
     splitting: true,
     target: "bun",
