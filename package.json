@@ -35,7 +35,6 @@
     "dev": "bun run ./dev.ts"
   },
   "devDependencies": {
-    "@terascope/fetch-github-release": "^2.1.0",
     "@types/bun": "^1.2.8",
     "chalk": "^5.4.1",
     "es-toolkit": "^1.34.1",

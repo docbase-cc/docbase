@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { getSystem, postSystem } from "app/client";
-const initialized = ref(false);
-const loading = ref(true);
-const showForm = ref(false);
+import { postSystem } from "app/client";
+
+const route = useRouter();
 const formData = ref({
   host: "",
   apiKey: "",
@@ -11,25 +10,6 @@ const status = ref<"idle" | "success" | "error">("idle");
 const showSuccessPage = ref(false); // 新增变量，用于控制显示初始化成功页面
 const errorMessage = ref(""); // 新增变量，用于存储错误消息
 
-onMounted(async () => {
-  try {
-    const res = await getSystem();
-    initialized.value = res.data?.inited === true;
-    if (initialized.value) {
-      showSuccessPage.value = true; // 已初始化，显示初始化成功页面
-      setTimeout(() => {
-        window.location.href = "https://docbase.cc"; // 3秒后跳转到 docbase.cc
-      }, 3000);
-    } else {
-      showForm.value = true;
-    }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    loading.value = false;
-  }
-});
-
 const submitForm = async () => {
   status.value = "idle";
   errorMessage.value = ""; // 提交表单前清空错误消息
@@ -37,6 +17,9 @@ const submitForm = async () => {
   if (res.data?.inited === true) {
     status.value = "success";
     showSuccessPage.value = true; // 初始化成功，显示初始化成功页面
+    setTimeout(() => {
+      route.push({ name: "index" });
+    }, 3000);
   } else {
     status.value = "error";
     errorMessage.value =
@@ -49,107 +32,67 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <div class="init-container">
-    <!-- 加载动画 -->
-    <div v-if="loading" class="loading-animation">
-      <div class="spinner"></div>
-      <p>正在检查系统状态...</p>
+  <!-- 已初始化状态 -->
+  <div v-if="showSuccessPage" class="initialized-state">
+    <div class="checkmark">✓</div>
+    <h1>系统初始化成功</h1>
+    <p>3 秒后跳转到主页...</p>
+    <div class="progress-bar">
+      <div class="progress"></div>
     </div>
-    <div v-else>
-      <!-- 已初始化状态 -->
-      <div v-if="showSuccessPage" class="initialized-state">
-        <div class="checkmark">✓</div>
-        <h1>系统初始化成功</h1>
-        <p>3 秒后跳转到 docbase.cc...</p>
-        <div class="progress-bar">
-          <div class="progress"></div>
-        </div>
+  </div>
+
+  <!-- 初始化表单 -->
+  <div v-else class="init-form">
+    <h1 style="text-align: center">
+      欢迎使用 <span class="gradient-text">DocBase</span>
+    </h1>
+    <p style="text-align: center">请填写 MeiliSearch 引擎配置完成系统初始化</p>
+
+    <div
+      v-if="errorMessage"
+      class="error-message"
+      style="display: flex; justify-content: center; align-items: center"
+    >
+      <i class="error-icon">⚠</i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <form @submit.prevent="submitForm">
+      <div class="form-group">
+        <label>Meilisearch Host</label>
+        <input
+          v-model="formData.host"
+          type="text"
+          placeholder="http://localhost:7700"
+          required
+        />
       </div>
 
-      <!-- 初始化表单 -->
-      <div v-else class="init-form">
-        <h1 style="text-align: center">欢迎使用 <span class="gradient-text">DocBase</span></h1>
-        <p style="text-align: center">
-          请填写 MeiliSearch 引擎配置完成系统初始化
-        </p>
+      <div class="form-group">
+        <label>Meilisearch apiKey</label>
+        <input
+          v-model="formData.apiKey"
+          type="password"
+          placeholder="输入您的API密钥"
+          required
+        />
+      </div>
 
-        <div
-          v-if="errorMessage"
-          class="error-message"
-          style="display: flex; justify-content: center; align-items: center"
+      <button type="submit" :disabled="status === 'success'">
+        <span v-if="status === 'idle'">初始化系统</span>
+        <span v-else-if="status === 'success'" class="success-text"
+          >✓ 初始化成功</span
         >
-          <i class="error-icon">⚠</i>
-          <span>{{ errorMessage }}</span>
-        </div>
-
-        <form @submit.prevent="submitForm">
-          <div class="form-group">
-            <label>Meilisearch Host</label>
-            <input
-              v-model="formData.host"
-              type="text"
-              placeholder="http://localhost:7700"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label>Meilisearch apiKey</label>
-            <input
-              v-model="formData.apiKey"
-              type="password"
-              placeholder="输入您的API密钥"
-              required
-            />
-          </div>
-
-          <button type="submit" :disabled="status === 'success'">
-            <span v-if="status === 'idle'">初始化系统</span>
-            <span v-else-if="status === 'success'" class="success-text"
-              >✓ 初始化成功</span
-            >
-            <span v-else-if="status === 'error'" class="error-text"
-              >✗ 初始化失败，请重试</span
-            >
-          </button>
-        </form>
-      </div>
-    </div>
+        <span v-else-if="status === 'error'" class="error-text"
+          >✗ 初始化失败，请重试</span
+        >
+      </button>
+    </form>
   </div>
 </template>
 
 <style scoped>
-.init-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-family: "Inter", sans-serif;
-  padding: 2rem;
-}
-
-/* 加载动画样式 */
-.loading-animation {
-  text-align: center;
-}
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
-  animation: spin 1s ease-in-out infinite;
-  margin: 0 auto 1rem;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* 已初始化状态样式 */
 .initialized-state {
   text-align: center;
@@ -308,7 +251,15 @@ button:disabled {
 
 /* 彩色动态渐变效果 */
 .gradient-text {
-  background: linear-gradient(90deg,  #764ba2, #8A2BE2, #9400D3, #4B0082, #0000FF, #00BFFF);
+  background: linear-gradient(
+    90deg,
+    #764ba2,
+    #8a2be2,
+    #9400d3,
+    #4b0082,
+    #0000ff,
+    #00bfff
+  );
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;

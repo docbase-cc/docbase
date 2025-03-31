@@ -593,6 +593,7 @@ export type PostSystemErrors = {
      */
     400: {
         inited: boolean;
+        webdav: boolean;
         msg: string;
     };
 };
@@ -605,6 +606,7 @@ export type PostSystemResponses = {
      */
     200: {
         inited: true;
+        webdav: boolean;
     };
 };
 

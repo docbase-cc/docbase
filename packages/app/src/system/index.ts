@@ -2,6 +2,8 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { ensureContainsFilterFeatureOn } from "core";
 import { MeiliSearch } from "meilisearch";
+import { webdav as WebDAV } from "../docbase";
+
 const app = new OpenAPIHono();
 
 const getStatus = createRoute({
@@ -16,6 +18,7 @@ const getStatus = createRoute({
         "application/json": {
           schema: z.object({
             inited: z.boolean(),
+            webdav: z.boolean(),
           }),
         },
       },
@@ -47,6 +50,7 @@ const setConfig = createRoute({
         "application/json": {
           schema: z.object({
             inited: z.literal(true),
+            webdav: z.boolean(),
           }),
         },
       },
@@ -57,6 +61,7 @@ const setConfig = createRoute({
         "application/json": {
           schema: z.object({
             inited: z.boolean(),
+            webdav: z.boolean(),
             msg: z.string(),
           }),
         },
@@ -68,16 +73,18 @@ const setConfig = createRoute({
 // 系统状态
 app.openapi(getStatus, async (c) => {
   const db = c.get("db");
-  return c.json({ inited: await db.config.exists() }, 200);
+  const webdav = WebDAV.started;
+  return c.json({ inited: await db.config.exists(), webdav }, 200);
 });
 
 // 设置系统配置
 app.openapi(setConfig, async (c) => {
   const db = c.get("db");
   const inited = await db.config.exists();
+  const webdav = WebDAV.started;
 
   if (inited) {
-    return c.json({ inited, msg: "system has already inited" }, 400);
+    return c.json({ inited, webdav, msg: "system has already inited" }, 400);
   } else {
     const config = c.req.valid("json");
     const meiliSearchConfig = {
@@ -93,11 +100,15 @@ app.openapi(setConfig, async (c) => {
           apiKey: config.apiKey,
         },
       });
-      return c.json({ inited: true as true }, 200);
+      return c.json({ inited: true as true, webdav }, 200);
     } catch (error) {
       const msg = (error as Error).message;
       return c.json(
-        { inited: false, msg: `failed to connect to meilisearch: ${msg}` },
+        {
+          inited: false,
+          webdav,
+          msg: `failed to connect to meilisearch: ${msg}`,
+        },
         400
       );
     }

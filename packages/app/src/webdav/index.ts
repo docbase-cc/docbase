@@ -1,9 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { proxy } from "./utils";
-
+import { webdav } from "../docbase";
 const app = new OpenAPIHono();
-
-const dufsPort = 15000;
 
 // 鉴权
 // app.use(
@@ -25,7 +23,7 @@ const dufsPort = 15000;
 app.use(
   ":id/*",
   proxy({
-    proxy_url: `http://localhost:${dufsPort}`,
+    proxy_url: `http://localhost:${webdav.port}`,
     authorization: () => null,
   })
 );

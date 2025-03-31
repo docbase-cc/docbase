@@ -5,7 +5,7 @@ import { PackageManager } from "./pkgManager";
 import { DocBase } from "core";
 import { DB } from "./db";
 import { createDocBase } from "./docbase";
-import { startWebDAV } from "./webdav";
+import { WebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
 export { PackageManager, DB };
 
@@ -19,8 +19,10 @@ await ensureDir(pluginsDir);
 await ensureDir(dataDir);
 await ensureDir(fileDir);
 
+export const webdav = new WebDAV(fileDir);
+
 // 启动 webdav
-startWebDAV(fileDir);
+webdav.startWebDAV();
 
 let pkgManager: PackageManager | undefined;
 let db: DB | undefined;
