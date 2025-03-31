@@ -109,8 +109,9 @@ jobs:
           bun-version: latest
 
       - run: bun install
-
+      - run: bun run build
       - run: bun run ./downloaddufs.ts
+      - run: bun install --production 
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
