@@ -125,7 +125,7 @@ export class DocManager {
       console.info(`Index ${uid} retrieved successfully`);
     } catch (error) {
       if ((error as Error).message === `Index \`${uid}\` not found.`) {
-        console.warn(`Index ${uid} not found, creating it...`);
+        console.info(`Index ${uid} not found, creating it...`);
         const task = await this.#client.createIndex(uid, { primaryKey });
         await this.#client.waitForTask(task.taskUid);
         console.info(`Index ${uid} created successfully`);
