@@ -2,9 +2,9 @@ import { copy, exists, rmdir } from "fs-extra";
 
 const distPath = "../../dist/main/public";
 
-await exists(distPath).then((exists) => {
+await exists(distPath).then(async (exists) => {
   if (exists) {
-    rmdir(distPath, { recursive: true });
+    await rmdir(distPath, { recursive: true });
   }
 });
-await copy("dist", distPath);
+await copy(".output/public", distPath, { overwrite: true });
