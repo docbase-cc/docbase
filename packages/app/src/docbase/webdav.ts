@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 import { platform } from "os";
-import { dirname } from "./utils";
+import { dirname } from "../utils";
 import { join } from "path";
 import { existsSync } from "fs-extra";
 

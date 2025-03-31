@@ -13,7 +13,7 @@ import type { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
-import { dirname } from "./utils";
+import { dirname } from "../utils";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
