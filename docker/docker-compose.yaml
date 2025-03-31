@@ -19,8 +19,6 @@ services:
     environment:
       <<: *common-env
       MEILI_URL: http://meilisearch:7700
-    volumes:
-      - data:~/.docbase
     ports:
       - "3000:3000"
 
