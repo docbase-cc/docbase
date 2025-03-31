@@ -1,6 +1,6 @@
 {
   "name": "docbase",
-  "version": "0.2.16",
+  "version": "0.2.17",
   "type": "module",
   "bin": "./dist/main/main.js",
   "exports": {
