@@ -1,4 +1,10 @@
-import { copy, rmdir } from "fs-extra";
+import { copy, exists, rmdir } from "fs-extra";
 
-await rmdir("../../dist/main/public", { recursive: true });
-await copy("dist", "../../dist/main/public");
+const distPath = "../../dist/main/public";
+
+await exists(distPath).then((exists) => {
+  if (exists) {
+    rmdir(distPath, { recursive: true });
+  }
+});
+await copy("dist", distPath);

@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { arch } from "os";
+import { platform } from "os";
 import { dirname } from "./utils";
 import { join } from "path";
 import { existsSync } from "fs-extra";
@@ -7,7 +7,7 @@ import { existsSync } from "fs-extra";
 const dufsPort = 15000;
 
 export const startWebDAV = (path: string) => {
-  const dufsName: string = arch() === "win32" ? "dufs.exe" : "dufs";
+  const dufsName: string = platform() === "win32" ? "dufs.exe" : "dufs";
   const __dirname = dirname();
   const dufsPath = join(__dirname, dufsName);
   const dufsExists = existsSync(dufsPath);

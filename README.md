@@ -76,7 +76,7 @@ bun x docbase
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO [部署]docker 镜像 build 逻辑（编译时 prisma generate，并一起打包 prisma client依赖） -->
+<!-- TODO [部署] build docker 镜像 -->
 <!-- TODO [部署]打包本地分发-->
 
 <!-- TODO [前端]知识库管理页面（每个卡片显示name 本地path webdav地址） -->
