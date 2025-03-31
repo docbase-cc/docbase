@@ -23,6 +23,18 @@
 
 ## 🚀 快速开始
 
+### cli 启动
+
+1. 确保已安装`Bun`
+
+[如何安装？](https://www.bunjs.cn/docs/installation#%E5%AE%89%E8%A3%85)
+
+2. 启动服务
+
+```bash
+bun x docbase
+```
+
 ### 使用 Docker Compose
 
 1. 下载 Docker Compose 文件：
@@ -42,16 +54,6 @@ docker-compose up -d
 生产环境请修改`docker-compose.yaml`中以下环境变量
 
 - MEILI_MASTER_KEY: DocBase 的应用密钥
-
-### cli 启动
-
-1. 确保已安装`Bun`：
-
-2. 启动服务
-
-```bash
-bun x docbase
-```
 
 <!-- 客户端版 -->
 <!-- 前端插件管理页面 -->
