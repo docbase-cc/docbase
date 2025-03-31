@@ -111,6 +111,7 @@ jobs:
       - run: bun install
       - run: bun run build
       - run: bun run ./downloaddufs.ts
+      - run: rm -rf node_modules
       - run: bun install --production 
 
       # 登录到 Docker Hub
