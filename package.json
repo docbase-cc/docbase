@@ -50,9 +50,6 @@
     "@hey-api/client-fetch": "^0.8.4"
   },
   "files": [
-    "./dist/**/*",
-    "./client/**/*",
-    "./main/**/*",
-    "./docker-compose.yaml"
+    "./dist/**/*"
   ]
 }

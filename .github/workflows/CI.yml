@@ -89,9 +89,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: Publish
-        run: |
-          cd dist
-          npm publish --access public --no-git-checks
+        run: npm publish --access public --no-git-checks
 
   docker:
     name: Build and Push Docker Image

@@ -77,7 +77,7 @@ bun x docbase
 
 <!-- 下一步-->
 <!-- TODO [部署] build docker 镜像 -->
-<!-- TODO [部署]打包本地分发-->
+<!-- TODO [部署] 打包本地分发 运行 downloaddufs 然后 bun 打包 -->
 
 <!-- TODO [前端]知识库管理页面（每个卡片显示name 本地path webdav地址） -->
 <!-- TODO [前端]知识库搜索页面（可选择知识库进行搜索） -->
