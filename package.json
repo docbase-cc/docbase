@@ -1,7 +1,32 @@
 {
   "name": "docbase",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "type": "module",
+  "bin": "./dist/main/main.js",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.js"
+    },
+    "./server": {
+      "types": "./dist/main/index.d.ts",
+      "import": "./dist/main/index.js",
+      "require": "./dist/main/index.js"
+    },
+    "./client": {
+      "import": "./dist/client/client.gen.ts",
+      "require": "./dist/client/client.gen.ts"
+    },
+    "./sdk": {
+      "import": "./dist/client/index.ts",
+      "require": "./dist/client/index.ts"
+    }
+  },
+  "repository": {
+    "url": "https://github.com/docbase-cc/docbase"
+  },
+  "homepage": "https://docbase.cc",
   "workspaces": [
     "packages/*"
   ],
@@ -14,6 +39,20 @@
     "@types/bun": "^1.2.8",
     "chalk": "^5.4.1",
     "es-toolkit": "^1.34.1",
-    "concurrently": "^9.1.2"
-  }
+    "concurrently": "^9.1.2",
+    "rollup": "^4.38.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "@types/fs-extra": "^11.0.4",
+    "fs-extra": "^11.3.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "@hey-api/client-fetch": "^0.8.4"
+  },
+  "files": [
+    "./dist/**/*",
+    "./client/**/*",
+    "./main/**/*",
+    "./docker-compose.yaml"
+  ]
 }

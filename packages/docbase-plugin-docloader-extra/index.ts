@@ -1,4 +1,4 @@
-import { DocBasePlugin } from "core/src";
+import { DocBasePlugin } from "core";
 import { name, exts } from "./package.json";
 import { PdfLoader } from "@llm-tools/embedjs-loader-pdf";
 import { CsvLoader } from "@llm-tools/embedjs-loader-csv";

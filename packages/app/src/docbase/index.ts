@@ -2,7 +2,7 @@ import { homedir } from "os";
 import { join } from "path";
 import { ensureDir } from "fs-extra";
 import { PackageManager } from "./pkgManager";
-import { DocBase } from "core/src";
+import { DocBase } from "core";
 import { DB } from "./db";
 import { createDocBase } from "./docbase";
 import { startWebDAV } from "./webdav";

@@ -18,4 +18,9 @@ await Promise.all([
     (async () => {
       await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited;
     })(),
+  (async () => {
+    await copy("client", "../../dist/client");
+  })(),
 ]);
+
+await copy("dist", "../../dist/main");

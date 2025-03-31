@@ -1,6 +1,6 @@
-import { DBLayer, DocBaseConfig, Plugin } from "core/src";
+import { DBLayer, DocBaseConfig, Plugin } from "core";
 import { PackageManager } from "./pkgManager";
-import path, { join } from "path";
+import { join } from "path";
 import {
   exists,
   existsSync,
@@ -13,7 +13,7 @@ import type { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
-import { fileURLToPath } from "url";
+import { dirname } from "./utils";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
@@ -51,7 +51,7 @@ export class DB implements DBLayer {
 
     // 初始化数据库
     const url = `file:${this.#dbPath}`;
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const __dirname = dirname();
     const prodPrismaPath = join(__dirname, "prisma");
     const prodPrismaExists = existsSync(prodPrismaPath);
 

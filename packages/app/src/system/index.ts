@@ -1,6 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { ensureContainsFilterFeatureOn } from "core/src";
+import { ensureContainsFilterFeatureOn } from "core";
 import { MeiliSearch } from "meilisearch";
 const app = new OpenAPIHono();
 

@@ -1,4 +1,4 @@
-import { DocBase } from "core/src";
+import { DocBase } from "core";
 import { PackageManager, DB } from "./docbase";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import system from "./system";

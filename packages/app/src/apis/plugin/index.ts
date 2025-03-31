@@ -1,6 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { DocBasePlugin } from "core/src";
+import { DocBasePlugin } from "core";
 
 const app = new OpenAPIHono();
 

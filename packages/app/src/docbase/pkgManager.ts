@@ -1,7 +1,7 @@
 import { removeDependency, addDependency } from "nypm";
 import { exists, readJSON } from "fs-extra";
 import { join } from "path";
-import { DocBasePlugin } from "core/src";
+import { DocBasePlugin } from "core";
 
 /** npm 包管理器 */
 export class PackageManager {

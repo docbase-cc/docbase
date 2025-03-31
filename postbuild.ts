@@ -1,25 +1,9 @@
-import { copy, readFile, writeFile, remove, exists } from "fs-extra";
+import { readFile, writeFile, remove, exists } from "fs-extra";
 import { version } from "package.json";
 import { downloadRelease } from "@terascope/fetch-github-release";
 import { arch, platform } from "os";
 import { spawnSync } from "child_process";
 import { isArray } from "es-toolkit/compat";
-
-const outputdir = "dist/main";
-
-// 删除已存在的 dist 文件夹
-if (await exists(outputdir)) {
-  await remove(outputdir);
-}
-
-// 复制 docbase 后端构建
-await copy("packages/app/dist", outputdir);
-
-// 复制 docbase client
-await copy("packages/app/client", "dist/client");
-
-// 复制 docbase 前端构建
-await copy("packages/ui/dist", "dist/main/public");
 
 // 复制 docker-compose 文件，并修改 tag 为最新
 const content = await readFile("docker/docker-compose.yaml", "utf-8");
@@ -42,7 +26,7 @@ const p = platform().replace("win32", "windows");
 const names = await downloadRelease(
   user,
   repo,
-  "dist",
+  "dist/main",
   (release) => release.prerelease === false,
   (asset) => asset.name.includes(p) && asset.name.includes(a),
   leaveZipped,

@@ -1,6 +1,6 @@
 import { fdir } from "fdir";
 import { watch } from "chokidar";
-import { getExtFromPath, DocBaseFSLayerParams } from "core/src";
+import { getExtFromPath, DocBaseFSLayerParams } from "core";
 import { exists, stat, readFile } from "fs-extra";
 
 export const fsLayerParams: DocBaseFSLayerParams = {
