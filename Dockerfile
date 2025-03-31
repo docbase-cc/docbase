@@ -5,7 +5,8 @@ WORKDIR /app
 # 复制构建产物
 COPY dist/main /app
 
-RUN chmod 777 /app/dufs
+# TODO docker 编译时候下载 dufs
+# RUN chmod 777 /app/dufs
 
 ENV NODE_ENV=production
 
