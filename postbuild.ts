@@ -1,3 +1,4 @@
+import { spawnSync } from "child_process";
 import { readFile, writeFile } from "fs-extra";
 import { version } from "package.json";
 
@@ -5,3 +6,8 @@ import { version } from "package.json";
 const content = await readFile("docker/docker-compose.yaml", "utf-8");
 const newContent = content.replace(/docbase:latest/g, `docbase:${version}`);
 await writeFile("dist/docker-compose.yaml", newContent);
+// TODO 区分 arm64 编译
+import.meta.env.NODE_ENV === "production" &&
+  spawnSync("bun", ["run", "./downloaddufs.ts"], {
+    stdio: "inherit",
+  });
