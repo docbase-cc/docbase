@@ -8,7 +8,11 @@
 
 <script setup lang="ts">
 import { getSystem } from "app/client";
-const loading = ref(true);
+
+const loading = defineModel("loading", {
+  type: Boolean,
+  default: () => true,
+});
 
 const route = useRouter();
 

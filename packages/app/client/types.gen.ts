@@ -572,6 +572,7 @@ export type GetSystemResponses = {
      */
     200: {
         inited: boolean;
+        webdav: boolean;
     };
 };
 

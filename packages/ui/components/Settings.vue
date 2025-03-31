@@ -1,42 +1,69 @@
 <template>
-  <div class="input-group">
-    <label for="bearer-token">API 密钥</label>
-    <div class="input-wrapper">
-      <input
-        type="password"
-        id="bearer-token"
-        v-model="tokenStore.token"
-        placeholder="请输入您的 Bearer Token"
-      />
-      <div class="input-border"></div>
+  <div
+    class="input-group-wrapper"
+    :class="{ expanded: isExpanded }"
+    @mouseenter="isExpanded = true"
+    @mouseleave="isExpanded = false"
+  >
+    <div class="icon" v-if="!isExpanded">🔑</div>
+    <div class="input-group" v-if="isExpanded">
+      <label for="bearer-token">API 密钥</label>
+      <div class="input-with-icon">
+        <input
+          :type="showPassword ? 'text' : 'password'"
+          id="bearer-token"
+          v-model="tokenStore.token"
+          placeholder="请输入您的 Bearer Token"
+        />
+        <span class="eye-icon" @click="showPassword = !showPassword">
+          {{ showPassword ? "👁️" : "👁️‍🗨️" }}
+        </span>
+      </div>
+      <p class="input-hint">请妥善保管您的密钥，不要泄露给他人</p>
     </div>
-    <p class="input-hint">请妥善保管您的密钥，不要泄露给他人</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 const tokenStore = useTokenStore();
+const isExpanded = ref(false);
+const showPassword = ref(false);
 </script>
 
 <style scoped>
-.settings-card {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  width: 100%;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.input-group-wrapper {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  z-index: 9999; /* 确保显示在最上方 */
 }
 
-.settings-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 30px;
+.input-group-wrapper.expanded {
+  opacity: 1;
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 20px;
 }
 
 .input-group {
   margin: 24px 0;
+  width: 300px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 label {
@@ -47,9 +74,8 @@ label {
   font-size: 15px;
 }
 
-.input-wrapper {
+.input-with-icon {
   position: relative;
-  margin-bottom: 4px;
 }
 
 input {
@@ -71,6 +97,14 @@ input:focus {
   border-color: #3b82f6;
   background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
 }
 
 .input-hint {
