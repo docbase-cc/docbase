@@ -27,17 +27,19 @@ export const fsLayerParams: DocBaseFSLayerParams = {
   watch: (params) => {
     const { path, filter } = params;
 
-    const watcher = watch(path, {
-      ignored: (path) => !filter(path),
-    });
+    const watcher = watch(path, { ignoreInitial: true });
+
+    const hook = (callback: (path: string) => void) => (p: string) => {
+      if (filter(p)) callback(p);
+    };
 
     return {
       onUpsert: (callback) => {
-        watcher.on("add", callback);
-        watcher.on("change", callback);
+        watcher.on("add", hook(callback));
+        watcher.on("change", hook(callback));
       },
       onRemove: (callback) => {
-        watcher.on("unlink", callback);
+        watcher.on("unlink", hook(callback));
       },
       unwatch: (path) => {
         watcher.unwatch(path);
