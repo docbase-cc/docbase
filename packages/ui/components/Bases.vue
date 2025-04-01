@@ -1,6 +1,6 @@
 <template>
   <div class="floating-cards">
-    <div v-for="item in model.items" :key="item.id" class="floating-card">
+    <div v-for="item in items" :key="item.id" class="floating-card">
       <div class="name">
         <span class="name-text">{{ item.name }}</span>
         <span class="name-suffix"> 知识库</span>
@@ -20,20 +20,16 @@
 
 <script lang="ts" setup>
 import { deleteV0Base } from "app/client";
-const model = defineModel<{
-  items: Array<{ id: string; name: string }>;
-}>({
-  default: () => ({
-    items: [
-      { id: "1", name: "知识库 1" },
-      { id: "2", name: "知识库 2" },
-      { id: "3", name: "知识库 3" },
-    ],
-  }),
+const items = defineModel<Array<{ id: string; name: string }>>({
+  default: () => [
+    { id: "1", name: "知识库 1" },
+    { id: "2", name: "知识库 2" },
+    { id: "3", name: "知识库 3" },
+  ],
 });
 
 const deleteItem = async (id: string) => {
-  model.value.items = model.value.items.filter((item) => item.id !== id);
+  items.value = items.value.filter((item) => item.id !== id);
   await deleteV0Base({ body: { id } });
 };
 </script>

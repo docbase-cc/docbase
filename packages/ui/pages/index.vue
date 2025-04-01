@@ -29,7 +29,7 @@
     mode="out-in"
     v-if="!loading"
   >
-    <SearchMain v-if="search" v-bind:items="v.items" />
+    <SearchMain v-if="search" v-bind:items="v" />
     <Bases v-else v-model:model-value="v" />
   </Transition>
 </template>
@@ -39,12 +39,10 @@ import { getV0Base } from "app/client";
 
 const search = ref(true);
 const loading = ref(true);
-const v = ref<{ items: { id: string; name: string }[] }>({
-  items: [],
-});
+const v = ref<{ id: string; name: string }[]>([]);
 
 onMounted(async () => {
   const res = await getV0Base();
-  v.value.items = res.data!;
+  v.value = res.data!;
 });
 </script>

@@ -10,14 +10,14 @@
     "@iconify-json/uil": "^1.2.3",
     "@nuxt/icon": "1.11.0",
     "@pinia/nuxt": "^0.10.1",
-    "@unocss/nuxt": "^66.1.0-beta.7",
+    "@unocss/nuxt": "^66.1.0-beta.8",
     "app": "workspace:*",
     "es-toolkit": "^1.34.1",
     "micromark": "^4.0.2",
-    "nuxt": "^3.16.1",
+    "nuxt": "^3.16.2",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
-    "unocss": "^66.1.0-beta.7",
+    "unocss": "^66.1.0-beta.8",
     "vue": "latest",
     "vue-router": "latest"
   }

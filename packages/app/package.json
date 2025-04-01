@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@terascope/fetch-github-release": "^2.1.0",
-    "@hey-api/openapi-ts": "^0.64.15",
+    "@hey-api/openapi-ts": "^0.65.0",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
     "@prisma/client": "^6.5.0",
@@ -21,6 +21,6 @@
     "meilisearch": "^0.49.0",
     "nypm": "^0.6.0",
     "prisma": "^6.5.0",
-    "@hey-api/client-fetch": "^0.8.4"
+    "@hey-api/client-fetch": "^0.9.0"
   }
 }

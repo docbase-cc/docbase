@@ -46,7 +46,7 @@
     "fs-extra": "^11.3.0"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.8.4",
+    "@hey-api/client-fetch": "^0.9.0",
     "@prisma/client": "^6.5.0"
   },
   "files": [
