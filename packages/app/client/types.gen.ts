@@ -279,16 +279,16 @@ export type PostV0DifyRetrievalResponses = {
 
 export type PostV0DifyRetrievalResponse = PostV0DifyRetrievalResponses[keyof PostV0DifyRetrievalResponses];
 
-export type PostV0BaseKnowledgeIdSearchData = {
+export type PostV0BaseByKnowledgeIdSearchData = {
     body?: SearchParam;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/v0/base/:knowledgeId/search';
+    url: '/v0/base/{knowledgeId}/search';
 };
 
-export type PostV0BaseKnowledgeIdSearchErrors = {
+export type PostV0BaseByKnowledgeIdSearchErrors = {
     /**
      * KnowledgeDoesNotExist
      */
@@ -298,16 +298,16 @@ export type PostV0BaseKnowledgeIdSearchErrors = {
     };
 };
 
-export type PostV0BaseKnowledgeIdSearchError = PostV0BaseKnowledgeIdSearchErrors[keyof PostV0BaseKnowledgeIdSearchErrors];
+export type PostV0BaseByKnowledgeIdSearchError = PostV0BaseByKnowledgeIdSearchErrors[keyof PostV0BaseByKnowledgeIdSearchErrors];
 
-export type PostV0BaseKnowledgeIdSearchResponses = {
+export type PostV0BaseByKnowledgeIdSearchResponses = {
     /**
      * Search results
      */
     200: SearchResults;
 };
 
-export type PostV0BaseKnowledgeIdSearchResponse = PostV0BaseKnowledgeIdSearchResponses[keyof PostV0BaseKnowledgeIdSearchResponses];
+export type PostV0BaseByKnowledgeIdSearchResponse = PostV0BaseByKnowledgeIdSearchResponses[keyof PostV0BaseByKnowledgeIdSearchResponses];
 
 export type DeleteV0BaseData = {
     body?: {
@@ -371,16 +371,16 @@ export type PutV0BaseResponses = {
 
 export type PutV0BaseResponse = PutV0BaseResponses[keyof PutV0BaseResponses];
 
-export type DeleteV0BaseKnowledgeIdEmbedderData = {
+export type DeleteV0BaseByKnowledgeIdEmbedderData = {
     body?: never;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/v0/base/:knowledgeId/embedder';
+    url: '/v0/base/{knowledgeId}/embedder';
 };
 
-export type DeleteV0BaseKnowledgeIdEmbedderResponses = {
+export type DeleteV0BaseByKnowledgeIdEmbedderResponses = {
     /**
      * Embedders reset successfully
      */
@@ -389,18 +389,18 @@ export type DeleteV0BaseKnowledgeIdEmbedderResponses = {
     };
 };
 
-export type DeleteV0BaseKnowledgeIdEmbedderResponse = DeleteV0BaseKnowledgeIdEmbedderResponses[keyof DeleteV0BaseKnowledgeIdEmbedderResponses];
+export type DeleteV0BaseByKnowledgeIdEmbedderResponse = DeleteV0BaseByKnowledgeIdEmbedderResponses[keyof DeleteV0BaseByKnowledgeIdEmbedderResponses];
 
-export type GetV0BaseKnowledgeIdEmbedderData = {
+export type GetV0BaseByKnowledgeIdEmbedderData = {
     body?: never;
     path: {
         knowledgeId: string;
     };
     query?: never;
-    url: '/v0/base/:knowledgeId/embedder';
+    url: '/v0/base/{knowledgeId}/embedder';
 };
 
-export type GetV0BaseKnowledgeIdEmbedderResponses = {
+export type GetV0BaseByKnowledgeIdEmbedderResponses = {
     /**
      * Embedders
      */
@@ -471,9 +471,9 @@ export type GetV0BaseKnowledgeIdEmbedderResponses = {
     } | null;
 };
 
-export type GetV0BaseKnowledgeIdEmbedderResponse = GetV0BaseKnowledgeIdEmbedderResponses[keyof GetV0BaseKnowledgeIdEmbedderResponses];
+export type GetV0BaseByKnowledgeIdEmbedderResponse = GetV0BaseByKnowledgeIdEmbedderResponses[keyof GetV0BaseByKnowledgeIdEmbedderResponses];
 
-export type PostV0BaseKnowledgeIdEmbedderData = {
+export type PostV0BaseByKnowledgeIdEmbedderData = {
     body?: {
         embedders: {
             [key: string]: {
@@ -545,10 +545,10 @@ export type PostV0BaseKnowledgeIdEmbedderData = {
         knowledgeId: string;
     };
     query?: never;
-    url: '/v0/base/:knowledgeId/embedder';
+    url: '/v0/base/{knowledgeId}/embedder';
 };
 
-export type PostV0BaseKnowledgeIdEmbedderResponses = {
+export type PostV0BaseByKnowledgeIdEmbedderResponses = {
     /**
      * Embedder updated successfully
      */
@@ -557,7 +557,7 @@ export type PostV0BaseKnowledgeIdEmbedderResponses = {
     };
 };
 
-export type PostV0BaseKnowledgeIdEmbedderResponse = PostV0BaseKnowledgeIdEmbedderResponses[keyof PostV0BaseKnowledgeIdEmbedderResponses];
+export type PostV0BaseByKnowledgeIdEmbedderResponse = PostV0BaseByKnowledgeIdEmbedderResponses[keyof PostV0BaseByKnowledgeIdEmbedderResponses];
 
 export type GetSystemData = {
     body?: never;

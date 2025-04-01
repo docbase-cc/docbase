@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { postV0BaseKnowledgeIdSearch, type SearchResult } from "app/client";
+import { postV0BaseByKnowledgeIdSearch, type SearchResult } from "app/client";
 import { debounce } from "es-toolkit";
 
 const fields = defineModel<{
@@ -37,7 +37,7 @@ watch(
     if (newVal) {
       isLoading.value = true;
 
-      const res = await postV0BaseKnowledgeIdSearch({
+      const res = await postV0BaseByKnowledgeIdSearch({
         body: {
           q: newVal,
           showRankingScore: true,

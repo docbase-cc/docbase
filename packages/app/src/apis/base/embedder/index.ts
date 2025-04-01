@@ -9,7 +9,7 @@ const app = new OpenAPIHono();
 const getEmbedders = createRoute({
   tags: ["base"],
   method: "get",
-  path: "/:knowledgeId/embedder",
+  path: "/{knowledgeId}/embedder",
   summary: "get knowledge base embedders",
   security: [
     {
@@ -41,7 +41,7 @@ app.openapi(getEmbedders, async (c) => {
 const resetEmbedders = createRoute({
   tags: ["base"],
   method: "delete",
-  path: "/:knowledgeId/embedder",
+  path: "/{knowledgeId}/embedder",
   summary: "reset knowledge base embedders",
   security: [
     {
@@ -73,7 +73,7 @@ app.openapi(resetEmbedders, async (c) => {
 const updateEmbedder = createRoute({
   tags: ["base"],
   method: "post",
-  path: "/:knowledgeId/embedder",
+  path: "/{knowledgeId}/embedder",
   summary: "update knowledge base embedder",
   security: [
     {
