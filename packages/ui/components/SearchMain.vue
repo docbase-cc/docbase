@@ -1,14 +1,30 @@
 <template>
-  <div class="w-full max-w-3xl pa-6">
-    <!-- 知识库选择器 -->
-    <select v-model="selectedId">
-      <!-- 循环遍历 model.items 生成选项 -->
-      <option v-for="item in model.items" :key="item.id" :value="item.id">
-        {{ item.name }}
-      </option>
-    </select>
-    <!-- 搜索框容器 -->
-    <Searcher v-model="searchVal" />
+  <div class="w-full mt-10 max-w-3xl">
+    <!-- 美化后的知识库选择器和搜索框放在一行 -->
+    <div class="flex">
+      <!-- 添加一个容器用于样式布局，减少宽度 -->
+      <div class="flex-shrink-0 w-48">
+        <label
+          for="knowledge-base-select"
+          class="block text-sm font-medium text-gray-700"
+          >选择知识库</label
+        >
+        <!-- 添加标签 -->
+        <select
+          id="knowledge-base-select"
+          v-model="selectedId"
+          class="bg-white border border-gray-300 rounded-md py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-full"
+        >
+          <!-- 循环遍历 model.items 生成选项 -->
+          <option v-for="item in model.items" :key="item.id" :value="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <Searcher v-model="searchVal" />
+      </div>
+    </div>
     <!-- 搜索结果展示区 -->
     <MDCards v-model="searchVal.searchResults" />
   </div>
