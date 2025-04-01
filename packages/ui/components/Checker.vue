@@ -30,6 +30,10 @@ onMounted(async () => {
 <style scoped>
 /* 加载动画样式 */
 .loading-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
 }
 .spinner {

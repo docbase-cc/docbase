@@ -22,7 +22,7 @@ const model = defineProps<{
   items: { id: string; name: string }[];
 }>();
 
-const selectedId = ref<string>("");
+const selectedId = ref<string>(model.items[0].id ?? "");
 
 const searchVal = reactive({
   id: selectedId.value,
