@@ -1,5 +1,5 @@
 <template>
-  <div class="floating-cards">
+  <div class="floating-cards mt-20">
     <div v-for="item in items" :key="item.id" class="floating-card">
       <div class="name">
         <span class="name-text">{{ item.name }}</span>
