@@ -8,3 +8,14 @@ export const useTokenStore = defineStore(
     persist: true,
   }
 );
+
+export const useSelectSearch = defineStore(
+  "selectSearch",
+  () => {
+    const selected = ref(true);
+    return { selected };
+  },
+  {
+    persist: true,
+  }
+);
