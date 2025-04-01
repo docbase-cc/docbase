@@ -31,7 +31,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "bun run --bun --filter '*' build && bun ./postbuild.ts",
+    "build": "bun run --filter '*' build && bun ./postbuild.ts",
     "dev": "bun run ./dev.ts",
     "start": "bun run --bun ./dist/main/main.js"
   },
