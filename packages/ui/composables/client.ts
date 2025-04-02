@@ -12,7 +12,7 @@ export const useTokenStore = defineStore(
 export const useSelectSearch = defineStore(
   "selectSearch",
   () => {
-    const selected = ref(true);
+    const selected = ref(false);
     return { selected };
   },
   {
