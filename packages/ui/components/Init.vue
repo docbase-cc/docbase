@@ -17,9 +17,7 @@ const submitForm = async () => {
   if (res.data?.inited === true) {
     status.value = "success";
     showSuccessPage.value = true; // 初始化成功，显示初始化成功页面
-    setTimeout(() => {
-      route.push({ name: "index" });
-    }, 3000);
+    setTimeout(() => route.push("/"), 3000);
   } else {
     status.value = "error";
     errorMessage.value =

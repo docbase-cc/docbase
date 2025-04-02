@@ -41,20 +41,20 @@ const v = ref<{ id: string; name: string }[]>([]);
 const route = useRouter();
 
 onMounted(async () => {
-  const res = await getV0Base();
-  const res2 = await getSystem();
+  const system = await getSystem();
 
   loading.value = false;
-
-  if (res2.data?.inited !== true) {
-    await route.push({ name: "init" });
+  if (!system.data?.inited) {
+    await route.push("/init");
+  } else {
+    const base = await getV0Base();
+    
+    if (base.response.status === 401) {
+      await useRouter().push("/401");
+    }
+    
+    v.value = base.data!;
   }
-
-  if (res.response.status === 401) {
-    await useRouter().push("/401");
-  }
-
-  v.value = res.data!;
 });
 </script>
 
@@ -67,6 +67,7 @@ onMounted(async () => {
   transform: translate(-50%, -50%);
   text-align: center;
 }
+
 .spinner {
   width: 50px;
   height: 50px;
@@ -76,6 +77,7 @@ onMounted(async () => {
   animation: spin 1s ease-in-out infinite;
   margin: 0 auto 1rem;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
