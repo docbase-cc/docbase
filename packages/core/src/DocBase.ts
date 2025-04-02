@@ -30,12 +30,13 @@ export interface DifyKnowledgeRequest {
 }
 
 export interface DifyKnowledgeResponseRecord {
-  text: string;
+  content: string;
   score: number;
   title: string;
-  metadata?: Awaited<ReturnType<DocBase["search"]>> extends (infer U)[]
-    ? U
-    : never;
+  metadata?: Omit<
+    Awaited<ReturnType<DocBase["search"]>> extends (infer U)[] ? U : never,
+    "text" | "_rankingScore"
+  >;
 }
 
 /**
@@ -473,13 +474,15 @@ export class DocBase {
    * @returns 返回符合 Dify 格式的搜索结果数组
    */
   difySearch = async (
-    params: DifyKnowledgeRequest
+    params: DifyKnowledgeRequest,
+    otherParams?: SearchParams
   ): Promise<DifyKnowledgeResponseRecord[]> => {
     console.info("Performing Dify search...");
     const q = params.query;
     const { top_k, score_threshold } = params.retrieval_setting;
 
     const results = await this.search({
+      ...otherParams,
       q,
       knowledgeId: params.knowledge_id,
       limit: top_k,
@@ -490,10 +493,10 @@ export class DocBase {
     const difyResults = results.filter(isNotNil).map((i) => {
       const title = i.paths.at(0);
       return {
-        text: i.text,
+        content: i.text,
         score: i._rankingScore!,
         title: title ? basename(title) : "NoTitle",
-        metadata: i,
+        metadata: omit(i, ["text", "_rankingScore"]),
       };
     });
 
