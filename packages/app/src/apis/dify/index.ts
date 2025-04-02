@@ -68,6 +68,14 @@ app.openapi(difySearch, async (c) => {
   const params = c.req.valid("json");
   const docBase = c.get("docbase");
   const results = await docBase.difySearch(params);
+  results.map((item) => {
+    if (item.metadata) {
+      item.metadata.paths = item.metadata.paths.map(
+        (path) =>
+          `/dav/${params.knowledge_id}${path.split(params.knowledge_id).at(1)}`
+      );
+    }
+  });
   return c.json({ records: results }, 200);
 });
 

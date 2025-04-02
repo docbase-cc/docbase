@@ -54,6 +54,12 @@ app.openapi(search, async (c) => {
   const params = c.req.valid("json");
   const docBase = c.get("docbase");
   const res = await docBase.search({ knowledgeId, ...params });
+  res.map(
+    (item) =>
+      (item.paths = item.paths.map(
+        (path) => `/dav/${knowledgeId}${path.split(knowledgeId).at(1)}`
+      ))
+  );
   return c.json(res, 200);
 });
 
