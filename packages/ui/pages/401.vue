@@ -1,7 +1,7 @@
 <template>
   <div class="error-content">
     <h1>401 Unauthorized</h1>
-    <p>你没有权限访问此页面，请点击右下角的小钥匙按钮填写正确的 token。</p>
+    <p>你没有权限访问此页面，请点击右下角的小钥匙按钮填写正确的 token 后刷新页面</p>
   </div>
 </template>
 

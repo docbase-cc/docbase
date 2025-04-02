@@ -11,7 +11,7 @@
         target="_blank"
         rel="noopener noreferrer"
       >
-        <i class="fa fa-external-link"></i> WebDAV 管理
+        <i class="fa fa-external-link"></i> 文件管理
       </a>
       <div class="delete-icon" @click.stop="deleteItem(item.id)">x</div>
     </div>
@@ -81,8 +81,13 @@ const deleteItem = async (id: string) => {
   font-size: 14px;
   position: absolute;
   bottom: 10px;
-  text-decoration: underline;
+  text-decoration: none; /* 移除下划线 */
   cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.2); /* 半透明背景 */
+  padding: 8px 20px; /* 增加内边距 */
+  border-radius: 20px; /* 圆角 */
+  width: 120px; /* 固定宽度 */
+  text-align: center; /* 文字居中 */
 }
 
 .id i {
