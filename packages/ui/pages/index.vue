@@ -20,17 +20,10 @@
   </div>
 
   <Checker v-model:loading="loading" />
-
-  <AddBase v-if="!search.selected" />
-  <Transition
-    enter-active-class="animate-fade-in-up animate-duration-500 animate-ease-out"
-    leave-active-class="animate-fade-out-down animate-duration-500 animate-ease-in"
-    mode="out-in"
-    v-if="!loading"
-  >
+  <div v-if="!loading">
     <SearchMain v-if="search.selected" v-bind:items="v" />
     <Bases v-else v-model:model-value="v" />
-  </Transition>
+  </div>
 </template>
 
 <script setup lang="ts">

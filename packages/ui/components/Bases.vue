@@ -1,5 +1,18 @@
 <template>
-  <div class="floating-cards mt-20">
+  <div class="mt-10 d-flex justify-center">
+    <!-- 添加类名以实现居中 -->
+    <form @submit.prevent="addKnowledgeBase" class="add-knowledge-base-form">
+      <input
+        v-model="knowledgeBaseName"
+        type="text"
+        placeholder="知识库名称"
+        class="input-field"
+      />
+      <button type="submit" class="submit-button">添加知识库</button>
+    </form>
+  </div>
+
+  <div class="floating-cards">
     <div v-for="item in items" :key="item.id" class="floating-card">
       <div class="name">
         <span class="name-text">{{ item.name }}</span>
@@ -11,7 +24,7 @@
         target="_blank"
         rel="noopener noreferrer"
       >
-        <i class="fa fa-external-link"></i> 文件管理
+        文件管理
       </a>
       <div class="delete-icon" @click.stop="deleteItem(item.id)">x</div>
     </div>
@@ -19,7 +32,29 @@
 </template>
 
 <script lang="ts" setup>
+import { putV0Base } from "app/client";
 import { deleteV0Base } from "app/client";
+
+const knowledgeBaseName = ref("");
+
+const addKnowledgeBase = async () => {
+  try {
+    // 这里添加添加知识库的逻辑
+    console.log("添加知识库:", knowledgeBaseName.value);
+    const { data } = await putV0Base({
+      body: { name: knowledgeBaseName.value },
+    });
+
+    // 假设返回的响应包含新添加的知识库信息
+    if (data && data.id) {
+      items.value.push({ id: data.id, name: knowledgeBaseName.value });
+    }
+    knowledgeBaseName.value = "";
+  } catch (error) {
+    console.error("添加知识库失败:", error);
+  }
+};
+
 const items = defineModel<Array<{ id: string; name: string }>>({
   default: () => [
     { id: "1", name: "知识库 1" },
@@ -35,6 +70,15 @@ const deleteItem = async (id: string) => {
 </script>
 
 <style scoped>
+.mt-10 {
+  margin-top: 2.5rem; /* 假设 mt-10 对应 2.5rem 的顶部外边距 */
+}
+.d-flex {
+  display: flex;
+}
+.justify-center {
+  justify-content: center;
+}
 .floating-cards {
   display: flex;
   flex-wrap: wrap;
@@ -99,5 +143,36 @@ const deleteItem = async (id: string) => {
   top: 10px;
   right: 10px;
   cursor: pointer;
+}
+
+.add-knowledge-base-form {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.input-field {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.submit-button {
+  padding: 10px 20px;
+  background-color: #6e8efb;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #5a7ded;
 }
 </style>

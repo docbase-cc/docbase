@@ -6,8 +6,8 @@
       <div class="flex-shrink-0 w-48">
         <label
           for="knowledge-base-select"
-          class="block text-sm font-medium text-gray-700"
-          >选择知识库</label
+          class="block text-sm font-medium text-gray-700 text-center"
+          >选择知识库检索</label
         >
         <!-- 添加标签 -->
         <select
