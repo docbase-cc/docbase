@@ -19,7 +19,6 @@
     </button>
   </div>
 
-  <Settings />
   <Checker v-model:loading="loading" />
 
   <AddBase v-if="!search.selected" />
@@ -42,6 +41,11 @@ const v = ref<{ id: string; name: string }[]>([]);
 
 onMounted(async () => {
   const res = await getV0Base();
+
+  if (res.response.status === 401) {
+    await useRouter().push("/401");
+  }
+
   v.value = res.data!;
 });
 </script>
