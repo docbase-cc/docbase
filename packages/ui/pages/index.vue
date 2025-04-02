@@ -19,7 +19,12 @@
     </button>
   </div>
 
-  <Checker v-model:loading="loading" />
+  <!-- 加载动画 -->
+  <div v-if="loading" class="loading-animation">
+    <div class="spinner"></div>
+    <p>正在检查系统状态...</p>
+  </div>
+
   <div v-if="!loading">
     <SearchMain v-if="search.selected" v-bind:items="v" />
     <Bases v-else v-model:model-value="v" />
@@ -28,12 +33,22 @@
 
 <script setup lang="ts">
 import { getV0Base } from "app/client";
+import { getSystem } from "app/client";
+
 const search = useSelectSearch();
 const loading = ref(true);
 const v = ref<{ id: string; name: string }[]>([]);
+const route = useRouter();
 
 onMounted(async () => {
   const res = await getV0Base();
+  const res2 = await getSystem();
+
+  loading.value = false;
+
+  if (res2.data?.inited !== true) {
+    await route.push({ name: "init" });
+  }
 
   if (res.response.status === 401) {
     await useRouter().push("/401");
@@ -42,3 +57,28 @@ onMounted(async () => {
   v.value = res.data!;
 });
 </script>
+
+<style scoped>
+/* 加载动画样式 */
+.loading-animation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
