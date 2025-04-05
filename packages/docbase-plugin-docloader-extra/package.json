@@ -3,6 +3,7 @@
   "displayName": "DocBase 额外文档支持",
   "version": "0.0.5",
   "author": "DocBase",
+  "pluginType": "DocLoader",
   "type": "module",
   "homepage": "https://docbase.cc",
   "repository": "https://github.com/docbase-cc/docbase",
