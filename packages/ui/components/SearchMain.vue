@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full mt-10 max-w-3xl">
+  <div class="w-full max-w-3xl">
     <!-- 美化后的知识库选择器和搜索框放在一行 -->
     <div class="flex">
       <!-- 添加一个容器用于样式布局，减少宽度 -->

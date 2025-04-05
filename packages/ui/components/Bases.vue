@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-10 d-flex justify-center">
+  <div class="d-flex justify-center">
     <!-- 添加类名以实现居中 -->
     <form @submit.prevent="addKnowledgeBase" class="add-knowledge-base-form">
       <input

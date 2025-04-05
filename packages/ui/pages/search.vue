@@ -1,5 +1,5 @@
 <template>
-  <Bases v-model:model-value="v" />
+  <SearchMain v-bind:items="v" />
 </template>
 
 <script setup lang="ts">
