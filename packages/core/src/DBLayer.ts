@@ -31,6 +31,15 @@ export interface DocBaseConfig {
 
 // 数据库层接口
 export interface DBLayer {
+  /** 文档加载指向，映射文件扩展名到文档加载器名称 */
+  ext2Plugin: {
+    all: () => Promise<{ [key: string]: string }>;
+    get: (ext: string) => Promise<string | null>;
+    exts: () => Promise<string[]>;
+    hasPlugin: (ext: string) => Promise<boolean>;
+    delete: (ext: string) => Promise<boolean>;
+    set: (ext: string, pluginName: string) => Promise<void>;
+  };
   // 插件表
   plugin: {
     // 获取

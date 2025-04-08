@@ -84,7 +84,6 @@ docker-compose up -d
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
 <!-- 下一步-->
-<!-- TODO [持久化]docbase ext 设置持久化 -->
 <!-- TODO [文档]文档补充更多搜索参数/插件管理/向量搜索配置教程/多知识库使用 -->
 <!-- TODO [插件]插件开发助手 -->
 <!-- TODO [插件]中间件插件（search、upsert、remove 操作可使用中间件拓展） -->

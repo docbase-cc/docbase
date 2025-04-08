@@ -29,8 +29,8 @@ export const fsLayerParams: DocBaseFSLayerParams = {
 
     const watcher = watch(path, { ignoreInitial: true });
 
-    const hook = (callback: (path: string) => void) => (p: string) => {
-      if (filter(p)) callback(p);
+    const hook = (callback: (path: string) => void) => async (p: string) => {
+      if (await filter(p)) callback(p);
     };
 
     return {

@@ -13,12 +13,11 @@ export interface DocManagerFsLayer {
   read: (path: string) => Promise<string>;
 }
 
+export type Filter = (path: string) => boolean | Promise<boolean>;
+
 export interface DocBaseFSLayerParams extends DocManagerFsLayer {
   scan: (params: { dir: string; exts: string[] }) => AsyncIterable<string>;
-  watch: (params: {
-    path: string;
-    filter: (path: string) => boolean;
-  }) => DirWatcher;
+  watch: (params: { path: string; filter: Filter }) => DirWatcher;
 }
 
 /**
@@ -35,9 +34,9 @@ export type Scanner = (params: {
 }) => Promise<void>;
 
 interface WatchAction {
-  filter: (path: string) => boolean;
-  upsert: (path: string) => void;
-  remove: (path: string) => void;
+  filter: Filter;
+  upsert: (path: string) => void | Promise<void>;
+  remove: (path: string) => void | Promise<void>;
 }
 
 // 监视器
@@ -81,13 +80,13 @@ export const createFSLayer = (params: DocBaseFSLayerParams): FSLayer => {
 
       const watcher = watch({ path, filter });
 
-      watcher.onUpsert((p: string) => {
-        console.info(`[upsert] ${p}`);
-        upsert(slash(p));
+      watcher.onUpsert(async (p: string) => {
+        await upsert(slash(p));
+        console.info(`[upserted] ${p}`);
       });
-      watcher.onRemove((p: string) => {
-        console.info(`[remove] ${p}`);
-        remove(slash(p));
+      watcher.onRemove(async (p: string) => {
+        await remove(slash(p));
+        console.info(`[removed] ${p}`);
       });
 
       watchers.set(path, watcher);

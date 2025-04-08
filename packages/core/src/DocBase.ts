@@ -55,9 +55,6 @@ export class DocBase {
   /** 文档管理器 */
   #docManagers: Map<string, DocManager> = new Map();
 
-  /** 文档加载指向器，映射文件扩展名到文档加载器名称 */
-  #docExtToLoaderName: Map<string, string> = new Map();
-
   /** 文档加载器，映射文档加载器名称到加载器实例 */
   #docLoaders: Map<string, DocLoaderPlugin<object>> = new Map();
 
@@ -112,12 +109,7 @@ export class DocBase {
   );
 
   /** 获取支持的文档类型 */
-  get exts() {
-    console.info("Fetching supported document extensions...");
-    const extensions = this.#docExtToLoaderName.entries();
-    console.info("Supported document extensions fetched successfully.");
-    return extensions;
-  }
+  exts = async () => await this.#db.ext2Plugin.all();
 
   /** 获取所有可用文档加载器 */
   get docLoaders() {
@@ -143,7 +135,7 @@ export class DocBase {
    */
   #hyperDocLoader: DocLoader = async (input) => {
     const ext = getExtFromPath(input.path);
-    const docLoaderName = this.#docExtToLoaderName.get(ext);
+    const docLoaderName = await this.#db.ext2Plugin.get(ext);
 
     if (!docLoaderName) {
       const errorMsg = `No such docLoaderName can solve ext ${ext}`;
@@ -162,12 +154,6 @@ export class DocBase {
     return await dockLoader.func(input);
   };
 
-  /** 该路径文件是否需要被 docbase 处理 */
-  #pathFilterToLoader = (path: string) => {
-    const ext = getExtFromPath(path);
-    return this.#docExtToLoaderName.has(ext);
-  };
-
   /**
    * 扫描指定目录中的文档
    * @param dirs - 要扫描的目录数组
@@ -176,7 +162,7 @@ export class DocBase {
     const docManager = this.#validGetDocManager(id);
     await this.#fs.scanner({
       dirs,
-      exts: Array.from(this.#docExtToLoaderName.keys()),
+      exts: await this.#db.ext2Plugin.exts(),
       load: async (path) => {
         console.info(`Upserting document during scan: ${path}`);
         await docManager.upsertDoc(path);
@@ -263,7 +249,11 @@ export class DocBase {
 
     // 监视目录
     this.#fs.watcher.watch(path, {
-      filter: this.#pathFilterToLoader,
+      filter: async (path: string) => {
+        const ext = getExtFromPath(path);
+        const pluginName = await this.#db.ext2Plugin.get(ext);
+        return pluginName !== null;
+      },
       upsert: (path: string) => {
         this.#watcherTaskCache.set(path, { docManagerId: id, type: "upsert" });
         this.#doWatcherTask();
@@ -315,9 +305,7 @@ export class DocBase {
    */
   unLoadDocLoader = async (docLoaderName: string) => {
     console.info(`Attempting to delete document loader: ${docLoaderName}`);
-    const using = this.#docExtToLoaderName
-      .values()
-      .some((v) => v === docLoaderName);
+    const using = await this.#db.ext2Plugin.hasPlugin(docLoaderName);
 
     if (using) {
       const result = {
@@ -352,7 +340,7 @@ export class DocBase {
       `Attempting to set document loader for extension ${ext}: ${docLoaderName}`
     );
     if (docLoaderName === undefined) {
-      const modified = this.#docExtToLoaderName.delete(ext);
+      const modified = await this.#db.ext2Plugin.delete(ext);
       const result = { modified };
       console.info(
         `Document loader setting for extension ${ext} updated. Result: ${JSON.stringify(
@@ -385,7 +373,7 @@ export class DocBase {
       return result;
     }
 
-    this.#docExtToLoaderName.set(ext, docLoaderName);
+    await this.#db.ext2Plugin.set(ext, docLoaderName);
     console.info(
       `Document loader set successfully for extension ${ext}: ${docLoaderName}`
     );
@@ -414,8 +402,8 @@ export class DocBase {
         // 将文档加载器注册到文档加载指向器
         for (const ext of plugin.exts) {
           // 该拓展已经存在文档加载器，不覆盖
-          if (!this.#docExtToLoaderName.has(ext)) {
-            this.#docExtToLoaderName.set(ext, plugin.name);
+          if ((await this.#db.ext2Plugin.get(ext)) === null) {
+            await this.#db.ext2Plugin.set(ext, plugin.name);
           }
         }
         console.info(`Document loader plugin loaded: ${plugin.name}`);
