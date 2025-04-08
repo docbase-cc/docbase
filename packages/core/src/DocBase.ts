@@ -195,8 +195,6 @@ export class DocBase {
       .toArray();
     console.info("All plugins loaded successfully.");
 
-    // TODO 加载 extToLoader 映射
-
     // 加载所有文档管理器
     console.info("Initializing DocManager...");
     const result = await AsyncStream.of(this.#db.knowledgeBase.all())
