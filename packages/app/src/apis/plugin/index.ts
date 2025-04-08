@@ -245,7 +245,7 @@ app.openapi(setExt, async (c) => {
 app.openapi(listExt, async (c) => {
   console.info("Getting extension-plugin mapping");
   const docBase = c.get("docbase");
-  return c.json(Object.fromEntries(docBase.exts));
+  return c.json(await docBase.exts());
 });
 
 app.openapi(delPlugin, async (c) => {

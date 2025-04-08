@@ -10,14 +10,10 @@ datasource db {
 model Plugin {
     name   String @id
     config Json
-
-    Ext2Plugin Ext2Plugin[]
 }
 
-model Ext2Plugin {
-    ext String @id
-
-    plugin     Plugin @relation(fields: [pluginName], references: [name])
+model Ext {
+    ext        String @id
     pluginName String
 }
 

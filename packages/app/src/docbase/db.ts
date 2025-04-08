@@ -74,6 +74,75 @@ export class DB implements DBLayer {
     this.#dbURL = url;
   }
 
+  ext2Plugin = {
+    all: async () => {
+      const res = await this.#prisma.ext.findMany();
+      const allExt2Plugins: { [key: string]: string } = {};
+      for (const { ext, pluginName } of res) {
+        allExt2Plugins[ext] = pluginName;
+      }
+      return allExt2Plugins;
+    },
+    get: async (ext: string) => {
+      const res = await this.#prisma.ext.findUnique({
+        where: {
+          ext,
+        },
+      });
+
+      return res === null ? null : res.pluginName;
+    },
+    exts: async () => {
+      const res = await this.#prisma.ext.findMany({
+        select: {
+          ext: true,
+        },
+      });
+      return res.map((item) => item.ext);
+    },
+    hasPlugin: async (pluginName: string) => {
+      const res = await this.#prisma.ext.findFirst({
+        where: {
+          pluginName,
+        },
+      });
+      return res !== null;
+    },
+    delete: async (ext: string) => {
+      try {
+        await this.#prisma.ext.delete({
+          where: {
+            ext,
+          },
+        });
+        return true;
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.endsWith("Record to delete does not exist.")
+        ) {
+          return false;
+        } else {
+          throw error;
+        }
+      }
+    },
+    set: async (ext: string, pluginName: string) => {
+      await this.#prisma.ext.upsert({
+        where: {
+          ext,
+        },
+        create: {
+          ext,
+          pluginName,
+        },
+        update: {
+          pluginName,
+        },
+      });
+    },
+  };
+
   init = async () => {
     const pc = await import("@prisma/client");
     this.#prisma = new pc.default.PrismaClient({
