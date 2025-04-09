@@ -1,8 +1,8 @@
 {
   "name": "docbase",
-  "version": "0.3.10",
+  "version": "0.4.0",
   "type": "module",
-  "bin": "./dist/main/main.js",
+  "bin": "./dist/cli/index.js",
   "exports": {
     ".": {
       "types": "./dist/lib/index.d.ts",

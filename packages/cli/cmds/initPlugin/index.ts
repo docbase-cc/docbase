@@ -1,9 +1,12 @@
-import { downloadTemplate } from "giget";
 import fs, { readJSON } from "fs-extra";
 import path from "path";
 import { Spinner } from "@topcli/spinner";
 import { select } from "@inquirer/prompts";
 import { defineCommand } from "citty";
+import { getFileList } from "./download";
+import { cwd } from "process";
+
+const repo = "docbase-cc/plugin-template";
 
 export default defineCommand({
   meta: {
@@ -22,35 +25,9 @@ export default defineCommand({
 
     spinner.start("🗃️  Download DocBase Plugin Template...");
 
-    const out = await downloadTemplate("github:docbase-cc/plugin-template", {
-      force: true,
-    });
-
     // 获取项目根目录
-    const base = path.dirname(out.dir);
-
-    // 获取下载目录中的所有文件和文件夹
-    const files = await fs.readdir(out.dir);
-
-    // 创建一个存储所有移动操作的 Promise 数组
-    const movePromises: Promise<void>[] = [];
-
-    // 遍历每个文件和文件夹
-    for (const file of files) {
-      const sourcePath = path.join(out.dir, file);
-      const destinationPath = path.join(base, file);
-
-      // 将每个移动操作添加到 Promise 数组中
-      movePromises.push(
-        fs.move(sourcePath, destinationPath, { overwrite: true })
-      );
-    }
-
-    // 并行执行所有移动操作
-    await Promise.all(movePromises);
-
-    // 删除原来的下载目录
-    await fs.rmdir(out.dir);
+    const base = cwd();
+    const remoteFiles = await getFileList(repo, base);
 
     // 替换特有配置
     const packageJsonPath = path.join(base, `${type}.package.json`);
@@ -69,7 +46,7 @@ export default defineCommand({
     await fs.writeJSON(basePackageJsonPath, basePackageJson, { spaces: 2 });
 
     // 删除模板 package.json 文件
-    const deletePakageJsonTasks = files
+    const deletePakageJsonTasks = remoteFiles
       .filter((file) => file.endsWith(".package.json"))
       .map(async (file) => {
         const filePath = path.join(base, file);
