@@ -7,19 +7,9 @@ const main = defineCommand({
     version: version,
     description: "docbase cli tool",
   },
-  args: {
-    name: {
-      type: "positional",
-      description: "Your name",
-      required: true,
-    },
-    friendly: {
-      type: "boolean",
-      description: "Use friendly greeting",
-    },
-  },
-  run({ args }) {
-    console.log(`${args.friendly ? "Hi" : "Greetings"} ${args.name}!`);
+  subCommands: {
+    init: () => import("./cmds/initPlugin").then((r) => r.default),
+    start: () => import("./cmds/start").then((r) => r.default),
   },
 });
 

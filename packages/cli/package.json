@@ -4,8 +4,11 @@
   "type": "module",
   "private": true,
   "devDependencies": {
+    "@inquirer/prompts": "^7.4.1",
+    "@topcli/spinner": "^2.1.2",
     "@types/bun": "latest",
-    "citty": "^0.1.6"
+    "citty": "^0.1.6",
+    "giget": "^2.0.0"
   },
   "peerDependencies": {
     "typescript": "^5"
