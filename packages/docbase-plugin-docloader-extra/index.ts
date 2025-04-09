@@ -1,4 +1,4 @@
-import { DocBasePlugin } from "core";
+import { DocLoaderPlugin } from "core";
 import { name, exts } from "./package.json";
 import { PdfLoader } from "@llm-tools/embedjs-loader-pdf";
 import { CsvLoader } from "@llm-tools/embedjs-loader-csv";
@@ -17,7 +17,7 @@ import { z } from "zod";
 
 export const schema = z.object({});
 
-const plugin: DocBasePlugin<typeof schema> = {
+const plugin: DocLoaderPlugin<z.infer<typeof schema>> = {
   name: name,
   pluginType: "DocLoader",
   exts: exts,

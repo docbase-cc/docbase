@@ -1,6 +1,8 @@
 import type { DocLoaderPlugin } from "./DocLoader";
 import type { DocSplitterPlugin } from "./DocSplitter";
 
+export type { DocLoaderPlugin, DocSplitterPlugin };
+
 /**
  * 文档内容类型
  */
