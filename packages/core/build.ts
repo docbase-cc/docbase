@@ -1,7 +1,7 @@
 import { copy } from "fs-extra";
 
 // 并行构建
-Promise.all([
+await Promise.all([
   await Bun.build({
     entrypoints: ["./src/index.ts"],
     outdir: "./dist",
