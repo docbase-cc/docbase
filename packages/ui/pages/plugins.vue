@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { getV0Plugin, putV0Plugin } from "app/client";
-import { ref, onMounted } from "vue";
+import { ofetch } from "ofetch";
 
 const plugins = ref<
   { name: string; pluginType: string; installed: boolean; loading: boolean }[]
@@ -67,12 +67,9 @@ onMounted(async () => {
     }));
 
   // 发起网络请求获取指定JSON文件内容
-  const response = await fetch(
+  const jsonData = await ofetch(
     "https://cdn.jsdmirror.com/gh/docbase-cc/plugins/index.json"
   );
-
-  // 解析响应内容为JSON格式
-  const jsonData = await response.json();
 
   const uninstalledPlugins = jsonData
     .map((i: any) => ({

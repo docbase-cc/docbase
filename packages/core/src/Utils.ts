@@ -2,6 +2,7 @@ import { lowerCase } from "es-toolkit";
 import { extname } from "path";
 import os from "os";
 import { Config, MeiliSearch } from "meilisearch";
+import { ofetch } from "ofetch";
 
 /** 从路径获取拓展名 */
 export const getExtFromPath = (path: string) =>
@@ -69,27 +70,22 @@ export const ensureContainsFilterFeatureOn = async (client: MeiliSearch) => {
 
   // 尝试并等待 meilisearch 启动
   console.debug("Trying to ensure ContainsFilter feature is on");
-  const res = await fetch(`${host}/experimental-features`, {
+  const { containsFilter } = await ofetch(`${host}/experimental-features`, {
     headers: {
       Authorization: `Bearer ${key}`,
     },
   });
 
-  const { containsFilter } = await res.json();
-
   if (!containsFilter) {
     console.debug("ContainsFilter feature is off, turning it on...");
-    const res = await fetch(`${host}/experimental-features`, {
+    await ofetch(`${host}/experimental-features`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ containsFilter: true }),
+      body: { containsFilter: true },
     });
-    if (res.status !== 200) {
-      throw new Error((await res.json()).message);
-    }
     console.debug("ContainsFilter feature turned on successfully");
   } else {
     console.debug("ContainsFilter feature is on");
