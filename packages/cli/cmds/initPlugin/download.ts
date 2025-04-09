@@ -1,5 +1,6 @@
 import { Spinner } from "@topcli/spinner";
-import { ensureDir, writeFile } from "fs-extra";
+import { ensureDir, exists, readFile, writeFile } from "fs-extra";
+import { sha1 } from "hash-wasm";
 import path, { dirname } from "path";
 import { URL } from "url";
 
@@ -14,7 +15,7 @@ export async function getFileList(
   // 返回响应数据
   const { files } = await response.json();
   const remoteFiles = files.map((i: any) => ({
-    path: i.path,
+    ...i,
     getContent: async () => {
       const url = new URL(i.path, base);
       const response = await fetch(url);
@@ -33,6 +34,15 @@ export async function getFileList(
       const spinner = new Spinner();
       const msg = `  ${remoteFile.path}`;
       spinner.start(msg);
+      if (await exists(filePath)) {
+        const content = await readFile(filePath, "utf-8");
+        const sha = await sha1("blob " + remoteFile.size + "\0" + content);
+
+        if (sha.toString() === remoteFile.sha) {
+          spinner.succeed(msg + " (skip)");
+          return;
+        }
+      }
       const content = await remoteFile.getContent();
       await ensureDir(dirname(filePath));
       await writeFile(filePath, content);

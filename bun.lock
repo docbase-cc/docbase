@@ -46,6 +46,7 @@
         "@topcli/spinner": "^2.1.2",
         "@types/bun": "latest",
         "citty": "^0.1.6",
+        "hash-wasm": "^4.12.0",
       },
       "peerDependencies": {
         "typescript": "^5",

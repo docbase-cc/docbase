@@ -9,7 +9,8 @@
     "@inquirer/prompts": "^7.4.1",
     "@topcli/spinner": "^2.1.2",
     "@types/bun": "latest",
-    "citty": "^0.1.6"
+    "citty": "^0.1.6",
+    "hash-wasm": "^4.12.0"
   },
   "peerDependencies": {
     "typescript": "^5"
