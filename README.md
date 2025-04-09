@@ -32,7 +32,7 @@
 2. 启动服务
 
 ```bash
-bun x docbase
+bun x docbase start
 ```
 
 ### 使用 Docker
