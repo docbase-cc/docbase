@@ -2,7 +2,9 @@
   "name": "cli",
   "main": "index.ts",
   "type": "module",
-  "private": true,
+  "scripts": {
+    "build": "bun run ./build.ts"
+  },
   "devDependencies": {
     "@inquirer/prompts": "^7.4.1",
     "@topcli/spinner": "^2.1.2",
