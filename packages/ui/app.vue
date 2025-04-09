@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { getSystem } from "app/client";
+import { getSystem, getV0Base } from "app/client";
 
 const loading = ref(true);
 
@@ -54,6 +54,12 @@ onMounted(async () => {
   loading.value = false;
   if (!system.data?.inited) {
     await route.push("/init");
+  } else {
+    const base = await getV0Base();
+
+    if (base.response.status === 401) {
+      await useRouter().push("/401");
+    }
   }
 });
 </script>
