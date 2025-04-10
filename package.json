@@ -36,7 +36,7 @@
     "start": "bun run --bun ./dist/main/main.js"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.8",
+    "@types/bun": "^1.2.9",
     "@types/fs-extra": "^11.0.4",
     "chalk": "^5.4.1",
     "concurrently": "^9.1.2",
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.10.0",
-    "@prisma/client": "^6.5.0"
+    "@prisma/client": "^6.6.0"
   },
   "files": [
     "./dist/**/*"
