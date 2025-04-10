@@ -11,7 +11,6 @@
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.4",
     "@prisma/client": "^6.6.0",
-    "@terascope/fetch-github-release": "^2.1.0",
     "@types/unzipper": "^0.10.11",
     "chokidar": "^4.0.3",
     "consola": "^3.4.2",

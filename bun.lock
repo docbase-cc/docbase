@@ -8,6 +8,7 @@
         "@prisma/client": "^6.6.0",
       },
       "devDependencies": {
+        "@terascope/fetch-github-release": "^2.1.0",
         "@types/bun": "^1.2.9",
         "@types/fs-extra": "^11.0.4",
         "chalk": "^5.4.1",
@@ -27,7 +28,6 @@
         "@hono/swagger-ui": "^0.5.1",
         "@hono/zod-openapi": "^0.19.4",
         "@prisma/client": "^6.6.0",
-        "@terascope/fetch-github-release": "^2.1.0",
         "@types/unzipper": "^0.10.11",
         "chokidar": "^4.0.3",
         "consola": "^3.4.2",
