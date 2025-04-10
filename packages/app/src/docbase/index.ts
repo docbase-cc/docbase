@@ -7,10 +7,11 @@ import { DB } from "./db";
 import { createDocBase } from "./docbase";
 import { WebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
+import { env } from "process";
 export { PackageManager, DB };
 
 // 初始化插件目录
-const baseDir = join(homedir(), ".docbase");
+const baseDir = env.DATA_DIR ?? join(homedir(), ".docbase");
 const pluginsDir = join(baseDir, "plugins");
 const dataDir = join(baseDir, "data");
 const fileDir = join(baseDir, "files");
