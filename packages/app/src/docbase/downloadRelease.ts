@@ -1,4 +1,3 @@
-import { ofetch } from "ofetch";
 import { platform } from "os";
 import { arch } from "os";
 import unzip from "unzipper";
@@ -7,9 +6,7 @@ export const downloadDufs = async (
   path: string,
   repo: string = "sigoden/dufs"
 ) => {
-  const { release } = await ofetch(
-    `https://ungh.cc/repos/${repo}/releases/latest`
-  );
+  const response = await fetch(`https://ungh.cc/repos/${repo}/releases/latest`);
   const a = arch()
     .replace("arm64", "aarch64")
     .replace("ia32", "i686")
@@ -19,6 +16,7 @@ export const downloadDufs = async (
 
   const f = (name: string) => name.includes(p) && name.includes(a);
 
+  const { release } = await response.json();
   const { assets } = release;
 
   const target: string = assets
@@ -27,9 +25,16 @@ export const downloadDufs = async (
 
   const downloadURL = target.replace("github.com", "bgithub.xyz");
 
-  const blob: Blob = await ofetch(downloadURL, { duplex: "half" });
+  const download = async (url: string) => {
+    const res = await fetch(url);
+    const files = await unzip.Open.buffer(Buffer.from(await res.arrayBuffer()));
+    await files.extract({ path, forceStream: true });
+  };
 
-  const files = await unzip.Open.buffer(Buffer.from(await blob.arrayBuffer()));
-
-  await files.extract({ path, forceStream: true });
+  try {
+    await download(downloadURL);
+  } catch (error) {
+    console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
+    await download(target);
+  }
 };
