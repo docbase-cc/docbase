@@ -4,7 +4,7 @@ import { dirname } from "../utils";
 import { join } from "path";
 import { existsSync } from "fs-extra";
 import { exists, chmod } from "fs-extra";
-import { downloadDufs } from "./downloadRelease";
+import { downloadDufs } from "~/downloadRelease";
 
 export class WebDAV {
   #path: string;

@@ -11,8 +11,6 @@
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.4",
     "@prisma/client": "^6.6.0",
-    "@types/adm-zip": "^0.5.7",
-    "adm-zip": "^0.5.16",
     "chokidar": "^4.0.3",
     "consola": "^3.4.2",
     "core": "workspace:*",
