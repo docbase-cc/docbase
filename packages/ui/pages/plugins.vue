@@ -27,7 +27,6 @@
 
 <script setup lang="ts">
 import { getV0Plugin, putV0Plugin } from "app/client";
-import { ofetch } from "ofetch";
 
 const plugins = ref<
   { name: string; pluginType: string; installed: boolean; loading: boolean }[]
@@ -67,11 +66,11 @@ onMounted(async () => {
     }));
 
   // 发起网络请求获取指定JSON文件内容
-  const jsonData = await ofetch(
+  const res = await fetch(
     "https://cdn.jsdmirror.com/gh/docbase-cc/plugins/index.json"
   );
 
-  const uninstalledPlugins = jsonData
+  const uninstalledPlugins = (await res.json())
     .map((i: any) => ({
       ...i,
       installed: false,

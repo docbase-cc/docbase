@@ -86,7 +86,6 @@ docker-compose up -d
 <!-- 下一步-->
 
 <!-- TODO 开发部署 -->
-<!-- TODO 移除 ofetch -->
 <!-- TODO cli 快速打包离线部署应用（命令行创建一键可执行文件，也打包meilisearch 和 dufs，把 desktop 去掉，直接命令行编译编译文件） -->
 
 <!-- TODO 前端界面 -->

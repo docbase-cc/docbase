@@ -3,7 +3,13 @@ import { ensureDir, exists, readFile, writeFile } from "fs-extra";
 import { sha1 } from "hash-wasm";
 import path, { dirname } from "path";
 import { URL } from "url";
-import { ofetch } from "ofetch";
+import ky from "ky";
+
+interface Files {
+  path: string;
+  size: number;
+  sha: string;
+}
 
 export async function getFileList(
   repo: string,
@@ -12,15 +18,14 @@ export async function getFileList(
   const base = `https://ungh.cc/repos/${repo}/files/main/`;
 
   // 发送 GET 请求到指定的 URL
-  const { files } = await ofetch(base);
-  const remoteFiles = files.map((i: any) => ({
+  const res = await ky.get(base);
+  const v: { files: Files[] } = await res.json();
+  const remoteFiles = v.files.map((i) => ({
     ...i,
     getContent: async () => {
       const url = new URL(i.path, base);
-      const { file } = await ofetch(url.href, {
-        retry: 3,
-        retryDelay: 500,
-      });
+      const res = await ky.get(url.href, { retry: 3 });
+      const file: { contents: string } = await res.json();
       const { contents } = file;
       return contents;
     },

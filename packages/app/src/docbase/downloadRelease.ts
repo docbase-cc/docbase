@@ -1,6 +1,6 @@
 import { platform } from "os";
 import { arch } from "os";
-import unzip from "unzipper";
+import AdmZip from "adm-zip";
 
 export const downloadDufs = async (
   path: string,
@@ -25,16 +25,28 @@ export const downloadDufs = async (
 
   const downloadURL = target.replace("github.com", "bgithub.xyz");
 
-  const download = async (url: string) => {
-    const res = await fetch(url);
-    const files = await unzip.Open.buffer(Buffer.from(await res.arrayBuffer()));
-    await files.extract({ path, forceStream: true });
-  };
+  const download = async () =>
+    new Promise(async (resolve, reject) => {
+      let res = await fetch(downloadURL);
 
-  try {
-    await download(downloadURL);
-  } catch (error) {
-    console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
-    await download(target);
-  }
+      if (res.status !== 200) {
+        console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
+        res = await fetch(target);
+      }
+
+      new AdmZip(Buffer.from(await res.arrayBuffer())).extractAllToAsync(
+        path,
+        true,
+        true,
+        (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(void 0);
+          }
+        }
+      );
+    });
+
+  await download();
 };
