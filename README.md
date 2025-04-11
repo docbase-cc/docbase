@@ -86,7 +86,8 @@ docker-compose up -d
 <!-- 下一步-->
 
 <!-- TODO 开发部署 -->
-<!-- TODO cli 快速打包离线部署应用（命令行创建一键可执行文件，也打包meilisearch 和 dufs，把 desktop 去掉，直接命令行编译编译文件） -->
+<!-- TODO 适配 bin 下的 dufs 和 meili -->
+<!-- TODO cli 快速打包离线部署应用（把 desktop 去掉，直接命令行编译编译文件） -->
 
 <!-- TODO 文档 -->
 <!-- TODO [文档] 文档补充插件开发教程 -->
