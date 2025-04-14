@@ -1,18 +1,15 @@
 import { spawn } from "child_process";
-import { platform } from "os";
-import { dirname } from "../utils";
-import { join } from "path";
-import { existsSync } from "fs-extra";
+import { _binDufs, _binDufsExists } from "../utils";
 import { exists, chmod } from "fs-extra";
 import { downloadDufs } from "~/downloadRelease";
+import { dirname } from "path";
 
 export class WebDAV {
-  #path: string;
   #dufsPort = 15000;
-  #dufsName = platform() === "win32" ? "dufs.exe" : "dufs";
-  #dufsPath = join(dirname(), this.#dufsName);
   #dufsExists = true;
   #started = false;
+  #dufsPath: string = _binDufs;
+  #path: string;
 
   get port() {
     return this.#dufsPort;
@@ -24,14 +21,7 @@ export class WebDAV {
 
   constructor(path: string) {
     this.#path = path;
-
-    const dufsExists = existsSync(this.#dufsPath);
-    const dufsExists2 = existsSync("/bin/dufs");
-
-    if (dufsExists2) {
-      this.#dufsPath = "dufs";
-      console.info("dufs 已存在于 /bin/dufs");
-    } else if (dufsExists) {
+    if (_binDufsExists) {
       console.info("dufs 已存在于 " + this.#dufsPath);
     } else {
       this.#dufsExists = false;
@@ -70,11 +60,10 @@ export class WebDAV {
   };
 
   #downloadWebDAV = async () => {
-    const targetPath = dirname();
     const dufsExists = await exists(this.#dufsPath);
     if (dufsExists) return;
 
-    await downloadDufs(targetPath);
+    await downloadDufs(dirname(_binDufs));
     await chmod(this.#dufsPath, 777);
 
     this.#dufsExists = true;
