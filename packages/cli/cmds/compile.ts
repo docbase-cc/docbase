@@ -14,7 +14,7 @@ export default defineCommand({
   async run() {
     const dn = dirname(fileURLToPath(import.meta.url));
     const main = join(dn, "../main");
-    const bin = join(main, "bin");
+    const bin = join(main, "public", "_bin");
     await ensureDir(bin);
 
     // 并行下载 dufs 和 meilisearch

@@ -80,6 +80,6 @@ export const downloadMeilisearch = async (
 
   await downloadFile(
     target.replace("github.com", "bgithub.xyz"),
-    `${path}/${name}`
+    `${path}/meilisearch` + (platform() === "win32" ? ".exe" : "")
   );
 };
