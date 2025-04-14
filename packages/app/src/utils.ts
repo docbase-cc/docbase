@@ -7,11 +7,11 @@ export const dirname = () => {
   return path.dirname(fileURLToPath(import.meta.url));
 };
 
-const __dirname = dirname();
-export const prodPublicPath = join(__dirname, "public");
+export const _dirname = dirname();
+export const prodPublicPath = join(_dirname, "public");
 export const prodPublicExists = await exists(prodPublicPath);
 export const _binDufs = join(
-  __dirname,
+  _dirname,
   "bin",
   platform() === "win32" ? "dufs.exe" : "dufs"
 );

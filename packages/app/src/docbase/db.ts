@@ -13,7 +13,7 @@ import type { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
-import { dirname } from "../utils";
+import { _dirname } from "../utils";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
@@ -51,8 +51,7 @@ export class DB implements DBLayer {
 
     // 初始化数据库
     const url = `file:${this.#dbPath}`;
-    const __dirname = dirname();
-    const prodPrismaPath = join(__dirname, "prisma");
+    const prodPrismaPath = join(_dirname, "prisma");
     const prodPrismaExists = existsSync(prodPrismaPath);
 
     spawnSync("bun", ["x", "prisma", "generate"], {
@@ -60,7 +59,7 @@ export class DB implements DBLayer {
       env: {
         DATABASE_URL: url,
       },
-      cwd: prodPrismaExists ? __dirname : undefined,
+      cwd: prodPrismaExists ? _dirname : undefined,
     });
 
     spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
@@ -68,7 +67,7 @@ export class DB implements DBLayer {
       env: {
         DATABASE_URL: url,
       },
-      cwd: prodPrismaExists ? __dirname : undefined,
+      cwd: prodPrismaExists ? _dirname : undefined,
     });
 
     this.#dbURL = url;
