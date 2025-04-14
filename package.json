@@ -44,8 +44,8 @@
     "fs-extra": "^11.3.0",
     "@types/adm-zip": "^0.5.7",
     "adm-zip": "^0.5.16",
-    "ky": "^1.8.0",
-    "rollup": "^4.39.0",
+    "ky": "^1.8.1",
+    "rollup": "^4.40.0",
     "rollup-plugin-dts": "^6.2.1"
   },
   "dependencies": {
