@@ -11,8 +11,8 @@ const __dirname = dirname();
 export const prodPublicPath = join(__dirname, "public");
 export const prodPublicExists = await exists(prodPublicPath);
 export const _binDufs = join(
-  prodPublicPath,
-  "_bin",
+  __dirname,
+  "bin",
   platform() === "win32" ? "dufs.exe" : "dufs"
 );
 export const _binDufsExists = await exists(_binDufs);
