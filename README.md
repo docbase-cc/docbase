@@ -86,7 +86,6 @@ docker-compose up -d
 <!-- 下一步-->
 
 <!-- TODO 开发部署 -->
-<!-- TODO 搞对 dirname 位置 -->
 <!-- TODO 适配 bin 下的 meili -->
 <!-- TODO cli 快速打包离线部署应用（把 desktop 去掉，直接命令行编译编译文件） -->
 

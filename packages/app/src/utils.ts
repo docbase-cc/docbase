@@ -1,10 +1,18 @@
 import { exists } from "fs-extra";
 import { platform } from "os";
 import path, { join } from "path";
+import { execPath } from "process";
 import { fileURLToPath } from "url";
 
 export const dirname = () => {
-  return path.dirname(fileURLToPath(import.meta.url));
+  let _dirname = path.dirname(fileURLToPath(import.meta.url));
+  // 如果是 bun 编译后的环境，需要使用 execPath
+  console.debug(_dirname);
+  if (_dirname.includes("~BUN")) {
+    _dirname = path.dirname(execPath);
+  }
+  console.debug(_dirname);
+  return _dirname;
 };
 
 export const _dirname = dirname();

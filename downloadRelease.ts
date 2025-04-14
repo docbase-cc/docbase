@@ -3,7 +3,13 @@ import AdmZip from "adm-zip";
 
 const download = async (url: string, path: string) =>
   new Promise(async (resolve, reject) => {
-    let res = await fetch(url.replace("github.com", "bgithub.xyz"));
+    let res: Response;
+    try {
+      res = await fetch(url.replace("github.com", "bgithub.xyz"));
+    } catch (error) {
+      // @ts-ignore
+      res = { status: 500 };
+    }
 
     if (res.status !== 200) {
       console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
