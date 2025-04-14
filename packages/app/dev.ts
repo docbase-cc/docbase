@@ -7,16 +7,12 @@ spawnSync("bun", ["run", "./gen.ts"], {
   stdio: "inherit",
 });
 
-spawnSync(
-  "bun",
-  ["x", "prisma", "migrate", "dev", "--skip-generate", "-n", version],
-  {
-    stdio: "inherit",
-    env: {
-      DATABASE_URL: `file:${join(homedir(), ".docbase/data/db.sqlite")}`,
-    },
-  }
-);
+spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
+  stdio: "inherit",
+  env: {
+    DATABASE_URL: `file:${join(homedir(), ".docbase/data/db.sqlite")}`,
+  },
+});
 
 spawnSync("bun", ["run", "--hot", "src/main.ts"], {
   stdio: "inherit",

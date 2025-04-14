@@ -87,7 +87,7 @@ docker-compose up -d
 
 <!-- TODO 开发部署 -->
 <!-- TODO 适配 bin 下的 meili -->
-<!-- TODO cli 快速打包离线部署应用（把 desktop 去掉，直接命令行编译编译文件） -->
+<!-- TODO 测试开发和部署，进行流水线发布 -->
 
 <!-- TODO 文档 -->
 <!-- TODO [文档] 文档补充插件开发教程 -->

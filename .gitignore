@@ -3,6 +3,7 @@ node_modules
 .vscode
 dufs.exe
 dufs
+db.sqlite
 
 # output
 tmp

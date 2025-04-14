@@ -54,13 +54,13 @@ export class DB implements DBLayer {
     const prodPrismaPath = join(_dirname, "prisma");
     const prodPrismaExists = existsSync(prodPrismaPath);
 
-    spawnSync("bun", ["x", "prisma", "generate"], {
-      stdio: "inherit",
-      env: {
-        DATABASE_URL: url,
-      },
-      cwd: prodPrismaExists ? _dirname : undefined,
-    });
+    // spawnSync("bun", ["x", "prisma", "generate"], {
+    //   stdio: "inherit",
+    //   env: {
+    //     DATABASE_URL: url,
+    //   },
+    //   cwd: prodPrismaExists ? _dirname : undefined,
+    // });
 
     spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
       stdio: "inherit",

@@ -1,6 +1,6 @@
 {
   "name": "docbase",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "bin": "./dist/cli/index.js",
   "exports": {
@@ -49,8 +49,7 @@
     "rollup-plugin-dts": "^6.2.1"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.10.0",
-    "@prisma/client": "^6.6.0"
+    "@hey-api/client-fetch": "^0.10.0"
   },
   "files": [
     "./dist/**/*"

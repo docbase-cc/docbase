@@ -4,7 +4,7 @@ import { copy } from "fs-extra";
 await Promise.all([
   Bun.build({
     entrypoints: ["./src/main.ts", "./src/index.ts"],
-    external: ["@prisma/client"],
+    // external: ["@prisma/client"],
     outdir: "./dist",
     splitting: true,
     target: "bun",
