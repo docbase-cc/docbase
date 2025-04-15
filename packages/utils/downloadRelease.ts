@@ -9,8 +9,9 @@ const download = async (url: string, path: string) =>
       res = await fetch(url);
       data = Buffer.from(await res.arrayBuffer());
     } catch (error) {
-      // @ts-ignore
-      res = { status: 500 };
+      console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
+      res = await fetch(url.replace("github.com", "bgithub.xyz"));
+      data = Buffer.from(await res.arrayBuffer());
     }
 
     if (res.status !== 200) {
@@ -19,7 +20,6 @@ const download = async (url: string, path: string) =>
       data = Buffer.from(await res.arrayBuffer());
     }
 
-    // @ts-ignore
     new AdmZip(data).extractAllToAsync(path, true, true, (err) => {
       if (err) {
         reject(err);
