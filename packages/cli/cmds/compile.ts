@@ -6,7 +6,7 @@ import { downloadMeilisearch } from "~/downloadMeili";
 import AdmZip from "adm-zip";
 import { ensureDir } from "fs-extra";
 import { spawnSync } from "child_process";
-import { platform } from "os";
+import { arch, platform } from "os";
 
 export default defineCommand({
   meta: {
@@ -38,12 +38,14 @@ export default defineCommand({
       join(main, "docbase" + (platform() === "win32" ? ".exe" : "")),
       "/"
     );
-    zip.addLocalFolder(join(main, "public"), "public");
-    zip.addLocalFolder(join(main, "prisma"), "prisma");
-    zip.addLocalFolder(join(main, "bin"), "bin");
+    zip.addLocalFolder(join(main, "public"), "/public");
+    zip.addLocalFolder(join(main, "prisma"), "/prisma");
+    zip.addLocalFolder(join(main, "bin"), "/bin");
+
+    console.log("Compiling...");
 
     // 写入压缩文件
-    zip.writeZip("docbase.zip", function (err) {
+    zip.writeZip(`docbase-${platform()}-${arch()}.zip`, function (err) {
       if (err) {
         console.error("Error writing zip file:", err);
         return;
