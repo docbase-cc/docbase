@@ -103,6 +103,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -118,6 +122,7 @@ jobs:
         with:
           files: "compile/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: v${{ steps.package-version.outputs.current-version }}
 
   docker:
     name: Build and Push Docker Image
