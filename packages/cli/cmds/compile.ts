@@ -1,8 +1,7 @@
 import { defineCommand } from "citty";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { downloadDufs } from "~/downloadRelease";
-import { downloadMeilisearch } from "~/downloadMeili";
+import { downloadMeilisearch, downloadDufs } from "utils";
 import AdmZip from "adm-zip";
 import { ensureDir } from "fs-extra";
 import { spawnSync } from "child_process";

@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { _binDufs, _binDufsExists } from "../utils";
 import { exists, chmod } from "fs-extra";
-import { downloadDufs } from "~/downloadRelease";
+import { downloadDufs } from "utils";
 import { dirname } from "path";
 
 export class WebDAV {
