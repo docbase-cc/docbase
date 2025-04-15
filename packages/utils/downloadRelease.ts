@@ -1,3 +1,4 @@
+import "./compression-polyfill";
 import { platform, arch } from "os";
 import AdmZip from "adm-zip";
 import { parseTarGzip } from "nanotar";
