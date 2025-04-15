@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       has_update: ${{ steps.check_version.outputs.has_update }}
+      version: v${{ steps.package-version.outputs.current-version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -125,7 +126,7 @@ jobs:
         with:
           files: "compile/*"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: v${{ steps.package-version.outputs.current-version }}
+          release-tag: ${{ needs.build.outputs.version }}
 
   docker:
     name: Build and Push Docker Image
