@@ -19,6 +19,7 @@ export default defineCommand({
     const bin = join(main, "bin");
     await ensureDir(bin);
 
+    console.log("Downloading...");
     // 并行下载 dufs 和 meilisearch
     await Promise.all([downloadDufs(bin), downloadMeilisearch(bin)]);
 
@@ -50,7 +51,7 @@ export default defineCommand({
         console.error("Error writing zip file:", err);
         return;
       }
-      console.log("Zip file created successfully: docbase.zip");
+      console.log("Zip file created successfully");
     });
   },
 });
