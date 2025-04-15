@@ -1,4 +1,3 @@
-import { homedir } from "os";
 import { join } from "path";
 import { ensureDir } from "fs-extra";
 import { PackageManager } from "./pkgManager";
@@ -8,10 +7,12 @@ import { createDocBase } from "./docbase";
 import { WebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
 import { env } from "process";
+import { _dirname } from "../utils";
 export { PackageManager, DB };
 
 // 初始化插件目录
-const baseDir = env.DATA_DIR ?? join(homedir(), ".docbase");
+const baseDir = env.DATA_DIR ?? join(_dirname, ".docbase");
+console.log("[baseDir] ", baseDir);
 const pluginsDir = join(baseDir, "plugins");
 const dataDir = join(baseDir, "data");
 const fileDir = join(baseDir, "files");
