@@ -10,7 +10,7 @@ export const dirname = () => {
   if (_dirname.includes("~BUN")) {
     _dirname = path.dirname(execPath);
   }
-  console.debug("_dirname", _dirname);
+  console.debug("[_dirname] ", _dirname);
   return _dirname;
 };
 

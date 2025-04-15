@@ -9,7 +9,7 @@ import {
   writeJSON,
   writeJsonSync,
 } from "fs-extra";
-import type { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
@@ -19,10 +19,8 @@ import { _dirname } from "../utils";
 export class DB implements DBLayer {
   #pkgManager: PackageManager;
   #configPath: string;
-  #dbPath: string;
-  #prisma!: PrismaClient;
+  #prisma: PrismaClient;
   #fileDir: string;
-  #dbURL: string;
 
   constructor({
     dataDir,
@@ -36,7 +34,6 @@ export class DB implements DBLayer {
     this.#fileDir = fileDir;
     this.#configPath = join(dataDir, "config.json");
     this.#pkgManager = pkgManager;
-    this.#dbPath = join(dataDir, "db.sqlite");
 
     // 如果有环境变量，则按环境变量初始化
     if (env.MEILI_URL && env.MEILI_MASTER_KEY) {
@@ -50,7 +47,8 @@ export class DB implements DBLayer {
     }
 
     // 初始化数据库
-    const url = `file:${this.#dbPath}`;
+    const url = `file:${join(dataDir, "db.sqlite")}`;
+    console.debug("[DBPath]", url);
     const prodPrismaPath = join(_dirname, "prisma");
     const prodPrismaExists = existsSync(prodPrismaPath);
 
@@ -63,7 +61,13 @@ export class DB implements DBLayer {
       cwd: prodPrismaExists ? _dirname : undefined,
     });
 
-    this.#dbURL = url;
+    this.#prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url,
+        },
+      },
+    });
   }
 
   ext2Plugin = {
@@ -135,16 +139,7 @@ export class DB implements DBLayer {
     },
   };
 
-  init = async () => {
-    const pc = await import("@prisma/client");
-    this.#prisma = new pc.default.PrismaClient({
-      datasources: {
-        db: {
-          url: this.#dbURL,
-        },
-      },
-    });
-  };
+  init = async () => {};
 
   plugin = {
     exists: async (name: string) => {
