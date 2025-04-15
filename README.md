@@ -23,17 +23,9 @@
 
 ## 🚀 快速开始
 
-### cli 启动
+### 安装包启动
 
-1. 确保已安装`Bun`
-
-[如何安装？](https://www.bunjs.cn/docs/installation#%E5%AE%89%E8%A3%85)
-
-2. 启动服务
-
-```bash
-bun x docbase start
-```
+下载最新安装包：https://github.com/docbase-cc/docbase/releases
 
 ### 使用 Docker
 
@@ -86,7 +78,7 @@ docker-compose up -d
 <!-- 下一步-->
 
 <!-- TODO 开发部署 -->
-<!-- TODO 测试 docker -->
+<!-- TODO 测试 docker/编译物 运行 -->
 <!-- TODO 适配 bin 下的 meili -->
 
 <!-- TODO 文档 -->
