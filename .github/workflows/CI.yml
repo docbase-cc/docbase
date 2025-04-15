@@ -98,7 +98,7 @@ jobs:
     name: Compile
     needs: build
     if: needs.build.outputs.has_update == 'true'
-    runs-on: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
