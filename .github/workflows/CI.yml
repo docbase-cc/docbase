@@ -67,7 +67,6 @@ jobs:
           name: dist
           path: dist
 
-  # TODO 解决特定平台问题
   publish:
     name: Publish
     needs: build
@@ -99,7 +98,8 @@ jobs:
     name: Compile
     needs: build
     if: needs.build.outputs.has_update == 'true'
-    runs-on: ubuntu-latest
+    runs-on:
+      [ubuntu-latest, windows-latest, macos-latest, macos-13, ubuntu-24.04-arm]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -112,10 +112,13 @@ jobs:
       - run: bun install
 
       - run: bun run build
-        env:
-          NODE_ENV: production
 
       - run: bun run dist/cli/index.js compile --outputDir ./compile
+
+      - uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "compile/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   docker:
     name: Build and Push Docker Image

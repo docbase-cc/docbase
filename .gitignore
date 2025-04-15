@@ -4,6 +4,7 @@ node_modules
 dufs.exe
 dufs
 db.sqlite
+compile/
 
 # output
 tmp
