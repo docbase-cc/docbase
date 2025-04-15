@@ -1,10 +1,14 @@
 import { platform, arch } from "os";
 import AdmZip from "adm-zip";
+import { parseTarGzip } from "nanotar";
+import { writeFile } from "fs-extra";
+import { join } from "path";
 
 const download = async (url: string, path: string) =>
   new Promise(async (resolve, reject) => {
     let res: Response;
     let data: Buffer;
+    console.log("downloading: " + url);
     try {
       res = await fetch(url);
       data = Buffer.from(await res.arrayBuffer());
@@ -20,13 +24,20 @@ const download = async (url: string, path: string) =>
       data = Buffer.from(await res.arrayBuffer());
     }
 
-    new AdmZip(data).extractAllToAsync(path, true, true, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(void 0);
-      }
-    });
+    if (url.includes(".tar.gz")) {
+      const out = await parseTarGzip(data);
+      const dufs = out.at(0)!;
+      await writeFile(join(path, dufs.name), dufs.data!);
+      resolve(void 0);
+    } else {
+      new AdmZip(data).extractAllToAsync(path, true, true, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(void 0);
+        }
+      });
+    }
   });
 
 export const downloadDufs = async (

@@ -1,4 +1,7 @@
 {
   "name": "utils",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "nanotar": "^0.2.0"
+  }
 }

@@ -3,6 +3,7 @@ import { platform, arch } from "os";
 import { Readable } from "stream";
 
 async function downloadFile(url: string, outputPath: string) {
+  console.log("downloading: " + url);
   try {
     let response = await fetch(url);
 

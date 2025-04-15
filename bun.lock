@@ -99,6 +99,9 @@
     },
     "packages/utils": {
       "name": "utils",
+      "devDependencies": {
+        "nanotar": "^0.2.0",
+      },
     },
   },
   "packages": {
