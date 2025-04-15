@@ -9,7 +9,7 @@ import {
   writeJSON,
   writeJsonSync,
 } from "fs-extra";
-import { PrismaClient } from "../client";
+import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
 import { spawnSync } from "child_process";
