@@ -6,13 +6,21 @@ import AdmZip from "adm-zip";
 import { ensureDir } from "fs-extra";
 import { spawnSync } from "child_process";
 import { arch, platform } from "os";
+import { cwd } from "process";
 
 export default defineCommand({
   meta: {
     name: "compile",
     description: "compile docbase to one file",
   },
-  async run() {
+  args: {
+    outputDir: {
+      type: "string",
+      description: "compile output dir",
+      required: false,
+    },
+  },
+  async run({ args }) {
     const dn = dirname(fileURLToPath(import.meta.url));
     const main = join(dn, "../main");
     const bin = join(main, "bin");
@@ -43,14 +51,18 @@ export default defineCommand({
     zip.addLocalFolder(join(main, "bin"), "/bin");
 
     console.log("Compiling...");
+    const outPath = join(
+      args.outputDir ?? cwd(),
+      `docbase-${platform()}-${arch()}.zip`
+    );
 
     // 写入压缩文件
-    zip.writeZip(`docbase-${platform()}-${arch()}.zip`, function (err) {
+    zip.writeZip(outPath, function (err) {
       if (err) {
         console.error("Error writing zip file:", err);
         return;
       }
-      console.log("Zip file created successfully");
+      console.log("Compiled success: " + outPath);
     });
   },
 });

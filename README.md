@@ -86,7 +86,7 @@ docker-compose up -d
 <!-- 下一步-->
 
 <!-- TODO 开发部署 -->
-<!-- TODO 流水线发布 -->
+<!-- TODO 流水线发布 compile -->
 <!-- TODO 测试 docker -->
 <!-- TODO 适配 bin 下的 meili -->
 
