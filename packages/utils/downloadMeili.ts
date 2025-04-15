@@ -7,8 +7,8 @@ async function downloadFile(url: string, outputPath: string) {
     let response = await fetch(url);
 
     if (response.status !== 200) {
-      console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
-      response = await fetch(url.replace("bgithub.xyz", "github.com"));
+      console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
+      response = await fetch(url.replace("github.com", "bgithub.xyz"));
     }
 
     if (!response.ok) {
@@ -79,7 +79,7 @@ export const downloadMeilisearch = async (
     .find((i) => i.includes(name))!;
 
   await downloadFile(
-    target.replace("github.com", "bgithub.xyz"),
+    target,
     `${path}/meilisearch` + (platform() === "win32" ? ".exe" : "")
   );
 };

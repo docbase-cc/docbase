@@ -95,11 +95,27 @@ jobs:
       - name: Publish
         run: npm publish --access public --no-git-checks
 
-      # win32-x64
-      # darwin-arm64
-      # darwin-x64
-      # linux-arm64
-      # linux-x64
+  compile:
+    name: Compile
+    needs: build
+    if: needs.build.outputs.has_update == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install
+
+      - run: bun run build
+        env:
+          NODE_ENV: production
+
+      - run: bun run dist/cli/index.js compile --outputDir ./compile
 
   docker:
     name: Build and Push Docker Image

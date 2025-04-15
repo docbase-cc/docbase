@@ -6,7 +6,7 @@ const download = async (url: string, path: string) =>
     let res: Response;
     let data: Buffer;
     try {
-      res = await fetch(url.replace("github.com", "bgithub.xyz"));
+      res = await fetch(url);
       data = Buffer.from(await res.arrayBuffer());
     } catch (error) {
       // @ts-ignore
@@ -14,8 +14,8 @@ const download = async (url: string, path: string) =>
     }
 
     if (res.status !== 200) {
-      console.warn("bgithub.xyz 下载失败, 尝试使用 github.com 下载");
-      res = await fetch(url);
+      console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
+      res = await fetch(url.replace("github.com", "bgithub.xyz"));
       data = Buffer.from(await res.arrayBuffer());
     }
 

@@ -91,6 +91,7 @@ docker-compose up -d
 <!-- TODO 适配 bin 下的 meili -->
 
 <!-- TODO 文档 -->
+<!-- TODO [文档] 仅限下载安装，去掉命令行安装 -->
 <!-- TODO [文档] 文档补充插件开发教程 -->
 
 <!-- TODO 前端界面 -->

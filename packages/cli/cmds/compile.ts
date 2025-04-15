@@ -1,6 +1,6 @@
 import { defineCommand } from "citty";
 import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname, isAbsolute, join } from "path";
 import { downloadMeilisearch, downloadDufs } from "utils";
 import AdmZip from "adm-zip";
 import { ensureDir } from "fs-extra";
@@ -51,10 +51,12 @@ export default defineCommand({
     zip.addLocalFolder(join(main, "bin"), "/bin");
 
     console.log("Compiling...");
-    const outPath = join(
-      args.outputDir ?? cwd(),
-      `docbase-${platform()}-${arch()}.zip`
-    );
+
+    const base = isAbsolute(args.outputDir)
+      ? args.outputDir
+      : join(cwd(), args.outputDir);
+
+    const outPath = join(base, `docbase-${platform()}-${arch()}.zip`);
 
     // 写入压缩文件
     zip.writeZip(outPath, function (err) {
