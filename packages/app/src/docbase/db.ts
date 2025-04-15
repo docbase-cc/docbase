@@ -56,7 +56,6 @@ export class DB implements DBLayer {
       stdio: "inherit",
       env: {
         DATABASE_URL: url,
-        PRISMA_ENGINES_MIRROR: "https://registry.npmmirror.com/-/binary/prisma",
       },
       cwd: prodPrismaExists ? _dirname : undefined,
     });

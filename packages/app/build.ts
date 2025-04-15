@@ -1,13 +1,10 @@
 import { spawnSync } from "child_process";
-import { join } from "path";
-import { _dirname } from "./src/utils";
 import { copy } from "fs-extra";
 
 spawnSync("bun", ["x", "prisma", "generate"], {
   stdio: "inherit",
   env: {
-    DATABASE_URL: `file:${join(_dirname, ".docbase/data/db.sqlite")}`,
-    PRISMA_ENGINES_MIRROR: "https://registry.npmmirror.com/-/binary/prisma",
+    DATABASE_URL: `file:.docbase/data/db.sqlite`,
   },
 });
 
