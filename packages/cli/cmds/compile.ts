@@ -52,9 +52,10 @@ export default defineCommand({
 
     console.log("Compiling...");
 
-    const base = isAbsolute(args.outputDir)
-      ? args.outputDir
-      : join(cwd(), args.outputDir);
+    const base =
+      args.outputDir && isAbsolute(args.outputDir)
+        ? args.outputDir
+        : join(cwd(), args.outputDir ?? "");
 
     const outPath = join(base, `docbase-${platform()}-${arch()}.zip`);
 
