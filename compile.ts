@@ -2,14 +2,16 @@ import { join } from "path";
 import AdmZip from "adm-zip";
 import { arch, platform } from "os";
 import { spawnSync } from "child_process";
+import { ensureDir } from "fs-extra";
 
-const main = "./dist/main";
+const inputDir = "./dist/main";
+const outDir = "./compile";
 
 spawnSync("bun", [
   "build",
   "./docbase.ts",
   "--outfile",
-  join(main, "docbase" + (platform() === "win32" ? ".exe" : "")),
+  join(inputDir, "docbase" + (platform() === "win32" ? ".exe" : "")),
   "--compile",
 ]);
 
@@ -17,11 +19,13 @@ spawnSync("bun", [
 const zip = new AdmZip();
 
 // 添加文件夹到压缩包
-zip.addLocalFolder(main);
+zip.addLocalFolder(inputDir);
 
 console.log("Compiling...");
 
-const outPath = join("./compile", `docbase-${platform()}-${arch()}.zip`);
+await ensureDir(outDir);
+
+const outPath = join(outDir, `docbase-${platform()}-${arch()}.zip`);
 
 // 写入压缩文件
 zip.writeZip(outPath, function (err) {
