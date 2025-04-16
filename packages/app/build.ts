@@ -3,6 +3,13 @@ import { copy } from "fs-extra";
 import { readdir } from "fs-extra";
 import { resolve } from "path";
 
+spawnSync("bun", ["x", "prisma", "generate"], {
+  stdio: "inherit",
+  env: {
+    DATABASE_URL: `file:.docbase/data/db.sqlite`,
+  },
+});
+
 // 获取prisma的引擎文件
 const basePath = "../../node_modules/.prisma/client";
 const files = await readdir(basePath);
@@ -10,13 +17,6 @@ const name = files.find(
   (i) => i.includes("query_engine") && i.endsWith(".node")
 )!;
 const enginePath = resolve(basePath, name);
-
-spawnSync("bun", ["x", "prisma", "generate"], {
-  stdio: "inherit",
-  env: {
-    DATABASE_URL: `file:.docbase/data/db.sqlite`,
-  },
-});
 
 // 并行构建
 await Promise.all([
