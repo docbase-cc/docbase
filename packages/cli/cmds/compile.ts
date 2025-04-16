@@ -1,7 +1,10 @@
 import { defineCommand } from "citty";
 import { fileURLToPath } from "url";
 import { dirname, isAbsolute, join } from "path";
-import { downloadMeilisearch, downloadDufs } from "utils";
+import {
+  // downloadMeilisearch,
+  downloadDufs,
+} from "utils";
 import AdmZip from "adm-zip";
 import { ensureDir } from "fs-extra";
 import { spawnSync } from "child_process";
@@ -28,7 +31,10 @@ export default defineCommand({
 
     console.log("Downloading...");
     // 并行下载 dufs 和 meilisearch
-    await Promise.all([downloadDufs(bin), downloadMeilisearch(bin)]);
+    await Promise.all([
+      downloadDufs(bin),
+      //  downloadMeilisearch(bin)
+    ]);
 
     spawnSync("bun", [
       "build",
@@ -50,6 +56,7 @@ export default defineCommand({
     zip.addLocalFolder(join(main, "public"), "/public");
     zip.addLocalFolder(join(main, "prisma"), "/prisma");
     zip.addLocalFolder(join(main, "bin"), "/bin");
+    zip.addLocalFolder(join(main, "node_modules"), "/node_modules");
 
     console.log("Compiling...");
 

@@ -3,10 +3,6 @@ import { join } from "path";
 import { version } from "~/package.json";
 import { _dirname } from "./src/utils";
 
-// spawnSync("bun", ["x", "prisma", "generate"], {
-//   stdio: "inherit",
-// });
-
 spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
   stdio: "inherit",
   env: {

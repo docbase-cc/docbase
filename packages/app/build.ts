@@ -6,9 +6,7 @@ import { join } from "path";
 import { version } from "~/package.json";
 import { _dirname } from "./src/utils";
 
-// spawnSync("bun", ["x", "prisma", "generate"], {
-//   stdio: "inherit",
-// });
+const deps = ["@prisma/prisma-schema-wasm"];
 
 spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
   stdio: "inherit",
@@ -36,19 +34,16 @@ await Promise.all([
     sourcemap: "external",
     minify: true,
   }),
-  (async () => {
-    await copy("./prisma", "./dist/prisma");
-  })(),
-  (async () => {
-    import.meta.env.NODE_ENV === "production" &&
-      (await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited);
-  })(),
-  (async () => {
-    await copy("client", "../../dist/client");
-  })(),
-  (async () => {
-    await copy(enginePath, "./dist/engine.node");
-  })(),
+  await copy("./prisma", "./dist/prisma"),
+  import.meta.env.NODE_ENV === "production" &&
+    (await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited),
+  await copy("client", "../../dist/client"),
+  Promise.all(
+    deps.map((dep) =>
+      copy(`../../node_modules/${dep}/`, `./dist/node_modules/${dep}/`)
+    )
+  ),
+  await copy(enginePath, "./dist/engine.node"),
 ]);
 
 await copy("dist", "../../dist/main");

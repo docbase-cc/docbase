@@ -12,14 +12,13 @@ const dirname = () => {
     _dirname = path.dirname(execPath);
   }
 
-  globalThis.__dirname = _dirname;
-
-  console.debug("[__dirname] ", __dirname);
+  console.debug("[_dirname] ", _dirname);
 
   return _dirname;
 };
 
 export const _dirname = dirname();
+globalThis.__dirname = _dirname;
 export const prodPublicPath = join(_dirname, "public");
 export const prodPublicExists = await exists(prodPublicPath);
 export const _binDufs = join(

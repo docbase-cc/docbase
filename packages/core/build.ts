@@ -10,10 +10,8 @@ await Promise.all([
     sourcemap: "external",
     minify: true,
   }),
-  (async () => {
-    import.meta.env.NODE_ENV === "production" &&
-      (await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited);
-  })(),
+  import.meta.env.NODE_ENV === "production" &&
+    (await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited),
 ]);
 
 await copy("dist", "../../dist/lib");
