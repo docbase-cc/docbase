@@ -1,19 +1,13 @@
 import { DBLayer, DocBaseConfig, Plugin } from "core";
 import { PackageManager } from "./pkgManager";
 import { join } from "path";
-import {
-  exists,
-  existsSync,
-  readJSON,
-  rm,
-  writeJSON,
-  writeJsonSync,
-} from "fs-extra";
+import { exists, readJSON, rm, writeJSON, writeJsonSync } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
-import { spawnSync } from "child_process";
 import { _dirname } from "../utils";
+import { MigrateDeploy } from "@prisma/migrate";
+import { defineConfig } from "@prisma/config";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
@@ -21,6 +15,7 @@ export class DB implements DBLayer {
   #configPath: string;
   #prisma: PrismaClient;
   #fileDir: string;
+  #prodPrismaPath: string;
 
   constructor({
     dataDir,
@@ -49,16 +44,9 @@ export class DB implements DBLayer {
     // 初始化数据库
     const url = `file:${join(dataDir, "db.sqlite")}`;
     console.debug("[DBPath]", url);
-    const prodPrismaPath = join(_dirname, "prisma");
-    const prodPrismaExists = existsSync(prodPrismaPath);
+    this.#prodPrismaPath = join(_dirname, "prisma");
 
-    spawnSync("bun", ["x", "prisma", "migrate", "deploy"], {
-      stdio: "inherit",
-      env: {
-        DATABASE_URL: url,
-      },
-      cwd: prodPrismaExists ? _dirname : undefined,
-    });
+    process.env.DATABASE_URL = url;
 
     this.#prisma = new PrismaClient({
       datasources: {
@@ -68,6 +56,22 @@ export class DB implements DBLayer {
       },
     });
   }
+
+  init = async () => {
+    const prodPrismaExists = await exists(this.#prodPrismaPath);
+    if (prodPrismaExists) {
+      const deploy = new MigrateDeploy();
+      console.log(
+        await deploy.parse(
+          [],
+          defineConfig({
+            earlyAccess: true,
+            schema: join(this.#prodPrismaPath, "schema.prisma"),
+          })
+        )
+      );
+    }
+  };
 
   ext2Plugin = {
     all: async () => {
@@ -137,8 +141,6 @@ export class DB implements DBLayer {
       });
     },
   };
-
-  init = async () => {};
 
   plugin = {
     exists: async (name: string) => {
