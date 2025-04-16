@@ -7,7 +7,6 @@ spawnSync("bun", ["x", "prisma", "generate"], {
   stdio: "inherit",
   env: {
     DATABASE_URL: `file:${join(_dirname, ".docbase/data/db.sqlite")}`,
-    PRISMA_ENGINES_MIRROR: "https://registry.npmmirror.com/-/binary/prisma",
   },
 });
 
@@ -18,7 +17,6 @@ spawnSync(
     stdio: "inherit",
     env: {
       DATABASE_URL: `file:${join(_dirname, ".docbase/data/db.sqlite")}`,
-      PRISMA_ENGINES_MIRROR: "https://registry.npmmirror.com/-/binary/prisma",
     },
   }
 );
