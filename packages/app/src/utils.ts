@@ -5,13 +5,13 @@ import { execPath } from "process";
 import { fileURLToPath } from "url";
 
 let _dirname = path.dirname(fileURLToPath(import.meta.url));
-__dirname = _dirname;
 
 // 如果是 bun 编译后的环境，需要使用 execPath
 if (_dirname.includes("~BUN")) {
   _dirname = path.dirname(execPath);
 }
 
+__dirname = _dirname;
 console.debug("[_dirname] ", _dirname);
 
 export const prodPublicPath = join(_dirname, "public");
