@@ -43,7 +43,7 @@ export const getDB = async () => {
   if (db) {
     return db;
   } else {
-    const enginePath = join(_dirname, "engine.node");
+    const enginePath = join(_dirname, "query_engine.node");
     if (await exists(enginePath)) {
       console.log("[enginePath] ", enginePath);
       process.env.PRISMA_QUERY_ENGINE_LIBRARY = enginePath;

@@ -43,7 +43,7 @@ await Promise.all([
       copy(`../../node_modules/${dep}/`, `./dist/node_modules/${dep}/`)
     )
   ),
-  await copy(enginePath, "./dist/engine.node"),
+  await copy(enginePath, "./dist/query_engine.node"),
 ]);
 
 await copy("dist", "../../dist/main");
