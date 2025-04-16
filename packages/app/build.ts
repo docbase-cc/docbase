@@ -6,7 +6,9 @@ import { join } from "path";
 import { version } from "~/package.json";
 import { _dirname } from "./src/utils";
 
-const deps = ["@prisma/prisma-schema-wasm"];
+const deps: string[] = [
+  // "@prisma/prisma-schema-wasm"
+];
 
 spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
   stdio: "inherit",
