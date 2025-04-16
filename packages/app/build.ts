@@ -27,7 +27,7 @@ const enginePath = resolve(basePath, name);
 await Promise.all([
   Bun.build({
     entrypoints: ["./src/main.ts", "./src/index.ts"],
-    // external: ["@prisma/client"],
+    external: deps,
     outdir: "./dist",
     splitting: true,
     target: "bun",
