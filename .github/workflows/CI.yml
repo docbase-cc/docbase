@@ -129,6 +129,12 @@ jobs:
 
       - run: bun install
 
+      - if: matrix.os != 'windows-latest'
+        run: cd packages/app && npx -y prisma generate
+
+      - if: matrix.os == 'windows-latest'
+        run: cd packages/app ; npx -y prisma generate
+
       - run: bun run build
 
       - run: bun compile
