@@ -8,6 +8,7 @@ import { env } from "process";
 import { _dirname } from "../utils";
 import { MigrateDeploy } from "@prisma/migrate";
 import { defineConfig } from "@prisma/config";
+import "@prisma/prisma-schema-wasm";
 
 /** docbase 本地数据持久层 */
 export class DB implements DBLayer {
