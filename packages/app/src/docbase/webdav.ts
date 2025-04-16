@@ -22,7 +22,7 @@ export class WebDAV {
   constructor(path: string) {
     this.#path = path;
     if (_binDufsExists) {
-      console.info("dufs 已存在于 " + this.#dufsPath);
+      console.info("[dufs] " + this.#dufsPath);
     } else {
       this.#dufsExists = false;
       console.warn("未找到 dufs, 无法启动 webdav");
