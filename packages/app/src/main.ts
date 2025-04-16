@@ -1,9 +1,9 @@
+import { prodPublicExists, prodPublicPath } from "./utils";
 import { createConsola } from "consola";
 import { serveStatic } from "hono/bun";
 import { getDB, getPkgManager, getDocBase } from "./docbase";
 import webdav from "./webdav";
 import { createDocBaseApp } from ".";
-import { prodPublicExists, prodPublicPath } from "./utils";
 import { cwd } from "process";
 import { relative } from "path";
 

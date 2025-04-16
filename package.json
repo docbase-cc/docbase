@@ -1,6 +1,6 @@
 {
   "name": "docbase",
-  "version": "0.4.30",
+  "version": "0.4.31",
   "type": "module",
   "bin": "./dist/cli/index.js",
   "exports": {
