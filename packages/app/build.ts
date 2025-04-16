@@ -1,5 +1,15 @@
 import { spawnSync } from "child_process";
 import { copy } from "fs-extra";
+import { readdir } from "fs-extra";
+import { resolve } from "path";
+
+// 获取prisma的引擎文件
+const basePath = "../../node_modules/.prisma/client";
+const files = await readdir(basePath);
+const name = files.find(
+  (i) => i.includes("query_engine") && i.endsWith(".node")
+)!;
+const enginePath = resolve(basePath, name);
 
 spawnSync("bun", ["x", "prisma", "generate"], {
   stdio: "inherit",
@@ -28,6 +38,9 @@ await Promise.all([
   })(),
   (async () => {
     await copy("client", "../../dist/client");
+  })(),
+  (async () => {
+    await copy(enginePath, "./dist/engine.node");
   })(),
 ]);
 

@@ -53,6 +53,11 @@
     "@hey-api/client-fetch": "^0.10.0"
   },
   "files": [
-    "./dist/**/*"
+    "./dist/cli/**/*",
+    "./dist/client/**/*",
+    "./dist/lib/**/*",
+    "./dist/main/index*",
+    "./dist/main/chunk*",
+    "./dist/docker-compose.yaml"
   ]
 }

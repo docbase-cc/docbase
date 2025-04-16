@@ -9,7 +9,6 @@ const main = defineCommand({
   },
   subCommands: {
     init: () => import("./cmds/initPlugin").then((r) => r.default),
-    start: () => import("./cmds/start").then((r) => r.default),
     compile: () => import("./cmds/compile").then((r) => r.default),
   },
 });

@@ -46,6 +46,7 @@ export default defineCommand({
       join(main, "docbase" + (platform() === "win32" ? ".exe" : "")),
       "/"
     );
+    zip.addLocalFolder(join(main, "engine.node"), "/");
     zip.addLocalFolder(join(main, "public"), "/public");
     zip.addLocalFolder(join(main, "prisma"), "/prisma");
     zip.addLocalFolder(join(main, "bin"), "/bin");

@@ -1,5 +1,5 @@
 import { join } from "path";
-import { ensureDir } from "fs-extra";
+import { ensureDir, exists } from "fs-extra";
 import { PackageManager } from "./pkgManager";
 import { DocBase } from "core";
 import { DB } from "./db";
@@ -43,6 +43,11 @@ export const getDB = async () => {
   if (db) {
     return db;
   } else {
+    const enginePath = join(_dirname, "engine.node");
+    if (await exists(enginePath)) {
+      console.log("[enginePath] ", enginePath);
+      process.env.PRISMA_QUERY_ENGINE_LIBRARY = enginePath;
+    }
     db = new DB({
       dataDir,
       fileDir,
