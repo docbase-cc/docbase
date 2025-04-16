@@ -36,6 +36,8 @@ jobs:
 
       - run: bun install
 
+      - run: cd packages/app && npx -y prisma generate
+
       - run: bun run build
         env:
           NODE_ENV: production
@@ -119,7 +121,7 @@ jobs:
 
       - name: Install Node.js
         uses: actions/setup-node@v4
-        
+
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
