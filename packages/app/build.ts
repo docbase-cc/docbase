@@ -20,7 +20,6 @@ spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
 // 获取prisma的引擎文件
 const basePath = "../../node_modules/.prisma/client";
 const files = await readdir(basePath);
-console.log(files);
 const name = files.find(
   (i) => i.includes("query_engine") && i.endsWith(".node")
 )!;
