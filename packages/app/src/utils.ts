@@ -14,4 +14,4 @@ export const _binDufs = join(
   platform() === "win32" ? "dufs.exe" : "dufs"
 );
 export const _binDufsExists = await exists(_binDufs);
-export { __dirname };
+export const _dirname = __dirname;

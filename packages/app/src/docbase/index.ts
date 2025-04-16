@@ -7,11 +7,11 @@ import { createDocBase } from "./docbase";
 import { WebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
 import { env } from "process";
-import { __dirname } from "../utils";
+import { _dirname } from "../utils";
 export { PackageManager, DB };
 
 // 初始化插件目录
-const baseDir = env.DATA_DIR ?? join(__dirname, ".docbase");
+const baseDir = env.DATA_DIR ?? join(_dirname, ".docbase");
 console.log("[baseDir] ", baseDir);
 const pluginsDir = join(baseDir, "plugins");
 const dataDir = join(baseDir, "data");
@@ -43,7 +43,7 @@ export const getDB = async () => {
   if (db) {
     return db;
   } else {
-    const enginePath = join(__dirname, "query_engine.node");
+    const enginePath = join(_dirname, "query_engine.node");
     if (await exists(enginePath)) {
       console.log("[enginePath] ", enginePath);
       process.env.PRISMA_QUERY_ENGINE_LIBRARY = enginePath;

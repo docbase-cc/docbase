@@ -5,7 +5,7 @@ import { exists, readJSON, rm, writeJSON, writeJsonSync } from "fs-extra";
 import { PrismaClient } from "@prisma/client";
 import { mkdir } from "fs/promises";
 import { env } from "process";
-import { __dirname } from "../utils";
+import { _dirname } from "../utils";
 import { MigrateDeploy } from "@prisma/migrate";
 import { defineConfig } from "@prisma/config";
 import "@prisma/prisma-schema-wasm";
@@ -45,7 +45,7 @@ export class DB implements DBLayer {
     // 初始化数据库
     const url = `file:${join(dataDir, "db.sqlite")}`;
     console.debug("[DBPath]", url);
-    this.#prodPrismaPath = join(__dirname, "prisma");
+    this.#prodPrismaPath = join(_dirname, "prisma");
 
     process.env.DATABASE_URL = url;
 
