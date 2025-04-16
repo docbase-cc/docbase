@@ -1,6 +1,6 @@
 {
   "name": "docbase",
-  "version": "0.4.34",
+  "version": "0.4.35",
   "type": "module",
   "bin": "./dist/cli/index.js",
   "exports": {
@@ -33,8 +33,8 @@
   "scripts": {
     "build": "bun run --filter '*' build && bun ./postbuild.ts",
     "dev": "bun run ./dev.ts",
-    "start": "bun run --bun ./dist/main/main.js",
-    "compile": "bun run ./dist/cli/index.js compile --outputDir ./compile"
+    "start": "bun run ./dist/main/main.js",
+    "compile": "bun run ./compile.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.2.9",
