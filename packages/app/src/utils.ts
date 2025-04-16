@@ -15,6 +15,7 @@ export const dirname = () => {
 };
 
 export const _dirname = dirname();
+__dirname = _dirname;
 export const prodPublicPath = join(_dirname, "public");
 export const prodPublicExists = await exists(prodPublicPath);
 export const _binDufs = join(
