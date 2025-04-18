@@ -10,7 +10,11 @@ const outDir = "./compile";
 const zip = new AdmZip();
 
 // 添加文件夹到压缩包
-zip.addLocalFolder(inputDir, "", (path) => !path.startsWith("index.js"));
+zip.addLocalFolder(
+  inputDir,
+  "",
+  (path) => !path.startsWith("index.js") && !path.startsWith("chunk-")
+);
 
 console.log("Compiling...");
 

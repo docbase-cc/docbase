@@ -6,7 +6,6 @@ import { join } from "path";
 import { version } from "~/package.json";
 import { _dirname } from "./src/utils";
 import esbuild from "esbuild";
-import { wasmLoader } from "esbuild-plugin-wasm";
 import { platform } from "os";
 
 const deps: string[] = ["@prisma/prisma-schema-wasm"];
@@ -31,10 +30,10 @@ await Promise.all([
     entrypoints: ["./src/index.ts"],
     external: deps,
     outdir: "./dist",
-    // splitting: true,
+    splitting: true,
     target: "bun",
     sourcemap: "external",
-    // minify: true,
+    minify: true,
   }),
   esbuild.build({
     entryPoints: ["./src/main.ts"],
@@ -43,9 +42,9 @@ await Promise.all([
     sourcemap: "external",
     format: "esm",
     platform: "node",
+    minify: true,
     target: "esnext",
     external: deps,
-    plugins: [wasmLoader()],
   }),
   await copy("./prisma", "./dist/prisma"),
   import.meta.env.NODE_ENV === "production" &&
