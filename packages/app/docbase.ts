@@ -1,5 +1,6 @@
-const entry = "./main.js";
+import { dirname, join } from "path";
+import { execPath } from "process";
 
-await import(entry);
-
-export {};
+const entry = join(dirname(execPath), "main.js");
+const docbase = await import(entry);
+export default docbase.default;

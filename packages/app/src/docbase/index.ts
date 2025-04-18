@@ -50,13 +50,15 @@ export const getDB = async () => {
     const schema_engine = res.find((i) => i.includes("schema-engine"));
 
     if (query_engine) {
-      console.log("[query engine] ", query_engine);
-      process.env.PRISMA_QUERY_ENGINE_LIBRARY = query_engine;
+      const p = join(_dirname, query_engine);
+      console.log("[query engine] ", p);
+      process.env.PRISMA_QUERY_ENGINE_LIBRARY = p;
     }
 
     if (schema_engine) {
-      console.log("[schema engine] ", schema_engine);
-      process.env.PRISMA_SCHEMA_ENGINE_BINARY = schema_engine;
+      const p = join(_dirname, schema_engine);
+      console.log("[schema engine] ", p);
+      process.env.PRISMA_SCHEMA_ENGINE_BINARY = p;
     }
 
     db = new DB({

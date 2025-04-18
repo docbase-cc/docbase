@@ -23,9 +23,4 @@ app.route("/dav", webdav);
 const relativePath = relative(cwd(), prodPublicPath);
 prodPublicExists && app.use("/*", serveStatic({ root: relativePath }));
 
-export { app };
-
-export default {
-  port: 3000,
-  fetch: app.fetch,
-};
+export default app;
