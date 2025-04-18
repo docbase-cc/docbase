@@ -5,10 +5,11 @@ import { resolve } from "path";
 import { join } from "path";
 import { version } from "~/package.json";
 import { _dirname } from "./src/utils";
+import esbuild from "esbuild";
+import { wasmLoader } from "esbuild-plugin-wasm";
+import { platform } from "os";
 
-const deps: string[] = [
-  // "@prisma/prisma-schema-wasm"
-];
+const deps: string[] = ["@prisma/prisma-schema-wasm"];
 
 spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
   stdio: "inherit",
@@ -18,23 +19,33 @@ spawnSync("bun", ["x", "prisma", "migrate", "dev", "-n", version], {
 });
 
 // 获取prisma的引擎文件
-const basePath = "../../node_modules/.prisma/client";
+const basePath = "../../node_modules/@prisma/engines";
 const files = await readdir(basePath);
-const name = files.find(
-  (i) => i.includes("query_engine") && i.endsWith(".node")
-)!;
-const enginePath = resolve(basePath, name);
+const names = files
+  .filter((i) => i.includes("engine"))
+  .map((i) => ({ name: i, path: resolve(basePath, i) }));
 
 // 并行构建
 await Promise.all([
   Bun.build({
-    entrypoints: ["./src/main.ts", "./src/index.ts"],
+    entrypoints: ["./src/index.ts"],
     external: deps,
     outdir: "./dist",
-    splitting: true,
+    // splitting: true,
     target: "bun",
     sourcemap: "external",
-    minify: true,
+    // minify: true,
+  }),
+  esbuild.build({
+    entryPoints: ["./src/main.ts"],
+    bundle: true,
+    outfile: "./dist/main.js",
+    sourcemap: "external",
+    format: "esm",
+    platform: "node",
+    target: "esnext",
+    external: deps,
+    plugins: [wasmLoader()],
   }),
   await copy("./prisma", "./dist/prisma"),
   import.meta.env.NODE_ENV === "production" &&
@@ -45,7 +56,14 @@ await Promise.all([
       copy(`../../node_modules/${dep}/`, `./dist/node_modules/${dep}/`)
     )
   ),
-  await copy(enginePath, "./dist/query_engine.node"),
+  ...names.map((name) => copy(name.path, join("./dist/", name.name))),
 ]);
 
+spawnSync("bun", [
+  "build",
+  "./docbase.ts",
+  "--outfile",
+  join("./dist", "docbase" + (platform() === "win32" ? ".exe" : "")),
+  "--compile",
+]);
 await copy("dist", "../../dist/main");

@@ -1,5 +1,5 @@
 import { join } from "path";
-import { ensureDir, exists } from "fs-extra";
+import { ensureDir } from "fs-extra";
 import { PackageManager } from "./pkgManager";
 import { DocBase } from "core";
 import { DB } from "./db";
@@ -8,6 +8,7 @@ import { WebDAV } from "./webdav";
 import { fsLayerParams } from "./fs";
 import { env } from "process";
 import { _dirname } from "../utils";
+import { readdir } from "fs-extra";
 export { PackageManager, DB };
 
 // 初始化插件目录
@@ -43,11 +44,21 @@ export const getDB = async () => {
   if (db) {
     return db;
   } else {
-    const enginePath = join(_dirname, "query_engine.node");
-    if (await exists(enginePath)) {
-      console.log("[enginePath] ", enginePath);
-      process.env.PRISMA_QUERY_ENGINE_LIBRARY = enginePath;
+    const res = await readdir(_dirname);
+
+    const query_engine = res.find((i) => i.includes("query_engine"));
+    const schema_engine = res.find((i) => i.includes("schema-engine"));
+
+    if (query_engine) {
+      console.log("[query engine] ", query_engine);
+      process.env.PRISMA_QUERY_ENGINE_LIBRARY = query_engine;
     }
+
+    if (schema_engine) {
+      console.log("[schema engine] ", schema_engine);
+      process.env.PRISMA_SCHEMA_ENGINE_BINARY = schema_engine;
+    }
+
     db = new DB({
       dataDir,
       fileDir,
