@@ -3,4 +3,5 @@ import { execPath } from "process";
 
 const entry = join(dirname(execPath), "main.js");
 const docbase = await import(entry);
-export default docbase.default;
+const out = docbase.default ?? docbase;
+export default out;
