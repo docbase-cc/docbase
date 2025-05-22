@@ -127,7 +127,7 @@ export class DocManager {
       if ((error as Error).message === `Index \`${uid}\` not found.`) {
         console.info(`Index ${uid} not found, creating it...`);
         const task = await this.#client.createIndex(uid, { primaryKey });
-        await this.#client.waitForTask(task.taskUid);
+        await this.#client.tasks.waitForTask(task.taskUid);
         console.info(`Index ${uid} created successfully`);
       } else {
         console.error(`Error retrieving or creating index ${uid}:`, error);
@@ -192,7 +192,7 @@ export class DocManager {
 
         // 获取已有的可筛选属性
         const docIndexFilterableAttributes =
-          await this.#docIndex.getFilterableAttributes();
+          (await this.#docIndex.getFilterableAttributes()) ?? [];
 
         // 需要设置的可筛选的属性
         const docIndexFilterableAttributesNeedCreate = difference(
@@ -211,7 +211,7 @@ export class DocManager {
               ...docIndexFilterableAttributesNeedCreate,
             ],
           });
-          await this.#docIndex.waitForTask(task.taskUid);
+          await this.#docIndex.tasks.waitForTask(task.taskUid);
         }
       })(),
       // 确保 docChunkIndex 存在
@@ -234,7 +234,7 @@ export class DocManager {
   resetEmbedders = async (wait = false) => {
     const task = await this.#docChunkIndex.resetEmbedders();
     if (wait) {
-      const task1 = await this.#docChunkIndex.waitForTask(task.taskUid);
+      const task1 = await this.#docChunkIndex.tasks.waitForTask(task.taskUid);
       return task1.status;
     } else {
       return task.status;
@@ -245,7 +245,7 @@ export class DocManager {
   updateEmbedders = async (embedders: Embedders, wait = false) => {
     const task = await this.#docChunkIndex.updateEmbedders(embedders);
     if (wait) {
-      const task1 = await this.#docChunkIndex.waitForTask(task.taskUid);
+      const task1 = await this.#docChunkIndex.tasks.waitForTask(task.taskUid);
       return task1.status;
     } else {
       return task.status;
@@ -568,11 +568,11 @@ export class DocManager {
     await Promise.all([
       (async () => {
         const task = await this.#docIndex.delete();
-        await this.#client.waitForTask(task.taskUid);
+        await this.#client.tasks.waitForTask(task.taskUid);
       })(),
       (async () => {
         const task = await this.#docChunkIndex.delete();
-        await this.#client.waitForTask(task.taskUid);
+        await this.#client.tasks.waitForTask(task.taskUid);
       })(),
     ]);
   };

@@ -6,23 +6,23 @@
     "build": "bun ./build.ts"
   },
   "devDependencies": {
-    "@hey-api/client-fetch": "^0.10.0",
-    "@hey-api/openapi-ts": "^0.66.4",
+    "@hey-api/client-fetch": "^0.10.1",
+    "@hey-api/openapi-ts": "^0.67.5",
     "@hono/swagger-ui": "^0.5.1",
-    "@hono/zod-openapi": "^0.19.4",
-    "@prisma/client": "^6.6.0",
-    "@prisma/config": "^6.6.0",
-    "@prisma/migrate": "^6.6.0",
+    "@hono/zod-openapi": "^0.19.6",
+    "@prisma/client": "^6.8.2",
+    "@prisma/config": "^6.8.2",
+    "@prisma/migrate": "^6.8.2",
     "chokidar": "^4.0.3",
     "consola": "^3.4.2",
     "core": "workspace:*",
-    "es-toolkit": "^1.34.1",
-    "esbuild": "^0.25.2",
-    "fdir": "^6.4.3",
-    "hono": "^4.7.6",
+    "es-toolkit": "^1.38.0",
+    "esbuild": "^0.25.4",
+    "fdir": "^6.4.4",
+    "hono": "^4.7.10",
     "itertools-ts": "^2.2.0",
-    "meilisearch": "^0.49.0",
+    "meilisearch": "^0.50.0",
     "nypm": "^0.6.0",
-    "prisma": "^6.6.0"
+    "prisma": "^6.8.2"
   }
 }

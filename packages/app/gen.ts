@@ -1,6 +1,6 @@
 import { exists, mkdir, writeFile } from "fs-extra";
 import { createClient } from "@hey-api/openapi-ts";
-import { app } from "./src/main";
+import app from "./src/main";
 import { version, name } from "~/package.json";
 
 // 并行化文件操作

@@ -447,8 +447,12 @@ export type GetV0BaseByKnowledgeIdEmbedderResponses = {
                 mean: number;
                 sigma: number;
             };
-            request: {};
-            response: {};
+            request: {
+                [key: string]: unknown;
+            };
+            response: {
+                [key: string]: unknown;
+            };
             headers?: {
                 [key: string]: string;
             };
@@ -518,8 +522,12 @@ export type PostV0BaseByKnowledgeIdEmbedderData = {
                     mean: number;
                     sigma: number;
                 };
-                request: {};
-                response: {};
+                request: {
+                    [key: string]: unknown;
+                };
+                response: {
+                    [key: string]: unknown;
+                };
                 headers?: {
                     [key: string]: string;
                 };
