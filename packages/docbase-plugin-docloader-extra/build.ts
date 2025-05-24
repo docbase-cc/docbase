@@ -5,6 +5,7 @@ import { write } from "bun";
 Promise.all([
   Bun.build({
     entrypoints: ["./index.ts"],
+    external: ["@llm-tools/embedjs-loader-pdf"],
     outdir: "./dist",
     minify: true,
     sourcemap: "external",

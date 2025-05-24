@@ -1,7 +1,7 @@
 {
   "name": "docbase-plugin-docloader-extra",
   "displayName": "DocBase 额外文档支持",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "DocBase",
   "pluginType": "DocLoader",
   "type": "module",
@@ -30,7 +30,6 @@
     "@llm-tools/embedjs-interfaces": "^0.1.28",
     "@llm-tools/embedjs-loader-csv": "^0.1.28",
     "@llm-tools/embedjs-loader-msoffice": "^0.1.28",
-    "@llm-tools/embedjs-loader-pdf": "^0.1.28",
     "@llm-tools/embedjs-loader-xml": "^0.1.28",
     "core": "workspace:*",
     "itertools-ts": "^2.2.0",
@@ -39,5 +38,8 @@
   },
   "files": [
     "dist/**/*"
-  ]
+  ],
+  "dependencies": {
+    "@llm-tools/embedjs-loader-pdf": "^0.1.28"
+  }
 }
