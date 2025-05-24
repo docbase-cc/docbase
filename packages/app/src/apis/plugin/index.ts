@@ -5,6 +5,35 @@ import { DocBasePlugin } from "core";
 const app = new OpenAPIHono();
 
 // Add a plugin
+const marketPlugin = createRoute({
+  tags: ["plugin"],
+  method: "get",
+  path: "/market",
+  summary: "List market plugin",
+  security: [
+    {
+      Bearer: [],
+    },
+  ],
+  responses: {
+    200: {
+      description: "List plugins in market",
+      content: {
+        "application/json": {
+          schema: z.array(
+            z.object({
+              name: z.string(),
+              pluginType: z.enum(["DocLoader", "DocSplitter"]),
+              version: z.string(),
+            })
+          ),
+        },
+      },
+    },
+  },
+});
+
+// Add a plugin
 const addPlugin = createRoute({
   tags: ["plugin"],
   method: "put",
@@ -165,6 +194,16 @@ const setExt = createRoute({
       },
     },
   },
+});
+
+// List market plugins
+app.openapi(marketPlugin, async (c) => {
+  console.info("Listing market plugins");
+  const res = await fetch(
+    "https://cdn.jsdmirror.com/gh/docbase-cc/plugins/index.json"
+  );
+  const data = await res.json();
+  return c.json(data);
 });
 
 // Install a plugin

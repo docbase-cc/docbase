@@ -135,6 +135,26 @@ export type SearchParam = {
     locales?: Array<string>;
 };
 
+export type GetV0PluginMarketData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/v0/plugin/market';
+};
+
+export type GetV0PluginMarketResponses = {
+    /**
+     * List plugins in market
+     */
+    200: Array<{
+        name: string;
+        pluginType: 'DocLoader' | 'DocSplitter';
+        version: string;
+    }>;
+};
+
+export type GetV0PluginMarketResponse = GetV0PluginMarketResponses[keyof GetV0PluginMarketResponses];
+
 export type DeleteV0PluginData = {
     body?: never;
     path?: never;

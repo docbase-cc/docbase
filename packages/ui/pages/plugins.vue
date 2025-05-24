@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { getV0Plugin, putV0Plugin } from "app/client";
+import { getV0Plugin, putV0Plugin, getV0PluginMarket } from "app/client";
 
 const plugins = ref<
   { name: string; pluginType: string; installed: boolean; loading: boolean }[]
@@ -66,11 +66,14 @@ onMounted(async () => {
     }));
 
   // 发起网络请求获取指定JSON文件内容
-  const res = await fetch(
-    "https://cdn.jsdmirror.com/gh/docbase-cc/plugins/index.json"
-  );
+  const res = await getV0PluginMarket()
 
-  const uninstalledPlugins = (await res.json())
+  if (!res.data) {
+    console.error("未获取到插件市场信息");
+    return;
+  }
+
+  const uninstalledPlugins = res.data
     .map((i: any) => ({
       ...i,
       installed: false,
