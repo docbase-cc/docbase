@@ -5,6 +5,7 @@ import { parseTarGzip } from "nanotar";
 import { writeFile } from "fs-extra";
 import { join } from "path";
 import { spawnSync } from "child_process";
+import { chmodSync } from "fs";
 
 const download = (url: string, path: string) =>
   new Promise(async (resolve, reject) => {
@@ -44,7 +45,7 @@ const download = (url: string, path: string) =>
       }
     } else {
       spawnSync("sh", ["-c", `curl -L ${url} | tar xz -C ${path}`]);
-      spawnSync("sh", ["-c", `chmod +x ${path}/dufs`]);
+      chmodSync(join(path, "dufs"), 0o755);
       resolve(void 0);
     }
   });
