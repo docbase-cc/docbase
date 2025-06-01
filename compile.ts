@@ -2,12 +2,9 @@ import { join } from "path";
 import AdmZip from "adm-zip";
 import { arch, platform } from "os";
 import { ensureDir } from "fs-extra";
-import { downloadDufs } from "utils";
 
 const inputDir = "./dist/main";
 const outDir = "./compile";
-
-await downloadDufs(inputDir);
 
 // 创建 AdmZip 实例
 const zip = new AdmZip();

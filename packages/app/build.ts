@@ -1,4 +1,5 @@
 import { spawnSync } from "child_process";
+import { downloadDufs } from "utils";
 import { copy } from "fs-extra";
 import { readdir } from "fs-extra";
 import { resolve } from "path";
@@ -47,6 +48,7 @@ await Promise.all([
     external: deps,
   }),
   await copy("./prisma", "./dist/prisma"),
+  await downloadDufs("./dist"),
   import.meta.env.NODE_ENV === "production" &&
     (await Bun.spawn(["bun", "x", "--bun", "rollup", "-c"]).exited),
   await copy("client", "../../dist/client"),
