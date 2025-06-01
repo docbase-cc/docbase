@@ -33,7 +33,7 @@
     "@llm-tools/embedjs-loader-xml": "^0.1.28",
     "core": "workspace:*",
     "itertools-ts": "^2.2.0",
-    "zod": "^3.25.20",
+    "zod": "^3.25.46",
     "zod-to-json-schema": "^3.24.5"
   },
   "files": [

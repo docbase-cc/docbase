@@ -380,6 +380,7 @@ export type PutV0BaseData = {
 
 export type PutV0BaseResponses = {
     /**
+     * Base
      * added base
      */
     200: {
@@ -422,6 +423,7 @@ export type GetV0BaseByKnowledgeIdEmbedderData = {
 
 export type GetV0BaseByKnowledgeIdEmbedderResponses = {
     /**
+     * Embedders
      * Embedders
      */
     200: {
@@ -499,6 +501,9 @@ export type GetV0BaseByKnowledgeIdEmbedderResponse = GetV0BaseByKnowledgeIdEmbed
 
 export type PostV0BaseByKnowledgeIdEmbedderData = {
     body?: {
+        /**
+         * Embedders
+         */
         embedders: {
             [key: string]: {
                 source: 'openAi';

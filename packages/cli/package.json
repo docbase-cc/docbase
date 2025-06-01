@@ -6,7 +6,7 @@
     "build": "bun run ./build.ts"
   },
   "devDependencies": {
-    "@inquirer/prompts": "^7.5.1",
+    "@inquirer/prompts": "^7.5.3",
     "@topcli/spinner": "^3.0.0",
     "@types/bun": "latest",
     "citty": "^0.1.6",
