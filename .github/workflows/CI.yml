@@ -167,11 +167,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          name: dist
-          path: dist
+          bun-version: latest
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package.json') }}
+
+      - run: bun install
+
+      - run: cd packages/app && npx -y prisma generate
+
+      - run: bun run build
+        env:
+          NODE_ENV: production
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
