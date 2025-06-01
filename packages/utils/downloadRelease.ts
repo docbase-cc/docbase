@@ -4,40 +4,48 @@ import AdmZip from "adm-zip";
 import { parseTarGzip } from "nanotar";
 import { writeFile } from "fs-extra";
 import { join } from "path";
+import { spawnSync } from "child_process";
 
-const download = async (url: string, path: string) =>
+const download = (url: string, path: string) =>
   new Promise(async (resolve, reject) => {
     let res: Response;
     let data: Buffer;
     console.log("downloading: " + url);
-    try {
-      res = await fetch(url);
-      data = Buffer.from(await res.arrayBuffer());
-    } catch (error) {
-      console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
-      res = await fetch(url.replace("github.com", "bgithub.xyz"));
-      data = Buffer.from(await res.arrayBuffer());
-    }
 
-    if (res.status !== 200) {
-      console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
-      res = await fetch(url.replace("github.com", "bgithub.xyz"));
-      data = Buffer.from(await res.arrayBuffer());
-    }
+    if (platform() === "win32") {
+      try {
+        res = await fetch(url);
+        data = Buffer.from(await res.arrayBuffer());
+      } catch (error) {
+        console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
+        res = await fetch(url.replace("github.com", "bgithub.xyz"));
+        data = Buffer.from(await res.arrayBuffer());
+      }
 
-    if (url.includes(".tar.gz")) {
-      const out = await parseTarGzip(data);
-      const dufs = out.at(0)!;
-      await writeFile(join(path, dufs.name), dufs.data!);
-      resolve(void 0);
+      if (res.status !== 200) {
+        console.warn("github.com 下载失败, 尝试使用 bgithub.xyz 下载");
+        res = await fetch(url.replace("github.com", "bgithub.xyz"));
+        data = Buffer.from(await res.arrayBuffer());
+      }
+
+      if (url.includes(".tar.gz")) {
+        const out = await parseTarGzip(data);
+        const dufs = out.at(0)!;
+        await writeFile(join(path, dufs.name), dufs.data!);
+        resolve(void 0);
+      } else {
+        new AdmZip(data).extractAllToAsync(path, true, true, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(void 0);
+          }
+        });
+      }
     } else {
-      new AdmZip(data).extractAllToAsync(path, true, true, (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(void 0);
-        }
-      });
+      spawnSync("sh", ["-c", `curl -L ${url} | tar xz -C ${path}`]);
+      spawnSync("sh", ["-c", `chmod +x ${path}/dufs`]);
+      resolve(void 0);
     }
   });
 
