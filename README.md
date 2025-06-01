@@ -30,7 +30,6 @@
 - unix(macos & linux): `chmod +x docbase dufs schema-engine-* && ./docbase`
 - windows: `.\docbase.exe`
 
-<!-- 
 ### 使用 Docker
 
 ```
@@ -55,7 +54,7 @@ docker-compose up -d
 
 生产环境请修改`docker-compose.yaml`中以下环境变量
 
-- MEILI_MASTER_KEY: DocBase 的应用密钥 -->
+- MEILI_MASTER_KEY: DocBase 的应用密钥
 
 ## 🤝 贡献
 
