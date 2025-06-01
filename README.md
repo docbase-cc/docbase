@@ -27,6 +27,9 @@
 
 下载最新安装包：https://github.com/docbase-cc/docbase/releases
 
+- unix(macos & linux): `chmod +x docbase dufs schema-engine-* && ./docbase`
+- windows: `./docbase.exe`
+
 <!-- 
 ### 使用 Docker
 
