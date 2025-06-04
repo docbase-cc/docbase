@@ -186,8 +186,6 @@ jobs:
       - run: cd packages/app && npx -y prisma generate
 
       - run: bun run build
-        env:
-          NODE_ENV: production
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
