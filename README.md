@@ -33,7 +33,7 @@
 ### 使用 Docker
 
 ```
-docker run -d -p 3000:3000 -v ./data:/root/.docbase gonorth/docbase:latest
+docker run -d -p 3000:3000 -v ./data:/app/.docbase gonorth/docbase:latest
 ```
 
 ### 使用 Docker Compose
