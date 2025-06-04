@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM oven/bun:debian
 
 # 安装 OpenSSL
 RUN apt update && apt install openssl -y && rm -rf /var/lib/apt/lists/*
