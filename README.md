@@ -70,6 +70,10 @@ docker-compose up -d
 
 本项目采用 [GAPLv3](LICENSE) 许可证。如需许可证外其他用途，请联系 Wechat SOVLOOKUP。
 
+## ☕️ 捐助
+
+![mmexport1760193738022](https://github.com/user-attachments/assets/450d1216-21a4-4207-ace2-854507ee24fd)
+
 <!-- 下一步-->
 
 <!-- TODO 前端界面 -->
